@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: artifacts:DataCollectionLib:unspecified">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/DataCollectionLib/build/.transforms/72d3147770ebe67744e9981ca3fea722/jetified-DataCollection/jars/classes.jar!/" />
+      <root url="file://$PROJECT_DIR$/DataCollectionLib/build/.transforms/72d3147770ebe67744e9981ca3fea722/jetified-DataCollection/res" />
+      <root url="file://$PROJECT_DIR$/DataCollectionLib/build/.transforms/72d3147770ebe67744e9981ca3fea722/jetified-DataCollection/AndroidManifest.xml" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

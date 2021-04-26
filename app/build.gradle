@@ -1,0 +1,62 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion '30.0.3'
+
+    defaultConfig {
+        applicationId 'com.expertek.tradehouse'
+        minSdkVersion 26
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+
+    /*
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            def outputFile = output.outputFile
+            if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                if (variant.buildType.name.equals('release')) {
+                    outputFile = new File(outputFile.parent,
+                            "TradeHouse" + "-release.apk")
+                } else if (variant.buildType.name.equals('debug')) {
+                    outputFile = new File(outputFile.parent,
+                            "TradeHouse" + "-debug.apk")
+                }
+            }
+        }
+    }
+    */
+
+    allprojects {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+        }
+    }
+
+    dependencies {
+        // Honeywell SDK
+        implementation project(":DataCollectionLib")
+
+        // Scan Barcodes with ML Kit on Android. Bundle the model with the app
+        // implementation 'com.google.mlkit:barcode-scanning:16.1.1'
+
+        implementation 'androidx.annotation:annotation:1.2.0'
+        // implementation 'androidx.core:core:1.3.2' // JobIntentService
+        // implementation 'androidx.recyclerview:recyclerview:1.2.0'
+        // implementation 'androidx.cardview:cardview:1.0.0'
+
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_6
+        targetCompatibility JavaVersion.VERSION_1_6
+    }
+}
