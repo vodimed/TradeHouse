@@ -1,7 +1,9 @@
-package com.expertek.tradehouse.exchange;
+package com.expertek.tradehouse.tradehouse;
 
 import com.expertek.tradehouse.MainApplication;
 import com.expertek.tradehouse.R;
+import com.expertek.tradehouse.exchange.ServiceEngine;
+import com.expertek.tradehouse.exchange.ServiceActivity;
 
 public class TradeHouseService extends ServiceEngine {
     @Override
@@ -11,7 +13,7 @@ public class TradeHouseService extends ServiceEngine {
         try {
             /* <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> */
             startForeground(R.string.service_tradehouse, MainApplication.createNotification(
-                    TradeHouseActivity.class,
+                    ServiceActivity.class,
                     R.string.service_tradehouse,
                     R.string.msgTradeHouseServiceNotification));
         } catch (Exception e) {

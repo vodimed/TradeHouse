@@ -1,4 +1,4 @@
-package com.expertek.tradehouse.exchange;
+package com.expertek.tradehouse.tradehouse;
 
 import com.expertek.tradehouse.MainApplication;
 import com.expertek.tradehouse.MainSettings;
@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
-public class TradeHouse_Documents extends TradeHouseTask {
+public class Documents extends TradeHouseTask {
     @Override
     protected void setRequestHeaders() {
         connection.setRequestProperty("Content-Type", "raw");

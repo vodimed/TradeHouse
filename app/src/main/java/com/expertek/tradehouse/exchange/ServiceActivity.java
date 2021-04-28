@@ -9,8 +9,32 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.expertek.tradehouse.R;
+import com.expertek.tradehouse.tradehouse.TradeHouseService;
 
-public class TradeHouseActivity extends Activity {
+/**
+ * Service control center: add the following code to your Serice extends ServiceEngine
+ * (permissions: <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />)
+ * @Override
+ * public void onCreate() {
+ *      super.onCreate();
+ *      try {
+ *          startForeground(R.string.service_tradehouse, MainApplication.createNotification(
+ *              ServiceActivity.class, R.string.trayTitle, R.string.trayMessage);
+ *      } catch (Exception e) {
+ *          e.printStackTrace();
+ *      }
+ * }
+ * @Override
+ * public void onDestroy() {
+ *      try {
+ *          stopForeground(false);
+ *      } catch (Exception e) {
+ *          e.printStackTrace();
+ *      }
+ *      super.onDestroy();
+ * }
+ */
+public class ServiceActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,7 +48,7 @@ public class TradeHouseActivity extends Activity {
         super.onDestroy();
     }
 
-    private final ServiceLink tradehouse = new ServiceLink(this, TradeHouseService.class) {
+    private final ServiceConnector tradehouse = new ServiceConnector(this, TradeHouseService.class) {
         @Override
         public void onServiceResult(@NonNull JobInfo work, @Nullable Bundle result) {
             Log.d("RESULT", "onReceiveResult");

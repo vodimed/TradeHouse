@@ -1,10 +1,11 @@
-package com.expertek.tradehouse.exchange;
+package com.expertek.tradehouse.tradehouse;
 
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
 import com.expertek.tradehouse.MainSettings;
+import com.expertek.tradehouse.exchange.ServiceInterface;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;

@@ -37,18 +37,6 @@ public interface ServiceInterface {
     //void onLogEvent(int priority, String tag, String message) throws RemoteException;
 
     /**
-     * Method Call(): true = result, false = no result; exception = error
-     * Method onCancel(): true = cancellable; false = cancel not supported,
-     * if onCancel() = false, working thread might be force terminated anyway.
-     * Usually onCancel sets volatile boolean flag, checking in Call() method
-     */
-    interface Task extends Callable<Boolean> {
-        void onCreate(@Nullable Bundle params, @Nullable Bundle result) throws Exception;
-        void onDestroy() throws Exception;
-        boolean onCancel();
-    }
-
-    /**
      * JobScheduler-compatible format. Parcelable code is
      * AUTO-GENERATED ("Add Parcelable Implementation")
      */
@@ -128,5 +116,17 @@ public interface ServiceInterface {
             intent.setData(new Uri.Builder().scheme(process.getClassName()).opaquePart("").build());
             return intent;
         }
+    }
+
+    /**
+     * Method Call(): true = result, false = no result; exception = error
+     * Method onCancel(): true = cancellable; false = cancel not supported,
+     * if onCancel() = false, working thread might be force terminated anyway.
+     * Usually onCancel sets volatile boolean flag, checking in Call() method
+     */
+    interface Task extends Callable<Boolean> {
+        void onCreate(@Nullable Bundle params, @Nullable Bundle result) throws Exception;
+        void onDestroy() throws Exception;
+        boolean onCancel();
     }
 }

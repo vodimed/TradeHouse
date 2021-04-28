@@ -15,7 +15,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ServiceLink implements ServiceConnection, ServiceInterface, ServiceInterface.Receiver {
+public abstract class ServiceConnector implements ServiceConnection, ServiceInterface, ServiceInterface.Receiver {
     private final ServiceReceiver delegate = new ServiceReceiver(this);
     private final WeakReference<Context> client;
     private final Class<? extends ServiceEngine> server;
@@ -24,7 +24,7 @@ public abstract class ServiceLink implements ServiceConnection, ServiceInterface
     private int debug_regcounter = 0;
     private int debug_bindcounter = 0;
 
-    public ServiceLink(@NonNull Context client, @NonNull Class<? extends ServiceEngine> server) {
+    public ServiceConnector(@NonNull Context client, @NonNull Class<? extends ServiceEngine> server) {
         super();
         this.client = new WeakReference<Context>(client);
         this.server = server;

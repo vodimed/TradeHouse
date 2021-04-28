@@ -12,11 +12,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.expertek.tradehouse.exchange.ServiceInterface;
-import com.expertek.tradehouse.exchange.ServiceLink;
+import com.expertek.tradehouse.exchange.ServiceConnector;
 import com.expertek.tradehouse.exchange.ServiceReceiver;
-import com.expertek.tradehouse.exchange.TradeHouseService;
-import com.expertek.tradehouse.exchange.TradeHouse_Dictionaries;
-import com.expertek.tradehouse.exchange.TradeHouse_Documents;
+import com.expertek.tradehouse.tradehouse.TradeHouseService;
+import com.expertek.tradehouse.tradehouse.Dictionaries;
+import com.expertek.tradehouse.tradehouse.Documents;
 import com.honeywell.aidc.AidcManager;
 import com.honeywell.aidc.AidcManager.CreatedCallback;
 import com.honeywell.aidc.BarcodeFailureEvent;
@@ -166,7 +166,7 @@ public class MainActivity extends Activity implements BarcodeReader.BarcodeListe
         }
     }
 
-    private final ServiceLink tradehouse = new ServiceLink(this, TradeHouseService.class) {
+    private final ServiceConnector tradehouse = new ServiceConnector(this, TradeHouseService.class) {
         @Override
         public void onServiceResult(@NonNull JobInfo work, Bundle result) {
             Log.d("RESULT", result.toString());
@@ -200,7 +200,7 @@ public class MainActivity extends Activity implements BarcodeReader.BarcodeListe
             final JobInfo.Builder jobInfo = new JobInfo.Builder(jobID, service).setOverrideDeadline(0);
             final Bundle params = new Bundle();
 
-            final Intent intent = new ServiceInterface.JobInfo(jobID, TradeHouse_Settings.class, scheduler.receiver()).asIntent(this, TradeHouseService.class);
+            final Intent intent = new ServiceInterface.JobInfo(jobID, Settings.class, scheduler.receiver()).asIntent(this, TradeHouseService.class);
             intent.replaceExtras(params);
 
             jobInfo.setClipData(new ClipData("", new String[0], new ClipData.Item(intent)), 0);
@@ -213,11 +213,11 @@ public class MainActivity extends Activity implements BarcodeReader.BarcodeListe
         Log.d("JOB", "planned = " + jobList.size() + " & " + jobListClear.size());
         */
 
-        tradehouse.enqueue(new ServiceInterface.JobInfo(1, TradeHouse_Dictionaries.class, tradehouse.receiver()), null);
+        tradehouse.enqueue(new ServiceInterface.JobInfo(1, Dictionaries.class, tradehouse.receiver()), null);
     }
 
     public void doUnbindService(View view) {
         //tradehouse.unregisterService();
-        tradehouse.enqueue(new ServiceInterface.JobInfo(2, TradeHouse_Documents.class, tradehouse.receiver()), null);
+        tradehouse.enqueue(new ServiceInterface.JobInfo(2, Documents.class, tradehouse.receiver()), null);
     }
 }
