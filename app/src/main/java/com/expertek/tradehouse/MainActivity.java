@@ -1,13 +1,6 @@
 package com.expertek.tradehouse;
 
 import android.app.Activity;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.app.job.JobWorkItem;
-import android.content.ClipData;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -22,8 +15,8 @@ import com.expertek.tradehouse.exchange.ServiceInterface;
 import com.expertek.tradehouse.exchange.ServiceLink;
 import com.expertek.tradehouse.exchange.ServiceReceiver;
 import com.expertek.tradehouse.exchange.TradeHouseService;
-import com.expertek.tradehouse.exchange.TradeHouse_Query;
-import com.expertek.tradehouse.exchange.TradeHouse_Sales;
+import com.expertek.tradehouse.exchange.TradeHouse_Dictionaries;
+import com.expertek.tradehouse.exchange.TradeHouse_Documents;
 import com.honeywell.aidc.AidcManager;
 import com.honeywell.aidc.AidcManager.CreatedCallback;
 import com.honeywell.aidc.BarcodeFailureEvent;
@@ -199,14 +192,15 @@ public class MainActivity extends Activity implements BarcodeReader.BarcodeListe
 
     public void doBindService(View view) {
 
+        /*
         final JobScheduler mScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
         final ComponentName service = new ComponentName(this, TradeHouseService.class);
-        for (int jobID = 1; jobID < 0; ++jobID) {
+        for (int jobID = 1; jobID < 0; jobID++) {
 
             final JobInfo.Builder jobInfo = new JobInfo.Builder(jobID, service).setOverrideDeadline(0);
             final Bundle params = new Bundle();
 
-            final Intent intent = new ServiceInterface.JobInfo(jobID, TradeHouse_Sales.class, scheduler.receiver()).asIntent(this, TradeHouseService.class);
+            final Intent intent = new ServiceInterface.JobInfo(jobID, TradeHouse_Settings.class, scheduler.receiver()).asIntent(this, TradeHouseService.class);
             intent.replaceExtras(params);
 
             jobInfo.setClipData(new ClipData("", new String[0], new ClipData.Item(intent)), 0);
@@ -217,12 +211,13 @@ public class MainActivity extends Activity implements BarcodeReader.BarcodeListe
         //mScheduler.cancelAll();
         final List<JobInfo> jobListClear = mScheduler.getAllPendingJobs();
         Log.d("JOB", "planned = " + jobList.size() + " & " + jobListClear.size());
+        */
 
-        tradehouse.enqueue(new ServiceInterface.JobInfo(1, TradeHouse_Sales.class, tradehouse.receiver()), null);
+        tradehouse.enqueue(new ServiceInterface.JobInfo(1, TradeHouse_Dictionaries.class, tradehouse.receiver()), null);
     }
 
     public void doUnbindService(View view) {
         //tradehouse.unregisterService();
-        tradehouse.enqueue(new ServiceInterface.JobInfo(2, TradeHouse_Query.class, tradehouse.receiver()), null);
+        tradehouse.enqueue(new ServiceInterface.JobInfo(2, TradeHouse_Documents.class, tradehouse.receiver()), null);
     }
 }

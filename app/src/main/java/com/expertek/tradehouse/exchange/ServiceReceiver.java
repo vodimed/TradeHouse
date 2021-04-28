@@ -10,6 +10,14 @@ import androidx.annotation.NonNull;
 
 import java.lang.ref.WeakReference;
 
+/**
+ * Needs registration in AndroidManifest.xml file:
+ *
+ * <receiver
+ *     android:name=".exchange.ServiceReceiver"
+ *     android:enabled="true"
+ *     android:exported="false" />
+ */
 public final class ServiceReceiver extends BroadcastReceiver {
     protected final ServiceInterface.Receiver context;
 

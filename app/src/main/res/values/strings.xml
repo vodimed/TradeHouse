@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Терминал сбора данных</string>
+    <string name="service_tradehouse">Сервис обмена с TradeHouse</string>
+    <string name="CHANNEL_ID">tradehouse.notification.service</string>
+    <string name="msgTradeHouseServiceNotification">Открыть менеджер обмена с TradeHouse</string>
+    <string name="errTradeHouseServiceConnection">Не доступен сервис обмена с TradeHouse</string>
+    <string name="uiActions">Задания</string>
+    <string name="uiProtocol">Протокол</string>
+    <string name="uiClose">Закрыть</string>
+
+
+</resources>

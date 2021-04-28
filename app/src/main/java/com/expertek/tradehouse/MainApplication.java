@@ -34,7 +34,7 @@ public class MainApplication extends Application {
     /**
      * Return Application instance on static method manner.
      */
-    public static Application getApplication() {
+    public static Application inst() {
         return app;
     }
 

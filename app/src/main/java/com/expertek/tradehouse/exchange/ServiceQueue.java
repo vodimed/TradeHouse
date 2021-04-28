@@ -8,6 +8,9 @@ import androidx.annotation.Nullable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ServiceQueue implements Runnable {
+    // TODO: run in main thread const setting
+    // TODO: run create/destroy in main thread const setting
+
     private final ConcurrentLinkedQueue<Controller> queue = new ConcurrentLinkedQueue<Controller>();
     private volatile Controller controller = null; // ThreadLocal does not support access from another thread
     private volatile Thread processor = null;
@@ -41,6 +44,7 @@ public class ServiceQueue implements Runnable {
         }
 
         if (thiscode() != code) return;
+        // TODO: cancelable
         processor.interrupt(); // Kill all
         create();
     }
@@ -68,7 +72,7 @@ public class ServiceQueue implements Runnable {
 
     @Override
     public synchronized void run() {
-        for (int i = 0; i < 2; ++i) {
+        for (int i = 0; i < 2; i++) {
             while (!cancelled) {
                 controller = queue.poll();
                 if (controller == null) break;
@@ -121,14 +125,14 @@ public class ServiceQueue implements Runnable {
             while (stage < 3) try {
                 switch (stage) {
                     case 0:
-                        ++stage;
+                        stage++;
                         task.onCreate(params, result);
                         provided = task.call();
                     case 1:
-                        ++stage;
+                        stage++;
                         task.onDestroy();
                     case 2:
-                        ++stage;
+                        stage++;
                         if (provided) receiver.onServiceResult(work, result);
                 }
             } catch (InterruptedException e) {

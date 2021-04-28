@@ -113,7 +113,7 @@ public abstract class ServiceLink implements ServiceConnection, ServiceInterface
 
     public void registerService(boolean binding) {
         final Context context = client.get();
-        ++debug_regcounter;
+        debug_regcounter++;
 
         if (context != null) {
             delegate.registerReceiver();
@@ -123,7 +123,7 @@ public abstract class ServiceLink implements ServiceConnection, ServiceInterface
 
     protected boolean bindService(int flags) {
         final Context context = client.get();
-        ++debug_bindcounter;
+        debug_bindcounter++;
 
         if (context != null && !bound) {
             final Intent intent = new Intent(server.getName(), null, context, server);
@@ -134,7 +134,7 @@ public abstract class ServiceLink implements ServiceConnection, ServiceInterface
 
     protected void unbindService() {
         final Context context = client.get();
-        --debug_bindcounter;
+        debug_bindcounter--;
 
         if (context != null && bound) {
             context.unbindService(this);
@@ -145,7 +145,7 @@ public abstract class ServiceLink implements ServiceConnection, ServiceInterface
 
     public void unregisterService() {
         final Context context = client.get();
-        --debug_regcounter;
+        debug_regcounter--;
 
         if (context != null) {
             if (bound) unbindService();
