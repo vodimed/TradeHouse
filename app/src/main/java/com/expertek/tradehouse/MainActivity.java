@@ -11,12 +11,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.expertek.tradehouse.exchange.ServiceInterface;
+import com.expertek.tradehouse.dictionaries.entity.Objects;
 import com.expertek.tradehouse.exchange.ServiceConnector;
+import com.expertek.tradehouse.exchange.ServiceInterface;
 import com.expertek.tradehouse.exchange.ServiceReceiver;
-import com.expertek.tradehouse.tradehouse.TradeHouseService;
 import com.expertek.tradehouse.tradehouse.Dictionaries;
 import com.expertek.tradehouse.tradehouse.Documents;
+import com.expertek.tradehouse.tradehouse.TradeHouseService;
 import com.honeywell.aidc.AidcManager;
 import com.honeywell.aidc.AidcManager.CreatedCallback;
 import com.honeywell.aidc.BarcodeFailureEvent;
@@ -42,7 +43,7 @@ public class MainActivity extends Activity implements BarcodeReader.BarcodeListe
         setContentView(R.layout.activity_main);
 
         // Retrieve activity graphical controls
-        barcodeList = (ListView) findViewById(R.id.listViewBarcodeData);
+        barcodeList = findViewById(R.id.listViewBarcodeData);
 
         // Get new AidcManager
         AidcManager.create(this.getApplicationContext(), new CreatedCallback() {
@@ -56,6 +57,18 @@ public class MainActivity extends Activity implements BarcodeReader.BarcodeListe
         });
 
         tradehouse.registerService(false);
+
+        //TODO: database
+        Objects ob = new Objects();
+        ob.Name = "bbb";
+        ob.obj_code = 2;
+        ob.obj_type = 2;
+        ob.uid = 2;
+        MainApplication.dbc().tObjects().insertAll(ob);
+        List<Objects> ls = MainApplication.dbc().tObjects().getAll();
+        int sz = ls.size();
+
+        //MainApplication.dbct().isOpen()
     }
 
     private boolean createBarcodeReaderConnection() {

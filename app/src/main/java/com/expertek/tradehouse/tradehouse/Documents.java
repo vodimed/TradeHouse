@@ -17,7 +17,7 @@ public class Documents extends TradeHouseTask {
 
     @Override
     public Boolean call() throws Exception {
-        final File documents = MainApplication.inst().getDatabasePath(MainSettings.DocumentsDB);
+        final File documents = MainApplication.app().getDatabasePath(MainSettings.Documents_db);
 
         if (!cancelled) {
             connection.connect();

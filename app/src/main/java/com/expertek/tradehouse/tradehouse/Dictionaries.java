@@ -10,7 +10,7 @@ import java.net.HttpURLConnection;
 public class Dictionaries extends TradeHouseTask {
     @Override
     public Boolean call() throws Exception {
-        final File dictionaries = MainApplication.inst().getDatabasePath(MainSettings.DictionariesDB);
+        final File dictionaries = MainApplication.app().getDatabasePath(MainSettings.Dictionaries_db);
 
         if (!cancelled) {
             connection.connect();

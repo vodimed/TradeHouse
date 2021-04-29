@@ -18,7 +18,7 @@ public final class HandleException {
     }
 
     public static void accept(Exception e, @StringRes int id) {
-        accept(e, MainApplication.inst().getResources().getString(id));
+        accept(e, MainApplication.app().getResources().getString(id));
     }
 
     public static void accept(Exception e, String msg) {

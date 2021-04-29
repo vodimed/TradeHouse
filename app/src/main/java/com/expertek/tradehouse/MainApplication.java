@@ -8,41 +8,71 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
+import androidx.room.RoomDatabase;
+
+import com.expertek.tradehouse.database.Database;
+import com.expertek.tradehouse.dictionaries.DbDictionaries;
+import com.expertek.tradehouse.dictionaries.DbDictionaries_v1;
+import com.expertek.tradehouse.documents.DBDocuments;
+import com.expertek.tradehouse.documents.DBDocuments_v1;
+
+import java.io.File;
 
 public class MainApplication extends Application {
     private static Application app;
+    private static Database<DbDictionaries> dictionaries;
+    private static Database<DBDocuments> documents;
+
+    // Return Application instance on static method manner.
+    public static Application app() {
+        return app;
+    }
 
     public MainApplication() {
         super();
         app = this;
+        dictionaries = new Database<DbDictionaries>(this);
+        documents = new Database<DBDocuments>(this);
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
         createNotificationChannel();
+        dictionaries.create(DbDictionaries_v1.class, MainSettings.Dictionaries_db);
+        documents.create(DBDocuments_v1.class, MainSettings.Documents_db);
 
         //app.getApplicationContext().openOrCreateDatabase();
         //ActivityManager.killBackgroundProcesses(Service)
         //ActivityManager.AppTask
     }
 
-    /**
-     * Return Application instance on static method manner.
-     */
-    public static Application inst() {
-        return app;
+    // Return DbDictionaries instance
+    public static DbDictionaries dbc() {
+        return dictionaries.db();
     }
 
-    /**
-     * Return Application settings and preferences.
-     */
-    public static SharedPreferences getPreferences(int mode) {
-        return app.getSharedPreferences(app.getPackageName(), mode);
+    // Return DBDocuments instance
+    public static DBDocuments dbd() {
+        return documents.db();
+    }
+
+    // Replace DbDictionaries database file with new one (as a whole)
+    public static <E extends RoomDatabase & DbDictionaries> boolean replace_dictionaries_db_file(
+            @NonNull Class<E> version, @NonNull File source)
+    {
+        return dictionaries.replace(version, source);
+    }
+
+    // Replace DBDocuments database file with new one (as a whole)
+    public static <E extends RoomDatabase & DBDocuments> boolean replace_documents_db_file(
+            @NonNull Class<E> version, @NonNull File source)
+    {
+        return documents.replace(version, source);
     }
 
     /**
