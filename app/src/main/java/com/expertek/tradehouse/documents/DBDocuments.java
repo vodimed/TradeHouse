@@ -2,9 +2,7 @@ package com.expertek.tradehouse.documents;
 
 import androidx.room.migration.Migration;
 
-import com.expertek.tradehouse.database.BaseFace;
-
-public interface DBDocuments extends BaseFace {
+public interface DBDocuments {
     TDocuments tDocuments();
     TLines tLines();
     TMarklines tMarklines();

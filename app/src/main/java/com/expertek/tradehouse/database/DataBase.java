@@ -16,9 +16,19 @@ import java.lang.ref.WeakReference;
  *     ...
  *     dictionaries.create(DbDictionaries_v1.class, "dictionaries");
  *     documents.create(DBDocuments_v1.class, "documents");
- * @param <DbInterface>
+ *
+ * Create interface to your room-database class,
+ * describing DAO methods, based on this interface:
+ *     public interface DBDocuments {
+ *         // Describe your DAO methods here
+ *     }
+ *     public abstract class DBDocuments_v1 extends
+ *         RoomDatabase implements DBDocuments
+ *     {
+ *         // No DAO descriptions here anymore
+ *     }
  */
-public class DataBase<DbInterface extends BaseFace> {
+public class DataBase<DbInterface> {
     private final WeakReference<Context> context;
     private final Migration[] migrations;
     private DbInterface instance = null;

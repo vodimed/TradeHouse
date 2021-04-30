@@ -2,9 +2,7 @@ package com.expertek.tradehouse.dictionaries;
 
 import androidx.room.migration.Migration;
 
-import com.expertek.tradehouse.database.BaseFace;
-
-public interface DbDictionaries extends BaseFace {
+public interface DbDictionaries {
     TBarcodes tBarcodes();
     TClients tClients();
     TGoods tGoods();
