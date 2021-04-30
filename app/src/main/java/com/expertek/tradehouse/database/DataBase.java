@@ -9,13 +9,22 @@ import androidx.room.migration.Migration;
 import java.io.File;
 import java.lang.ref.WeakReference;
 
-public class Database<DbInterface extends Baseface> {
+/**
+ * Connector to your database. Usage example:
+ *     private static DataBase<DbDictionaries> dictionaries;
+ *     private static DataBase<DBDocuments> documents;
+ *     ...
+ *     dictionaries.create(DbDictionaries_v1.class, "dictionaries");
+ *     documents.create(DBDocuments_v1.class, "documents");
+ * @param <DbInterface>
+ */
+public class DataBase<DbInterface extends BaseFace> {
     private final WeakReference<Context> context;
     private final Migration[] migrations;
     private DbInterface instance = null;
     private String filename = null;
 
-    public Database(Context context, @NonNull Migration... migrations) {
+    public DataBase(Context context, @NonNull Migration... migrations) {
         this.context = new WeakReference<Context>(context);
         this.migrations = migrations;
     }
@@ -30,11 +39,12 @@ public class Database<DbInterface extends Baseface> {
         if (instance != null) ((RoomDatabase)instance).close();
     }
 
-    @SuppressWarnings("unchecked") // Because "<E extends RoomDatabase & DbInterface>" does not allowed in java
-    public <E extends RoomDatabase & Baseface> boolean create(@NonNull Class<E> version, @NonNull String name) {
+    @SuppressWarnings("unchecked") // "<E extends RoomDatabase & DbInterface>" does not allowed in java
+    public boolean create(@NonNull Class<? extends DbInterface> version, @NonNull String name) {
         try {
             close();
-            instance = (DbInterface)androidx.room.Room.databaseBuilder(context.get(), version, name)
+            instance = (DbInterface)androidx.room.Room.databaseBuilder(
+                    context.get(), version.asSubclass(RoomDatabase.class), name)
                     .allowMainThreadQueries().enableMultiInstanceInvalidation()
                     .addMigrations(migrations)
                     .build();
@@ -46,12 +56,12 @@ public class Database<DbInterface extends Baseface> {
         }
     }
 
-    public <E extends RoomDatabase & Baseface> boolean replace(@NonNull Class<E> version, @NonNull File source) {
+    public boolean replace(@NonNull Class<? extends DbInterface> version, @NonNull File source) {
         final Context local = context.get();
         final File current = local.getDatabasePath(filename);
         final File obsolete = local.getDatabasePath(filename + ".bak");
 
-        if (obsolete.exists()) try{
+        if (obsolete.exists()) try {
             if (!obsolete.delete()) throw new SecurityException();
         } catch (SecurityException e) {
             e.printStackTrace();

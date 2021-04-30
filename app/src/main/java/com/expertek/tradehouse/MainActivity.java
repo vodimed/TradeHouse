@@ -64,9 +64,10 @@ public class MainActivity extends Activity implements BarcodeReader.BarcodeListe
         ob.obj_code = 2;
         ob.obj_type = 2;
         ob.uid = 2;
-        MainApplication.dbc().tObjects().insertAll(ob);
+        //MainApplication.dbc().tObjects().insertAll(ob);
         List<Objects> ls = MainApplication.dbc().tObjects().getAll();
         int sz = ls.size();
+        System.out.println("LIST SIZE: " + sz);
 
         //MainApplication.dbct().isOpen()
     }

@@ -14,7 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.room.RoomDatabase;
 
-import com.expertek.tradehouse.database.Database;
+import com.expertek.tradehouse.database.DataBase;
 import com.expertek.tradehouse.dictionaries.DbDictionaries;
 import com.expertek.tradehouse.dictionaries.DbDictionaries_v1;
 import com.expertek.tradehouse.documents.DBDocuments;
@@ -24,8 +24,8 @@ import java.io.File;
 
 public class MainApplication extends Application {
     private static Application app;
-    private static Database<DbDictionaries> dictionaries;
-    private static Database<DBDocuments> documents;
+    private static DataBase<DbDictionaries> dictionaries;
+    private static DataBase<DBDocuments> documents;
 
     // Return Application instance on static method manner.
     public static Application app() {
@@ -35,8 +35,8 @@ public class MainApplication extends Application {
     public MainApplication() {
         super();
         app = this;
-        dictionaries = new Database<DbDictionaries>(this);
-        documents = new Database<DBDocuments>(this);
+        dictionaries = new DataBase<DbDictionaries>(this, DbDictionaries.migrations);
+        documents = new DataBase<DBDocuments>(this, DBDocuments.migrations);
     }
 
     @Override
@@ -46,9 +46,7 @@ public class MainApplication extends Application {
         dictionaries.create(DbDictionaries_v1.class, MainSettings.Dictionaries_db);
         documents.create(DBDocuments_v1.class, MainSettings.Documents_db);
 
-        //app.getApplicationContext().openOrCreateDatabase();
-        //ActivityManager.killBackgroundProcesses(Service)
-        //ActivityManager.AppTask
+        //ActivityManager.killBackgroundProcesses(Service); ActivityManager.AppTask
     }
 
     // Return DbDictionaries instance
