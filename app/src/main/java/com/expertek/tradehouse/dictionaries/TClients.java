@@ -14,7 +14,7 @@ public interface TClients {
     @Query("SELECT * FROM TH_clients")
     List<Clients> getAll();
 
-    @Query("SELECT * FROM TH_clients WHERE uid IN (:objIds)")
+    @Query("SELECT * FROM TH_clients WHERE cli_code IN (:objIds)")
     List<Clients> loadAllByIds(int[] objIds);
 
     //@Query("SELECT * FROM TH_clients WHERE first_name LIKE :first AND " +

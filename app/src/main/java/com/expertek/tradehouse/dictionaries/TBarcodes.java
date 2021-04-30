@@ -14,8 +14,8 @@ public interface TBarcodes {
     @Query("SELECT * FROM TH_barcodes")
     List<Barcodes> getAll();
 
-    @Query("SELECT * FROM TH_barcodes WHERE uid IN (:objIds)")
-    List<Barcodes> loadAllByIds(int[] objIds);
+    @Query("SELECT * FROM TH_barcodes WHERE BC IN (:objIds)")
+    List<Barcodes> loadAllByIds(String[] objIds);
 
     //@Query("SELECT * FROM TH_barcodes WHERE first_name LIKE :first AND " +
     //        "last_name LIKE :last LIMIT 1")

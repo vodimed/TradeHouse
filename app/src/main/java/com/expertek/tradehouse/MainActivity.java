@@ -11,7 +11,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.expertek.tradehouse.dictionaries.entity.Objects;
 import com.expertek.tradehouse.exchange.ServiceConnector;
 import com.expertek.tradehouse.exchange.ServiceInterface;
 import com.expertek.tradehouse.exchange.ServiceReceiver;
@@ -59,15 +58,6 @@ public class MainActivity extends Activity implements BarcodeReader.BarcodeListe
         tradehouse.registerService(false);
 
         //TODO: database
-        Objects ob = new Objects();
-        ob.Name = "bbb";
-        ob.obj_code = 2;
-        ob.obj_type = 2;
-        ob.uid = 2;
-        //MainApplication.dbc().tObjects().insertAll(ob);
-        List<Objects> ls = MainApplication.dbc().tObjects().getAll();
-        int sz = ls.size();
-        System.out.println("LIST SIZE: " + sz);
 
         //MainApplication.dbct().isOpen()
     }

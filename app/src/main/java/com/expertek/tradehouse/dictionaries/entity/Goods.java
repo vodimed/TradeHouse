@@ -1,5 +1,6 @@
 package com.expertek.tradehouse.dictionaries.entity;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -7,32 +8,31 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "TH_goods")
 public class Goods {
     @PrimaryKey
-    public int uid;
-
     @ColumnInfo(name = "GoodsID")
+    @NonNull
     public int GoodsID; // идентификатор товара из TH
 
     @ColumnInfo(name = "Name")
     public String Name; // название
 
     @ColumnInfo(name = "UnitBase")
-    public int UnitBase; // основная ед. изм.
+    public String UnitBase; // основная ед. изм.
 
     @ColumnInfo(name = "PriceBase")
-    public float PriceBase; // не используется
+    public double PriceBase; // не используется
 
     @ColumnInfo(name = "VAT")
-    public int VAT; // не используется
+    public double VAT; // не используется
 
     @ColumnInfo(name = "Country")
     public String Country; // страна
 
     @ColumnInfo(name = "Struct")
-    public int Struct; // не используется
+    public String Struct; // не используется
 
     @ColumnInfo(name = "FactQnty")
-    public int FactQnty; // остатки фактическое кол-во
+    public double FactQnty; // остатки фактическое кол-во
 
     @ColumnInfo(name = "FreeQnty")
-    public int FreeQnty; // остатки свободное кол-во
+    public double FreeQnty; // остатки свободное кол-во
 }

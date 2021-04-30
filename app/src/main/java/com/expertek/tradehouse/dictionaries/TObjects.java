@@ -14,7 +14,7 @@ public interface TObjects {
     @Query("SELECT * FROM TH_objects")
     List<Objects> getAll();
 
-    @Query("SELECT * FROM TH_objects WHERE uid IN (:objIds)")
+    @Query("SELECT * FROM TH_objects WHERE obj_code IN (:objIds)")
     List<Objects> loadAllByIds(int[] objIds);
 
     //@Query("SELECT * FROM TH_objects WHERE first_name LIKE :first AND " +

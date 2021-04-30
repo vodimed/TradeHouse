@@ -14,7 +14,7 @@ public interface TGoods {
     @Query("SELECT * FROM TH_goods")
     List<Goods> getAll();
 
-    @Query("SELECT * FROM TH_goods WHERE uid IN (:objIds)")
+    @Query("SELECT * FROM TH_goods WHERE GoodsID IN (:objIds)")
     List<Goods> loadAllByIds(int[] objIds);
 
     //@Query("SELECT * FROM TH_goods WHERE first_name LIKE :first AND " +

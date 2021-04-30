@@ -14,8 +14,8 @@ public interface TUsers {
     @Query("SELECT * FROM TH_users")
     List<Users> getAll();
 
-    @Query("SELECT * FROM TH_users WHERE uid IN (:objIds)")
-    List<Users> loadAllByIds(int[] objIds);
+    @Query("SELECT * FROM TH_users WHERE userID IN (:objIds)")
+    List<Users> loadAllByIds(String[] objIds);
 
     //@Query("SELECT * FROM TH_users WHERE first_name LIKE :first AND " +
     //        "last_name LIKE :last LIMIT 1")
