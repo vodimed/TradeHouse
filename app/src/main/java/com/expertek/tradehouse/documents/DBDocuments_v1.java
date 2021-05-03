@@ -16,7 +16,8 @@ import com.expertek.tradehouse.documents.entity.Marklines;
 @TypeConverters({TypeConv.class})
 @Database(version = 1, exportSchema = false,
         entities = {Documents.class, Lines.class, Marklines.class}, autoMigrations = {
-        @AutoMigration(from = 0, to = 1, spec = DBDocuments_v1.AutoMigration.class)
+        @AutoMigration(from = 0, to = 1, spec = DBDocuments_v1.AutoMigration.class),
+        @AutoMigration(from = 1, to = 0, spec = DBDocuments_v1.AutoMigration.class)
 })
 public abstract class DBDocuments_v1 extends DataEngine implements DBDocuments {
 
