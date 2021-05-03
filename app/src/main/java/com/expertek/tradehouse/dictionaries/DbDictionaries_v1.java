@@ -35,6 +35,7 @@ public abstract class DbDictionaries_v1 extends DataEngine implements DbDictiona
         }
     };
 
+    // https://developer.android.com/reference/androidx/room/AutoMigration
     // https://medium.com/androiddevelopers/room-auto-migrations-d5370b0ca6eb
     static class AutoMigration implements AutoMigrationSpec {
         @Override

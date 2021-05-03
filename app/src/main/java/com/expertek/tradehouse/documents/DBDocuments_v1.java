@@ -33,6 +33,7 @@ public abstract class DBDocuments_v1 extends DataEngine implements DBDocuments {
         }
     };
 
+    // https://developer.android.com/reference/androidx/room/AutoMigration
     // https://medium.com/androiddevelopers/room-auto-migrations-d5370b0ca6eb
     static class AutoMigration implements AutoMigrationSpec {
         @Override
