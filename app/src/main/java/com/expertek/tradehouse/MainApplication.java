@@ -12,9 +12,9 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
-import androidx.room.RoomDatabase;
 
 import com.expertek.tradehouse.database.DataBase;
+import com.expertek.tradehouse.database.DataEngine;
 import com.expertek.tradehouse.dictionaries.DbDictionaries;
 import com.expertek.tradehouse.dictionaries.DbDictionaries_v1;
 import com.expertek.tradehouse.documents.DBDocuments;
@@ -59,15 +59,27 @@ public class MainApplication extends Application {
         return documents.db();
     }
 
+    // Return DataEngine to replace or close database
+    @SuppressWarnings("unchecked") // Avoid using this method
+    public static <DbInterface> DataBase<DbInterface> getDbEngine(DbInterface db) {
+        if (dictionaries.db().equals(db)) {
+            return (DataBase<DbInterface>) dictionaries;
+        } else if (documents.db().equals(db)) {
+            return (DataBase<DbInterface>) documents;
+        } else {
+            throw new IllegalArgumentException("No such database");
+        }
+    }
+
     // Replace DbDictionaries database file with new one (as a whole)
-    public static <E extends RoomDatabase & DbDictionaries> boolean replace_dictionaries_db_file(
+    public static <E extends DataEngine & DbDictionaries> boolean replace_dictionaries_db_file(
             @NonNull Class<E> version, @NonNull File source)
     {
         return dictionaries.replace(version, source);
     }
 
     // Replace DBDocuments database file with new one (as a whole)
-    public static <E extends RoomDatabase & DBDocuments> boolean replace_documents_db_file(
+    public static <E extends DataEngine & DBDocuments> boolean replace_documents_db_file(
             @NonNull Class<E> version, @NonNull File source)
     {
         return documents.replace(version, source);

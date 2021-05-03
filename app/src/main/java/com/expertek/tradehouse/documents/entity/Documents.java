@@ -5,7 +5,7 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import com.expertek.tradehouse.database.DateTime;
+import java.util.Date;
 
 @Entity(tableName = "MT_documents")
 public class Documents {
@@ -46,7 +46,7 @@ public class Documents {
 
     @ColumnInfo(name = "StartDate")
     //@TypeConverters({DateTime.RoomConverter.class}) -- moved to database definition
-    public DateTime StartDate; // Дата документа
+    public Date StartDate; // Дата документа
 
     @ColumnInfo(name = "Flags")
     public int Flags; // Битовый флаги означающие различные свойства документа в формате int

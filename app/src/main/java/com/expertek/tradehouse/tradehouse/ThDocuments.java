@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
-public class Documents extends TradeHouseTask {
+public class ThDocuments extends TradeHouseTask {
     @Override
     protected void setRequestHeaders() {
         connection.setRequestProperty("Content-Type", "raw");

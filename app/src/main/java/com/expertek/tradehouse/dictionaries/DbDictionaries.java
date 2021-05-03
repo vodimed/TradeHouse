@@ -1,15 +1,15 @@
 package com.expertek.tradehouse.dictionaries;
 
-import androidx.room.migration.Migration;
+import com.expertek.tradehouse.database.DataMigration;
 
 public interface DbDictionaries {
-    TBarcodes tBarcodes();
-    TClients tClients();
-    TGoods tGoods();
-    TObjects tObjects();
-    TUsers tUsers();
+    TBarcodes barcodes();
+    TClients clients();
+    TGoods goods();
+    TObjects objects();
+    TUsers users();
 
-    Migration[] migrations = {
+    DataMigration[] migrations = {
             DbDictionaries_v1.upgradeFrom_0,
             DbDictionaries_v1.downgradeTo_0
     };

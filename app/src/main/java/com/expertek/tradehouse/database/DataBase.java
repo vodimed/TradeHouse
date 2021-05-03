@@ -3,8 +3,6 @@ package com.expertek.tradehouse.database;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.room.RoomDatabase;
-import androidx.room.migration.Migration;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -23,18 +21,18 @@ import java.lang.ref.WeakReference;
  *         // Describe your DAO methods here
  *     }
  *     public abstract class DBDocuments_v1 extends
- *         RoomDatabase implements DBDocuments
+ *         DataEngine[RoomDatabase] implements DBDocuments
  *     {
  *         // No DAO descriptions here anymore
  *     }
  */
 public class DataBase<DbInterface> {
     private final WeakReference<Context> context;
-    private final Migration[] migrations;
+    private final DataMigration[] migrations;
     private DbInterface instance = null;
     private String filename = null;
 
-    public DataBase(Context context, @NonNull Migration... migrations) {
+    public DataBase(Context context, @NonNull DataMigration... migrations) {
         this.context = new WeakReference<Context>(context);
         this.migrations = migrations;
     }
@@ -46,15 +44,15 @@ public class DataBase<DbInterface> {
     }
 
     public void close() {
-        if (instance != null) ((RoomDatabase)instance).close();
+        if (instance != null) ((DataEngine)instance).close();
     }
 
     @SuppressWarnings("unchecked") // "<E extends RoomDatabase & DbInterface>" does not allowed in java
     public boolean create(@NonNull Class<? extends DbInterface> version, @NonNull String name) {
         try {
             close();
-            instance = (DbInterface)androidx.room.Room.databaseBuilder(
-                    context.get(), version.asSubclass(RoomDatabase.class), name)
+            instance = (DbInterface) DataEngine.databaseBuilder(
+                    context.get(), version.asSubclass(DataEngine.class), name)
                     .allowMainThreadQueries().enableMultiInstanceInvalidation()
                     .addMigrations(migrations)
                     .build();

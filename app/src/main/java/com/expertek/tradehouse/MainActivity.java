@@ -11,11 +11,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.expertek.tradehouse.dictionaries.entity.Objects;
+import com.expertek.tradehouse.documents.entity.Documents;
+import com.expertek.tradehouse.documents.entity.Lines;
 import com.expertek.tradehouse.exchange.ServiceConnector;
 import com.expertek.tradehouse.exchange.ServiceInterface;
 import com.expertek.tradehouse.exchange.ServiceReceiver;
-import com.expertek.tradehouse.tradehouse.Dictionaries;
-import com.expertek.tradehouse.tradehouse.Documents;
+import com.expertek.tradehouse.tradehouse.ThDictionaries;
+import com.expertek.tradehouse.tradehouse.ThDocuments;
 import com.expertek.tradehouse.tradehouse.TradeHouseService;
 import com.honeywell.aidc.AidcManager;
 import com.honeywell.aidc.AidcManager.CreatedCallback;
@@ -27,6 +30,7 @@ import com.honeywell.aidc.ScannerUnavailableException;
 import com.honeywell.aidc.UnsupportedPropertyException;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,8 +62,35 @@ public class MainActivity extends Activity implements BarcodeReader.BarcodeListe
         tradehouse.registerService(false);
 
         //TODO: database
+        try {
+            Objects ob = new Objects();
+            ob.Name = "aaa";
+            ob.obj_code = 1;
+            ob.obj_type = "1";
+            MainApplication.dbc().objects().insertAll(ob);
+            List<Objects> ls = MainApplication.dbc().objects().getAll();
+            int sz = ls.size();
+            System.out.println("LIST SIZE: " + sz);
 
-        //MainApplication.dbct().isOpen()
+            Documents dc = new Documents();
+            dc.DocName = "aaa";
+            dc.DocType = "aaa";
+            dc.StartDate = Calendar.getInstance().getTime();
+            MainApplication.dbd().documents().insertAll(dc);
+            System.out.println("LIST SIZE: " + MainApplication.dbd().documents().getAll().size());
+
+            Lines ln = new Lines();
+            ln.LineID = 1;
+            ln.DocName = "aaa";
+            ln.BC = "aaa";
+            MainApplication.dbd().lines().insertAll(ln);
+            System.out.println("LIST SIZE: " + MainApplication.dbd().lines().getAll().size());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            MainApplication.getDbEngine(MainApplication.dbc()).close();
+            MainApplication.getDbEngine(MainApplication.dbd()).close();
+        }
     }
 
     private boolean createBarcodeReaderConnection() {
@@ -204,7 +235,7 @@ public class MainActivity extends Activity implements BarcodeReader.BarcodeListe
             final JobInfo.Builder jobInfo = new JobInfo.Builder(jobID, service).setOverrideDeadline(0);
             final Bundle params = new Bundle();
 
-            final Intent intent = new ServiceInterface.JobInfo(jobID, Settings.class, scheduler.receiver()).asIntent(this, TradeHouseService.class);
+            final Intent intent = new ServiceInterface.JobInfo(jobID, ThSettings.class, scheduler.receiver()).asIntent(this, TradeHouseService.class);
             intent.replaceExtras(params);
 
             jobInfo.setClipData(new ClipData("", new String[0], new ClipData.Item(intent)), 0);
@@ -217,11 +248,11 @@ public class MainActivity extends Activity implements BarcodeReader.BarcodeListe
         Log.d("JOB", "planned = " + jobList.size() + " & " + jobListClear.size());
         */
 
-        tradehouse.enqueue(new ServiceInterface.JobInfo(1, Dictionaries.class, tradehouse.receiver()), null);
+        tradehouse.enqueue(new ServiceInterface.JobInfo(1, ThDictionaries.class, tradehouse.receiver()), null);
     }
 
     public void doUnbindService(View view) {
         //tradehouse.unregisterService();
-        tradehouse.enqueue(new ServiceInterface.JobInfo(2, Documents.class, tradehouse.receiver()), null);
+        tradehouse.enqueue(new ServiceInterface.JobInfo(2, ThDocuments.class, tradehouse.receiver()), null);
     }
 }
