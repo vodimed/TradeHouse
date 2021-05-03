@@ -3,9 +3,17 @@ package com.expertek.tradehouse.documents.entity;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "MT_lines")
+@Entity(tableName = "MT_lines", indices = {
+        @Index(name = "lDocNPart",      value = {"DocName", "PartIDTH"}),
+        @Index(name = "lDocName",       value = {"DocName"}), // redundant
+        @Index(name = "lDocNameAlc",    value = {"DocName", "AlcCode"}),
+        @Index(name = "lDocNameBC",     value = {"DocName", "BC"}),
+        @Index(name = "lDocNameGdsUnit",value = {"DocName", "GoodsID", "UnitBC"}),
+        @Index(name = "lLine",          value = {"LineID"}, unique = true)
+})
 public class Lines {
     @PrimaryKey
     @ColumnInfo(name = "LineID")

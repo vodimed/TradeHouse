@@ -3,11 +3,14 @@ package com.expertek.tradehouse.documents.entity;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import java.util.Date;
 
-@Entity(tableName = "MT_documents")
+@Entity(tableName = "MT_documents", indices = {
+        @Index(name = "docNameDoc",     value = {"DocName", "DocType"}, unique = true)
+})
 public class Documents {
     @PrimaryKey
     @ColumnInfo(name = "DocName")
