@@ -4,6 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.room.RoomDatabase;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 /**
  * Adapter to your database. Usage example:
@@ -29,5 +30,24 @@ public abstract class DataEngine extends RoomDatabase {
             @NonNull Context context, @NonNull Class<T> klass, @NonNull String name)
     {
         return androidx.room.Room.databaseBuilder(context, klass, name);
+    }
+
+    /**
+     * Adapter to Migration classes. Either use auto-migrations,
+     * or inherit your own migration classes from this class
+     */
+    public abstract static class Migration extends androidx.room.migration.Migration {
+        /**
+         * Creates a new migration between {@code startVersion} and {@code endVersion}.
+         *
+         * @param startVersion The start version of the database.
+         * @param endVersion   The end version of the database after this migration is applied.
+         */
+        public Migration(int startVersion, int endVersion) {
+            super(startVersion, endVersion);
+        }
+
+        @Override
+        public abstract void migrate(@NonNull SupportSQLiteDatabase database);
     }
 }

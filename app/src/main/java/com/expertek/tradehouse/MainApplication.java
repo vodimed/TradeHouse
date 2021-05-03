@@ -35,8 +35,8 @@ public class MainApplication extends Application {
     public MainApplication() {
         super();
         app = this;
-        dictionaries = new DataBase<DbDictionaries>(this, DbDictionaries.migrations);
-        documents = new DataBase<DBDocuments>(this, DBDocuments.migrations);
+        dictionaries = new DataBase<DbDictionaries>(this);
+        documents = new DataBase<DBDocuments>(this);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class MainApplication extends Application {
     }
 
     // Return DataEngine to replace or close database
-    @SuppressWarnings("unchecked") // Avoid using this method
+    @SuppressWarnings("unchecked") // avoid using this method
     public static <DbInterface> DataBase<DbInterface> getDbEngine(DbInterface db) {
         if (dictionaries.db().equals(db)) {
             return (DataBase<DbInterface>) dictionaries;

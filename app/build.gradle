@@ -44,19 +44,19 @@ android {
 
     dependencies {
         // Honeywell SDK
-        implementation project(":DataCollectionLib")
+        implementation project(':DataCollectionLib')
 
         // Scan Barcodes with ML Kit on Android. Bundle the model with the app
         // implementation 'com.google.mlkit:barcode-scanning:16.1.1'
 
         // Android interface layer to database accesss
-        implementation "androidx.sqlite:sqlite:2.1.0"
-        implementation "androidx.room:room-runtime:2.3.0"
+        // annotationProcessor 'androidx.room:room-compiler:2.4.0'
+        implementation 'androidx.room:room-runtime:2.4.0-alpha01'
 
         implementation 'androidx.annotation:annotation:1.2.0'
+        implementation 'androidx.sqlite:sqlite:2.1.0'
         // implementation 'androidx.core:core:1.3.2' // JobIntentService
         // implementation 'androidx.recyclerview:recyclerview:1.2.0'
-        // implementation 'androidx.cardview:cardview:1.0.0'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_6

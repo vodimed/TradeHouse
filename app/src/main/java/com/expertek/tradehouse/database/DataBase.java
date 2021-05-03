@@ -28,11 +28,11 @@ import java.lang.ref.WeakReference;
  */
 public class DataBase<DbInterface> {
     private final WeakReference<Context> context;
-    private final DataMigration[] migrations;
+    private final DataEngine.Migration[] migrations;
     private DbInterface instance = null;
     private String filename = null;
 
-    public DataBase(Context context, @NonNull DataMigration... migrations) {
+    public DataBase(Context context, @NonNull DataEngine.Migration... migrations) {
         this.context = new WeakReference<Context>(context);
         this.migrations = migrations;
     }
@@ -47,7 +47,7 @@ public class DataBase<DbInterface> {
         if (instance != null) ((DataEngine)instance).close();
     }
 
-    @SuppressWarnings("unchecked") // "<E extends RoomDatabase & DbInterface>" does not allowed in java
+    @SuppressWarnings("unchecked") // because "<E extends RoomDatabase & DbInterface>" does not allowed in java
     public boolean create(@NonNull Class<? extends DbInterface> version, @NonNull String name) {
         try {
             close();
