@@ -33,17 +33,17 @@ public abstract class DataEngine extends RoomDatabase {
     }
 
     /**
-     * Adapter to Migration classes. Either use auto-migrations,
+     * Adapter to DataMigration classes. Either use auto-migrations,
      * or inherit your own migration classes from this class
      */
-    public abstract static class Migration extends androidx.room.migration.Migration {
+    public abstract static class DataMigration extends androidx.room.migration.Migration {
         /**
          * Creates a new migration between {@code startVersion} and {@code endVersion}.
          *
          * @param startVersion The start version of the database.
          * @param endVersion   The end version of the database after this migration is applied.
          */
-        public Migration(int startVersion, int endVersion) {
+        public DataMigration(int startVersion, int endVersion) {
             super(startVersion, endVersion);
         }
 

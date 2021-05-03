@@ -28,11 +28,11 @@ import java.lang.ref.WeakReference;
  */
 public class DataBase<DbInterface> {
     private final WeakReference<Context> context;
-    private final DataEngine.Migration[] migrations;
+    private final DataEngine.DataMigration[] migrations;
     private DbInterface instance = null;
     private String filename = null;
 
-    public DataBase(Context context, @NonNull DataEngine.Migration... migrations) {
+    public DataBase(Context context, @NonNull DataEngine.DataMigration... migrations) {
         this.context = new WeakReference<Context>(context);
         this.migrations = migrations;
     }

@@ -17,8 +17,8 @@ import com.expertek.tradehouse.documents.entity.Lines;
 import com.expertek.tradehouse.exchange.ServiceConnector;
 import com.expertek.tradehouse.exchange.ServiceInterface;
 import com.expertek.tradehouse.exchange.ServiceReceiver;
-import com.expertek.tradehouse.tradehouse.ThDictionaries;
 import com.expertek.tradehouse.tradehouse.ThDocuments;
+import com.expertek.tradehouse.tradehouse.ThSettings;
 import com.expertek.tradehouse.tradehouse.TradeHouseService;
 import com.honeywell.aidc.AidcManager;
 import com.honeywell.aidc.AidcManager.CreatedCallback;
@@ -87,9 +87,6 @@ public class MainActivity extends Activity implements BarcodeReader.BarcodeListe
             System.out.println("LIST SIZE: " + MainApplication.dbd().lines().getAll().size());
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            MainApplication.getDbEngine(MainApplication.dbc()).close();
-            MainApplication.getDbEngine(MainApplication.dbd()).close();
         }
     }
 
@@ -248,7 +245,8 @@ public class MainActivity extends Activity implements BarcodeReader.BarcodeListe
         Log.d("JOB", "planned = " + jobList.size() + " & " + jobListClear.size());
         */
 
-        tradehouse.enqueue(new ServiceInterface.JobInfo(1, ThDictionaries.class, tradehouse.receiver()), null);
+        tradehouse.enqueue(new ServiceInterface.JobInfo(1, ThSettings.class, tradehouse.receiver()), null);
+        //tradehouse.enqueue(new ServiceInterface.JobInfo(1, ThDictionaries.class, tradehouse.receiver()), null);
     }
 
     public void doUnbindService(View view) {

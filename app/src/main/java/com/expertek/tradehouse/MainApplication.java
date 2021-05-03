@@ -27,7 +27,7 @@ public class MainApplication extends Application {
     private static DataBase<DbDictionaries> dictionaries;
     private static DataBase<DBDocuments> documents;
 
-    // Return Application instance on static method manner.
+    // Return Application instance on static method manner
     public static Application app() {
         return app;
     }
@@ -57,18 +57,6 @@ public class MainApplication extends Application {
     // Return DBDocuments instance
     public static DBDocuments dbd() {
         return documents.db();
-    }
-
-    // Return DataEngine to replace or close database
-    @SuppressWarnings("unchecked") // avoid using this method
-    public static <DbInterface> DataBase<DbInterface> getDbEngine(DbInterface db) {
-        if (dictionaries.db().equals(db)) {
-            return (DataBase<DbInterface>) dictionaries;
-        } else if (documents.db().equals(db)) {
-            return (DataBase<DbInterface>) documents;
-        } else {
-            throw new IllegalArgumentException("No such database");
-        }
     }
 
     // Replace DbDictionaries database file with new one (as a whole)
