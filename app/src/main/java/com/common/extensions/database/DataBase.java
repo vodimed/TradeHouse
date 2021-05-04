@@ -1,4 +1,4 @@
-package com.expertek.tradehouse.database;
+package com.common.extensions.database;
 
 import android.content.Context;
 

@@ -52,6 +52,9 @@ android {
         }
     }
 
+    // Requires: implementation 'androidx.recyclerview:recyclerview:1.2.0'
+    //sourceSets.main.java.exclude '**/AdapterRecycler.java'
+
     dependencies {
         // Honeywell SDK
         implementation project(':DataCollectionLib')
@@ -68,9 +71,10 @@ android {
 
         implementation 'androidx.annotation:annotation:1.2.0'
         implementation 'androidx.sqlite:sqlite:2.1.0'
-        //implementation 'androidx.recyclerview:recyclerview:1.2.0'
+        implementation 'androidx.recyclerview:recyclerview:1.2.0'
         //implementation 'android.arch.lifecycle:extensions:1.1.1'
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_6
         targetCompatibility JavaVersion.VERSION_1_6

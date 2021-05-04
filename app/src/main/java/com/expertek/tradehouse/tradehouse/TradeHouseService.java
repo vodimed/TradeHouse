@@ -2,8 +2,8 @@ package com.expertek.tradehouse.tradehouse;
 
 import com.expertek.tradehouse.MainApplication;
 import com.expertek.tradehouse.R;
-import com.expertek.tradehouse.exchange.ServiceEngine;
-import com.expertek.tradehouse.exchange.ServiceActivity;
+import com.common.extensions.exchange.ServiceEngine;
+import com.common.extensions.exchange.ServiceActivity;
 
 public class TradeHouseService extends ServiceEngine {
     @Override

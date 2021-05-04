@@ -1,4 +1,4 @@
-package com.expertek.tradehouse.exchange;
+package com.common.extensions.exchange;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -33,7 +33,7 @@ public interface ServiceInterface {
     void cancelAll();
     void cancel(@NonNull JobInfo work) throws RemoteException;
     @NonNull List<JobInfo> getAllPendingJobs() throws RemoteException;
-    @NonNull public List<JobInfo> getStartedJobs() throws RemoteException;
+    @NonNull List<JobInfo> getStartedJobs() throws RemoteException;
     //void onLogEvent(int priority, String tag, String message) throws RemoteException;
 
     /**

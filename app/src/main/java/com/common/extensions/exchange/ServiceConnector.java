@@ -1,4 +1,4 @@
-package com.expertek.tradehouse.exchange;
+package com.common.extensions.exchange;
 
 import android.content.ComponentName;
 import android.content.Context;

@@ -14,9 +14,9 @@ import androidx.annotation.Nullable;
 import com.expertek.tradehouse.dictionaries.entity.Objects;
 import com.expertek.tradehouse.documents.entity.Documents;
 import com.expertek.tradehouse.documents.entity.Lines;
-import com.expertek.tradehouse.exchange.ServiceConnector;
-import com.expertek.tradehouse.exchange.ServiceInterface;
-import com.expertek.tradehouse.exchange.ServiceReceiver;
+import com.common.extensions.exchange.ServiceConnector;
+import com.common.extensions.exchange.ServiceInterface;
+import com.common.extensions.exchange.ServiceReceiver;
 import com.expertek.tradehouse.tradehouse.ThDocuments;
 import com.expertek.tradehouse.tradehouse.ThSettings;
 import com.expertek.tradehouse.tradehouse.TradeHouseService;
@@ -43,7 +43,7 @@ public class MainActivity extends Activity implements BarcodeReader.BarcodeListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.main_activity);
 
         // Retrieve activity graphical controls
         barcodeList = findViewById(R.id.listViewBarcodeData);

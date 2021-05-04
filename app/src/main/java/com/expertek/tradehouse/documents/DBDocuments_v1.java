@@ -6,8 +6,8 @@ import androidx.room.TypeConverters;
 import androidx.room.migration.AutoMigrationSpec;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-import com.expertek.tradehouse.database.DataEngine;
-import com.expertek.tradehouse.database.TypeConv;
+import com.common.extensions.database.DataEngine;
+import com.common.extensions.database.TypeConv;
 import com.expertek.tradehouse.documents.entity.Documents;
 import com.expertek.tradehouse.documents.entity.Lines;
 import com.expertek.tradehouse.documents.entity.Marklines;

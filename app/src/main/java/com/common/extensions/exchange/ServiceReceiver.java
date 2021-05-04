@@ -1,4 +1,4 @@
-package com.expertek.tradehouse.exchange;
+package com.common.extensions.exchange;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

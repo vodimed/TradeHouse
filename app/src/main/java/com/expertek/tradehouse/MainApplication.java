@@ -13,8 +13,8 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 
-import com.expertek.tradehouse.database.DataBase;
-import com.expertek.tradehouse.database.DataEngine;
+import com.common.extensions.database.DataBase;
+import com.common.extensions.database.DataEngine;
 import com.expertek.tradehouse.dictionaries.DbDictionaries;
 import com.expertek.tradehouse.dictionaries.DbDictionaries_v1;
 import com.expertek.tradehouse.documents.DBDocuments;
