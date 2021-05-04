@@ -160,12 +160,16 @@ public abstract class AdapterTemplate<Item> implements AdapterInterface<Item> {
 
     @Override
     public int getItemViewType(int position) {
-        return (position % layout.length);
+        return (position % getViewTypeCount());
     }
 
     @Override
     public int getViewTypeCount() {
-        return layout.length;
+        if (inflater != null) {
+            return layout.length;
+        } else {
+            return instance.length;
+        }
     }
 
     @Override

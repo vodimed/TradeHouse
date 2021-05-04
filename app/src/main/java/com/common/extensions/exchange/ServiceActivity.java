@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
@@ -49,13 +50,17 @@ public class ServiceActivity extends Activity {
         viewActions = findViewById(R.id.viewActions);
         viewActions.setLayoutManager(new LinearLayoutManager(this));
 
-        //listActions.setAdapter(new RAdapter(this, R.layout.main_activity));
-        //viewActions.setAdapter(new RAdapter(this, R.layout.main_activity));
+        listActions.setAdapter(new RAdapter(this, Layout.class));
+        viewActions.setAdapter(new RAdapter(this, Layout.class));
 
         //eventProcessor.bindService();
     }
 
-    private Class<View> createLayout;
+    private static class Layout extends LinearLayout {
+        public Layout(Context context) {
+            super(context);
+        }
+    }
 
     // AdapterTemplate
     private static class RAdapter extends AdapterRecycler<Long> {
