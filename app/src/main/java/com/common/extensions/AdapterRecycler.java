@@ -9,40 +9,61 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+/**
+ * Adapter for RecyclerView and ListView classes. Do not forget call:
+ * RecyclerView.setLayoutManager(new LinearLayoutManager(this));
+ */
 public abstract class AdapterRecycler<Item>
         extends RecyclerView.Adapter<AdapterRecycler.ViewHolder>
         implements AdapterInterface<Item>
 {
     private final AdapterTemplate<Item> template;
 
-    public AdapterRecycler(Context context, @NonNull @LayoutRes int... resource) {
-        this.template = new AdapterTemplate<Item>(ViewHolder.class, context, resource) {
-            @Override
-            public void onBindViewHolder(@NonNull Holder holder, int position) {
-                AdapterRecycler.this.onBindViewHolder(holder, position);
-            }
+    public AdapterRecycler(Context context, @NonNull @LayoutRes int... layer) {
+        super();
+        this.template = new AdapterActual(ViewHolder.class, context, layer);
+    }
 
-            @Override
-            public int getItemCount() {
-                return AdapterRecycler.this.getItemCount();
-            }
+    public AdapterRecycler(Context context, @NonNull Class<? extends View>... layer) {
+        super();
+        this.template = new AdapterActual(ViewHolder.class, context, layer);
+    }
 
-            @Override
-            public Item getItem(int position) {
-                return AdapterRecycler.this.getItem(position);
-            }
+    private class AdapterActual extends AdapterTemplate<Item> {
+        protected AdapterActual(Class<? extends Holder> holder, Context context, @NonNull int... layout) {
+            super(holder, context, layout);
+        }
 
-            @Override
-            public long getItemId(int position) {
-                return AdapterRecycler.this.getItemId(position);
-            }
-        };
+        protected AdapterActual(Class<? extends Holder> holder, Context context, @NonNull Class<? extends View>... layer) {
+            super(holder, context, layer);
+        }
+
+        @NonNull
+        @Override
+        public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            return AdapterRecycler.this.onCreateViewHolder(parent, viewType);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull Holder holder, int position) {
+            AdapterRecycler.this.onBindViewHolder(holder, position);
+        }
+
+        @Override
+        public int getItemCount() {
+            return AdapterRecycler.this.getItemCount();
+        }
+
+        @Override
+        public Item getItem(int position) {
+            return AdapterRecycler.this.getItem(position);
+        }
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return (ViewHolder) template.onCreateViewHolder(parent, viewType);
+        return (ViewHolder) template.createViewHolder(parent, viewType);
     }
 
     @Override

@@ -13,33 +13,74 @@ import androidx.annotation.NonNull;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
+/**
+ * Adapter for ListView class (when RecycledView library is not connected)
+ */
 public abstract class AdapterTemplate<Item> implements AdapterInterface<Item> {
     private final ArraySet<DataSetObserver> observers = new ArraySet<DataSetObserver>(1);
     private final Constructor<? extends Holder> creator;
+    private final Constructor<? extends View>[] instance;
     private final LayoutInflater inflater;
     private final int[] layout;
 
-    public AdapterTemplate(Class<? extends Holder> holder,
-                           Context context, @NonNull@LayoutRes int... resource)
-    {
-        try {
-            this.creator = holder.getDeclaredConstructor(View.class);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException("Invalid holder: " + holder.getName());
-        }
-        this.inflater = LayoutInflater.from(context);
-        this.layout = resource;
+    public AdapterTemplate(Context context, @NonNull@LayoutRes int... layout) {
+        this(ViewHolder.class, context, layout);
     }
 
-    public AdapterTemplate(Context context, @NonNull@LayoutRes int... resource) {
-        this(ViewHolder.class, context, resource);
+    public AdapterTemplate(Context context, @NonNull Class<? extends View>... layer) {
+        this(ViewHolder.class, context, layer);
+    }
+
+    protected AdapterTemplate(Class<? extends Holder> holder,
+                           Context context, @NonNull@LayoutRes int... layout)
+    {
+        this.creator = getHolderCreator(holder);
+        this.instance = null;
+        this.inflater = LayoutInflater.from(context);
+        this.layout = layout;
+    }
+
+    protected AdapterTemplate(Class<? extends Holder> holder,
+                              Context context, @NonNull Class<? extends View>... layer)
+    {
+        this.creator = getHolderCreator(holder);
+        this.instance = getViewCreators(layer);
+        this.inflater = null;
+        this.layout = null;
+    }
+
+    private Constructor<? extends Holder> getHolderCreator(Class<? extends Holder> holder) {
+        try {
+            return holder.getDeclaredConstructor(View.class);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+            throw new IllegalArgumentException("Invalid Holder: " + holder.getName());
+        }
+    }
+
+    private Constructor<? extends View>[] getViewCreators(Class<? extends View>[] views) {
+        @SuppressWarnings("unchecked") // it is even possible (save) to use Constructor<?>
+        final Constructor<? extends View>[] result = new Constructor[views.length];
+
+        for (int i = 0; i < views.length; i++) {
+            try {
+                result[i] = views[i].getDeclaredConstructor(Context.class);
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+                throw new IllegalArgumentException("Invalid View: " + views[i].getName());
+            }
+        }
+        return result;
     }
 
     @NonNull
     @Override
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        final View view = inflater.inflate(layout[viewType], parent, false);
+        return createViewHolder(parent, viewType);
+    }
+
+    protected Holder createViewHolder(@NonNull ViewGroup parent, int viewType) {
+        final View view = createView(parent, viewType);
         try {
             final Holder result = creator.newInstance(view);
             view.setTag(result);
@@ -51,7 +92,22 @@ public abstract class AdapterTemplate<Item> implements AdapterInterface<Item> {
         } catch (InvocationTargetException e) {
             e.printStackTrace();
         }
-        throw new IllegalArgumentException("Invalid constructor: " + creator.getName());
+        throw new IllegalArgumentException("Invalid Constructor: " + creator.getName());
+    }
+
+    private View createView(@NonNull ViewGroup parent, int viewType) {
+        if (inflater != null) {
+            return inflater.inflate(layout[viewType], parent, false);
+        } else try {
+            return instance[viewType].newInstance(parent);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        throw new IllegalArgumentException("Invalid Constructor: " + instance[viewType].getName());
     }
 
     @Override

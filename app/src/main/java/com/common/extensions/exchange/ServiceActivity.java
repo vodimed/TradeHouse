@@ -7,10 +7,10 @@ import android.view.View;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.common.extensions.AdapterRecycler;
-import com.common.extensions.AdapterTemplate;
 import com.expertek.tradehouse.R;
 
 /**
@@ -47,43 +47,24 @@ public class ServiceActivity extends Activity {
 
         listActions = findViewById(R.id.listActions);
         viewActions = findViewById(R.id.viewActions);
+        viewActions.setLayoutManager(new LinearLayoutManager(this));
 
-        listActions.setAdapter(new LAdapter(this, R.layout.main_activity));
-        //viewActions.setAdapter(new LAdapter(this, R.layout.main_activity));
-        listActions.setAdapter(new RAdapter(this, R.layout.main_activity));
-        viewActions.setAdapter(new RAdapter(this, R.layout.main_activity));
+        //listActions.setAdapter(new RAdapter(this, R.layout.main_activity));
+        //viewActions.setAdapter(new RAdapter(this, R.layout.main_activity));
 
         //eventProcessor.bindService();
     }
 
+    private Class<View> createLayout;
+
+    // AdapterTemplate
     private static class RAdapter extends AdapterRecycler<Long> {
-        public RAdapter(Context context, @NonNull int... resource) {
-            super(context, resource);
+        public RAdapter(Context context, @NonNull Class<? extends View>... layer) {
+            super(context, layer);
         }
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-
-        }
-
-        @Override
-        public int getItemCount() {
-            return 0;
-        }
-
-        @Override
-        public Long getItem(int position) {
-            return null;
-        }
-    }
-
-    private static class LAdapter extends AdapterTemplate<Long> {
-        public LAdapter(Context context, @NonNull int... resource) {
-            super(context, resource);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull Holder holder, int position) {
 
         }
 
