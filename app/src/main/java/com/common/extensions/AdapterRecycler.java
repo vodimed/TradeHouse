@@ -43,11 +43,15 @@ public abstract class AdapterRecycler<Item>
     }
 
     private class AdapterActual extends AdapterTemplate<Item> {
-        protected AdapterActual(Class<? extends Holder> holder, Context context, @NonNull int... layout) {
+        protected AdapterActual(Class<? extends Holder> holder,
+                                Context context, @NonNull int... layout)
+        {
             super(holder, context, layout);
         }
 
-        protected AdapterActual(Class<? extends Holder> holder, Context context, @NonNull Class<? extends View>... layer) {
+        protected AdapterActual(Class<? extends Holder> holder,
+                                Context context, @NonNull Class<? extends View>... layer)
+        {
             super(holder, context, layer);
         }
 
