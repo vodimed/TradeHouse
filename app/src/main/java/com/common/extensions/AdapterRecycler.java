@@ -20,12 +20,24 @@ public abstract class AdapterRecycler<Item>
 {
     private final AdapterTemplate<Item> template;
 
-    public AdapterRecycler(Context context, @NonNull @LayoutRes int... layer) {
-        super();
-        this.template = new AdapterActual(ViewHolder.class, context, layer);
+    public AdapterRecycler(Context context, @NonNull @LayoutRes int... layout) {
+        this(ViewHolder.class, context, layout);
     }
 
     public AdapterRecycler(Context context, @NonNull Class<? extends View>... layer) {
+        this(ViewHolder.class, context, layer);
+    }
+
+    protected AdapterRecycler(Class<? extends ViewHolder> holder,
+                              Context context, @NonNull@LayoutRes int... layout)
+    {
+        super();
+        this.template = new AdapterActual(ViewHolder.class, context, layout);
+    }
+
+    protected AdapterRecycler(Class<? extends ViewHolder> holder,
+                              Context context, @NonNull Class<? extends View>... layer)
+    {
         super();
         this.template = new AdapterActual(ViewHolder.class, context, layer);
     }

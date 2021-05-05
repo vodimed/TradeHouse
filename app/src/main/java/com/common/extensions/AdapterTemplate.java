@@ -25,7 +25,7 @@ public abstract class AdapterTemplate<Item> implements AdapterInterface<Item> {
     private final int[] layout;
     private boolean stableIds = false;
 
-    public AdapterTemplate(Context context, @NonNull@LayoutRes int... layout) {
+    public AdapterTemplate(Context context, @NonNull @LayoutRes int... layout) {
         this(ViewHolder.class, context, layout);
     }
 
