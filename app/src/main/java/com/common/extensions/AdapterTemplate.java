@@ -17,11 +17,13 @@ import java.lang.reflect.InvocationTargetException;
  * Adapter for ListView class (when RecycledView library is not connected)
  */
 public abstract class AdapterTemplate<Item> implements AdapterInterface<Item> {
+    public static final long NO_ID = -1;
     private final ArraySet<DataSetObserver> observers = new ArraySet<DataSetObserver>(1);
     private final Constructor<? extends Holder> creator;
     private final Constructor<? extends View>[] instance;
     private final LayoutInflater inflater;
     private final int[] layout;
+    private boolean stableIds = false;
 
     public AdapterTemplate(Context context, @NonNull@LayoutRes int... layout) {
         this(ViewHolder.class, context, layout);
@@ -73,13 +75,12 @@ public abstract class AdapterTemplate<Item> implements AdapterInterface<Item> {
         return result;
     }
 
-    @NonNull
-    @Override
+    @Override // returning ViewHolder would be invalid typecast for AdapterRecycler
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return createViewHolder(parent, viewType);
     }
 
-    protected Holder createViewHolder(@NonNull ViewGroup parent, int viewType) {
+    protected final Holder createViewHolder(@NonNull ViewGroup parent, int viewType) {
         final View view = createView(parent, viewType);
         try {
             final Holder result = creator.newInstance(view);
@@ -99,7 +100,7 @@ public abstract class AdapterTemplate<Item> implements AdapterInterface<Item> {
         if (inflater != null) {
             return inflater.inflate(layout[viewType], parent, false);
         } else try {
-            return instance[viewType].newInstance(parent);
+            return instance[viewType].newInstance(parent.getContext());
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InstantiationException e) {
@@ -137,12 +138,17 @@ public abstract class AdapterTemplate<Item> implements AdapterInterface<Item> {
 
     @Override
     public long getItemId(int position) {
-        return -1;
+        return NO_ID;
     }
 
     @Override
-    public boolean hasStableIds() {
-        return true;
+    public final boolean hasStableIds() {
+        return stableIds; // Method is final in AdapterRecycler, so we should comply
+    }
+
+    public void setHasStableIds(boolean hasStableIds) {
+        if (!observers.isEmpty()) throw new IllegalStateException("Adapter has registered observers");
+        stableIds = hasStableIds;
     }
 
     @Override

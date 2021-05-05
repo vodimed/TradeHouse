@@ -7,11 +7,12 @@ import android.view.ViewGroup;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Adapter for RecyclerView and ListView classes. Do not forget call:
- * RecyclerView.setLayoutManager(new LinearLayoutManager(this));
+ * AdapterRecycler.setLayoutManager(RecyclerView, new LinearLayoutManager(this));
  */
 public abstract class AdapterRecycler<Item>
         extends RecyclerView.Adapter<AdapterRecycler.ViewHolder>
@@ -38,7 +39,6 @@ public abstract class AdapterRecycler<Item>
             super(holder, context, layer);
         }
 
-        @NonNull
         @Override
         public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             return AdapterRecycler.this.onCreateViewHolder(parent, viewType);
@@ -61,14 +61,14 @@ public abstract class AdapterRecycler<Item>
     }
 
     @NonNull
-    @Override
+    @Override // not Holder because Java type-conversion restrictions
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return (ViewHolder) template.createViewHolder(parent, viewType);
     }
 
-    @Override
-    public void onBindViewHolder(@NonNull Holder holder, int position) {
-        this.onBindViewHolder((ViewHolder) holder, position);
+    @Override // twin method because Java type-conversion restrictions
+    public final void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        onBindViewHolder((Holder) holder, position);
     }
 
     @Override
@@ -109,6 +109,12 @@ public abstract class AdapterRecycler<Item>
     @Override
     public boolean isEnabled(int position) {
         return template.isEnabled(position);
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements AdapterInterface.Holder {

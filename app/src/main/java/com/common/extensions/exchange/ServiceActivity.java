@@ -2,17 +2,17 @@ package com.common.extensions.exchange;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.common.extensions.AdapterRecycler;
-import com.expertek.tradehouse.R;
+import com.common.extensions.AdapterTemplate;
 
 /**
  * Service control center: add the following code to your Serice extends ServiceEngine
@@ -38,44 +38,76 @@ import com.expertek.tradehouse.R;
  * }
  */
 public class ServiceActivity extends Activity {
-    private ListView listActions = null;
-    private RecyclerView viewActions = null;
+    private ActivityLayout activity = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.service_activity);
+        setContentView(new ActivityLayout(this));
 
-        listActions = findViewById(R.id.listActions);
-        viewActions = findViewById(R.id.viewActions);
-        viewActions.setLayoutManager(new LinearLayoutManager(this));
+        activity = (ActivityLayout) getActivityLayout();
 
-        listActions.setAdapter(new RAdapter(this, Layout.class));
-        viewActions.setAdapter(new RAdapter(this, Layout.class));
+        activity.listActions.setAdapter(new RAdapter(this, AdapterLayout.class));
 
         //eventProcessor.bindService();
     }
 
-    private static class Layout extends LinearLayout {
-        public Layout(Context context) {
+    // https://titanwolf.org/Network/Articles/Article?AID=3a5e6098-dfd4-47a9-8313-da431e5ee3bb
+    private View getActivityLayout() {
+        return ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
+    }
+
+    public static class ActivityLayout extends LinearLayout {
+        public final ListView listActions;
+
+        public ActivityLayout(Context context) {
+            super(context);
+            this.setOrientation(HORIZONTAL);
+
+            final TextView textActions = new TextView(context);
+            textActions.setTypeface(null, Typeface.BOLD);
+            this.addView(textActions);
+
+            listActions = new ListView(context);
+            listActions.setLayoutParams(new LinearLayout.LayoutParams(
+                    LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 2.0f));
+            this.addView(listActions);
+
+            final TextView textProtocol = new TextView(context);
+            textProtocol.setTypeface(null, Typeface.BOLD);
+            this.addView(textProtocol);
+        }
+    }
+
+    public static class AdapterLayout extends TextView {
+        public AdapterLayout(Context context) {
             super(context);
         }
     }
 
-    // AdapterTemplate
-    private static class RAdapter extends AdapterRecycler<Long> {
+    private static class RAdapter extends AdapterTemplate<Long> {
         public RAdapter(Context context, @NonNull Class<? extends View>... layer) {
             super(context, layer);
         }
 
+        @NonNull
         @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            return (ViewHolder) super.onCreateViewHolder(parent, viewType);
+        }
 
+        @Override
+        public void onBindViewHolder(@NonNull Holder holder, int position) {
+            AdapterLayout layout = (AdapterLayout) holder.getView();
+            layout.setText(String.valueOf(position));
+            //Layout layout = (Layout) holder.getView();
+            //((TextView) layout.getChildAt(0)).setText(String.valueOf(position));
+            //((TextView) layout.getChildAt(1)).setText(String.valueOf(position));
         }
 
         @Override
         public int getItemCount() {
-            return 0;
+            return 10;
         }
 
         @Override

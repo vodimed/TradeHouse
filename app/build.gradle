@@ -53,7 +53,11 @@ android {
     }
 
     // Requires: implementation 'androidx.recyclerview:recyclerview:1.2.0'
-    //sourceSets.main.java.exclude '**/AdapterRecycler.java'
+    if (!project.findProperty('recycler').asBoolean()) {
+        sourceSets.main.java.exclude '**/AdapterRecycler.java'
+    } else dependencies {
+        implementation 'androidx.recyclerview:recyclerview:1.2.0'
+    }
 
     dependencies {
         // Honeywell SDK
@@ -70,8 +74,6 @@ android {
         // implementation 'androidx.core:core:1.3.2'
 
         implementation 'androidx.annotation:annotation:1.2.0'
-        implementation 'androidx.sqlite:sqlite:2.1.0'
-        implementation 'androidx.recyclerview:recyclerview:1.2.0'
         //implementation 'android.arch.lifecycle:extensions:1.1.1'
     }
 
