@@ -4,7 +4,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -12,6 +11,7 @@ import android.os.RemoteException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.versionedparcelable.NonParcelField;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -45,13 +45,14 @@ public interface ServiceInterface {
         protected final int jobId;
         protected final int resId;
         protected final ComponentName process;
-        protected Parcelable extra = null;
+        protected @NonParcelField Object extra = null;
 
         // Not auto-generated
         public JobInfo(int jobId, @NonNull Class<? extends Task> cls, @Nullable Receiver res) {
             this.jobId = jobId;
             this.resId = (res != null ? res.hashCode() : 0);
-            this.process = new ComponentName(cls.getPackage().getName(), cls.getCanonicalName());
+            final Package pkg = cls.getPackage();
+            this.process = new ComponentName((pkg != null ? pkg.getName() : null), cls.getName());
         }
 
         protected JobInfo(Parcel in) {
@@ -102,18 +103,15 @@ public interface ServiceInterface {
         protected JobInfo(Intent intent) {
             this.jobId = intent.getSourceBounds().left;
             this.resId = intent.getSourceBounds().right;
-            this.process = new ComponentName(intent.getPackage(), intent.getScheme());
+            this.process = new ComponentName(intent.getPackage(), intent.getAction());
         }
 
         // Not auto-generated
         public Intent asIntent(@NonNull Context client, @NonNull Class<?> server) {
-            /* To use ServiceEngine with JobScheduler add the following line to JobInfo.Builder specification
-             * << jobInfoItem.setClipData(new ClipData("", new String[0], new ClipData.Item(intent)), 0); >>
-             */
             final Intent intent = new Intent(client, server);
             intent.setSourceBounds(new Rect(jobId, 0, resId, 0));
             intent.setPackage(process.getPackageName());
-            intent.setData(new Uri.Builder().scheme(process.getClassName()).opaquePart("").build());
+            intent.setAction(process.getClassName());
             return intent;
         }
     }

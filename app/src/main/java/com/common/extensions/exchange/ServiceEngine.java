@@ -3,6 +3,7 @@ package com.common.extensions.exchange;
 import android.app.Service;
 import android.app.job.JobParameters;
 import android.app.job.JobServiceEngine;
+import android.app.job.JobWorkItem;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Build;
@@ -10,6 +11,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.RemoteException;
+import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -145,10 +147,28 @@ public class ServiceEngine extends Service implements ServiceInterface, ServiceI
         @Override
         public boolean onStartJob(JobParameters params) {
             try {
-                final Intent intent = params.getClipData().getItemAt(0).getIntent();
+                final JobWorkItem item = params.dequeueWork();
+                if (item == null) return false; // recursion finished
+
+                final Intent intent = item.getIntent();
+                Bundle parameters = intent.getExtras();
+
+                if (parameters == null) {
+                    parameters = params.getTransientExtras();
+                } else if (params.getTransientExtras() != null) {
+                    parameters.putAll(params.getTransientExtras());
+                }
+
+                if (parameters == null) {
+                    parameters = new Bundle(params.getExtras());
+                } else if (params.getTransientExtras() != null) {
+                    parameters.putAll(params.getExtras());
+                }
+
                 final JobInfo jobInfo = new JobInfo(intent);
-                jobInfo.extra = params;
-                if (service.enqueueResult(jobInfo, intent.getExtras(), this) == RESULT_FAILURE)
+                jobInfo.extra = new Pair<JobParameters, JobWorkItem>(params, item);
+
+                if (service.enqueueResult(jobInfo, parameters, this) == RESULT_FAILURE)
                     return false;
             } catch (Exception e) {
                 return false;
@@ -169,7 +189,14 @@ public class ServiceEngine extends Service implements ServiceInterface, ServiceI
         @Override
         public void onServiceResult(@NonNull JobInfo work, @Nullable Bundle result) {
             service.onServiceResult(work, result);
-            jobFinished((JobParameters)work.extra, false);
+
+            @SuppressWarnings("unchecked") // packed in onStartJob()
+            final JobParameters params = ((Pair<JobParameters, JobWorkItem>) work.extra).first;
+            @SuppressWarnings("unchecked") // packed in onStartJob()
+            final JobWorkItem item = ((Pair<JobParameters, JobWorkItem>) work.extra).second;
+
+            params.completeWork(item);
+            onStartJob(params); // recursive call
         }
 
         @Override

@@ -19,7 +19,7 @@ import java.lang.ref.WeakReference;
  *     android:exported="false" />
  */
 public final class ServiceReceiver extends BroadcastReceiver {
-    protected final ServiceInterface.Receiver context;
+    protected final ServiceInterface.Receiver receiver;
 
     private static final ArrayMap<Integer, WeakReference<ServiceReceiver>> pool =
             new ArrayMap<Integer, WeakReference<ServiceReceiver>>(5);
@@ -30,34 +30,34 @@ public final class ServiceReceiver extends BroadcastReceiver {
      * or nested subclass and pass it to constructor(dispatcher) parameter
      */
     public ServiceReceiver() {
-        this.context = null;
+        this.receiver = null;
     }
 
     // Implement ServiceInterface.Receiver interface in your Activity or nested subclass
-    public ServiceReceiver(@NonNull ServiceInterface.Receiver context) {
-        this.context = context;
-        if (context != null) registerReceiver();
+    public ServiceReceiver(@NonNull ServiceInterface.Receiver receiver) {
+        this.receiver = receiver;
+        if (receiver != null) registerReceiver();
     }
 
     @Override
     protected void finalize() throws Throwable {
-        if (context != null) unregisterReceiver();
+        if (receiver != null) unregisterReceiver();
         super.finalize();
     }
 
     public ServiceInterface.Receiver receiver() {
-        return context;
+        return receiver;
     }
 
     protected void registerReceiver() {
         synchronized (pool) {
-            pool.put(context.hashCode(), new WeakReference<ServiceReceiver>(this));
+            pool.put(receiver.hashCode(), new WeakReference<ServiceReceiver>(this));
         }
     }
 
     protected void unregisterReceiver() {
         synchronized (pool) {
-            pool.remove(context.hashCode());
+            pool.remove(receiver.hashCode());
         }
     }
 
@@ -78,10 +78,10 @@ public final class ServiceReceiver extends BroadcastReceiver {
             final Bundle result = intent.getExtras();
 
             if (result != null && result.containsKey(ServiceInterface.THROWABLE)) {
-                final Throwable e = (Throwable)result.getSerializable(ServiceInterface.THROWABLE);
-                receiver.context.onServiceException(jobInfo, e);
+                final Throwable e = (Throwable) result.getSerializable(ServiceInterface.THROWABLE);
+                receiver.receiver.onServiceException(jobInfo, e);
             } else {
-                receiver.context.onServiceResult(jobInfo, result);
+                receiver.receiver.onServiceResult(jobInfo, result);
             }
         }
     }

@@ -1,6 +1,12 @@
 package com.expertek.tradehouse;
 
 import android.app.Activity;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.app.job.JobWorkItem;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,13 +17,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.expertek.tradehouse.dictionaries.entity.Objects;
-import com.expertek.tradehouse.documents.entity.Documents;
-import com.expertek.tradehouse.documents.entity.Lines;
 import com.common.extensions.exchange.ServiceConnector;
 import com.common.extensions.exchange.ServiceInterface;
 import com.common.extensions.exchange.ServiceReceiver;
-import com.expertek.tradehouse.tradehouse.ThDocuments;
+import com.expertek.tradehouse.dictionaries.entity.Objects;
+import com.expertek.tradehouse.documents.entity.Documents;
+import com.expertek.tradehouse.documents.entity.Lines;
 import com.expertek.tradehouse.tradehouse.ThSettings;
 import com.expertek.tradehouse.tradehouse.TradeHouseService;
 import com.honeywell.aidc.AidcManager;
@@ -40,6 +45,8 @@ public class MainActivity extends Activity implements BarcodeReader.BarcodeListe
     private BarcodeReader mBarcodeReader = null;
     private ListView barcodeList = null;
 
+    private JobScheduler mScheduler = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,7 +66,8 @@ public class MainActivity extends Activity implements BarcodeReader.BarcodeListe
             }
         });
 
-        tradehouse.registerService(false);
+        mScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        //tradehouse.registerService(false);
 
         //TODO: database
         try {
@@ -222,35 +230,28 @@ public class MainActivity extends Activity implements BarcodeReader.BarcodeListe
         }
     });
 
+    static int jobID = 0;
     public void doBindService(View view) {
-
-        /*
-        final JobScheduler mScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        final ComponentName service = new ComponentName(this, TradeHouseService.class);
-        for (int jobID = 1; jobID < 0; jobID++) {
-
+        // Sema kozel
+        for (jobID = 1; jobID < 5; jobID++) {
+            final ComponentName service = new ComponentName(this, TradeHouseService.class);
+            //final ComponentName service = new ComponentName(this, JobsService.class);
             final JobInfo.Builder jobInfo = new JobInfo.Builder(jobID, service).setOverrideDeadline(0);
-            final Bundle params = new Bundle();
 
             final Intent intent = new ServiceInterface.JobInfo(jobID, ThSettings.class, scheduler.receiver()).asIntent(this, TradeHouseService.class);
-            intent.replaceExtras(params);
 
-            jobInfo.setClipData(new ClipData("", new String[0], new ClipData.Item(intent)), 0);
-            int result = mScheduler.enqueue(jobInfo.build(), new JobWorkItem(new Intent()));
-            //Log.d("JOB", "plan(" + jobID + ") = " + result);
+            mScheduler.enqueue(jobInfo.build(), new JobWorkItem(intent));
+            mScheduler.enqueue(jobInfo.build(), new JobWorkItem(intent));
         }
-        final List<JobInfo> jobList = mScheduler.getAllPendingJobs();
-        //mScheduler.cancelAll();
-        final List<JobInfo> jobListClear = mScheduler.getAllPendingJobs();
-        Log.d("JOB", "planned = " + jobList.size() + " & " + jobListClear.size());
-        */
-
-        tradehouse.enqueue(new ServiceInterface.JobInfo(1, ThSettings.class, tradehouse.receiver()), null);
-        //tradehouse.enqueue(new ServiceInterface.JobInfo(1, ThDictionaries.class, tradehouse.receiver()), null);
     }
 
     public void doUnbindService(View view) {
         //tradehouse.unregisterService();
-        tradehouse.enqueue(new ServiceInterface.JobInfo(2, ThDocuments.class, tradehouse.receiver()), null);
+        //tradehouse.enqueue(new ServiceInterface.JobInfo(1, ThSettings.class, tradehouse.receiver()), null);
+        //tradehouse.enqueue(new ServiceInterface.JobInfo(1, ThDictionaries.class, tradehouse.receiver()), null);
+        //tradehouse.enqueue(new ServiceInterface.JobInfo(2, ThDocuments.class, tradehouse.receiver()), null);
+        tradehouse.unregisterService();
+        //List<JobInfo> jobs = mScheduler.getAllPendingJobs();
+        //System.out.println("TASKS PLANNED = " + jobs.size());
     }
 }

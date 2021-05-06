@@ -8,7 +8,7 @@
         android:id="@+id/textActions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/uiActions" />
+        android:text="Задания" />
 
     <ListView
         android:id="@+id/listActions"
@@ -20,17 +20,18 @@
         android:id="@+id/textProtocol"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/uiProtocol" />
+        android:text="Протокол" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/textLog"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
+            android:layout_height="match_parent"
+            android:text="" />
     </ScrollView>
 
     <LinearLayout
@@ -39,11 +40,19 @@
         android:orientation="horizontal">
 
         <Button
+            android:id="@+id/buttonCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Отмена"
+            android:onClick="onCancel" />
+
+        <Button
             android:id="@+id/buttonClose"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/uiClose"
+            android:text="Закрыть"
             android:onClick="onClose" />
     </LinearLayout>
 </LinearLayout>
