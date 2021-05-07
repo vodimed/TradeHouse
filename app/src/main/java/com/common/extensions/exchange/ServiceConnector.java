@@ -153,7 +153,7 @@ public abstract class ServiceConnector implements ServiceConnection, ServiceInte
             delegate.unregisterReceiver();
 
             if (debug_regcounter != 0 || debug_bindcounter != 0)
-                throw new Error("Service registration balance mismatch.");
+                throw new Error("Service registration balance mismatch");
         }
     }
 }

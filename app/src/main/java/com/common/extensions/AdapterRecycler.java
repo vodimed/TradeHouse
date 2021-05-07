@@ -11,8 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
- * Adapter for RecyclerView and ListView classes. Do not forget call:
- * AdapterRecycler.setLayoutManager(RecyclerView, new LinearLayoutManager(this));
+ * Adapter for RecyclerView and ListView classes.
  */
 public abstract class AdapterRecycler<Item>
         extends RecyclerView.Adapter<AdapterRecycler.ViewHolder>
@@ -24,6 +23,7 @@ public abstract class AdapterRecycler<Item>
         this(ViewHolder.class, context, layout);
     }
 
+    @SafeVarargs
     public AdapterRecycler(Context context, @NonNull Class<? extends View>... layer) {
         this(ViewHolder.class, context, layer);
     }
@@ -35,6 +35,7 @@ public abstract class AdapterRecycler<Item>
         this.template = new AdapterActual(ViewHolder.class, context, layout);
     }
 
+    @SafeVarargs
     protected AdapterRecycler(Class<? extends ViewHolder> holder,
                               Context context, @NonNull Class<? extends View>... layer)
     {
@@ -43,6 +44,10 @@ public abstract class AdapterRecycler<Item>
     }
 
     private class AdapterActual extends AdapterTemplate<Item> {
+        public AdapterActual(Context context, @NonNull int... layout) {
+            super(context, layout);
+        }
+
         protected AdapterActual(Class<? extends Holder> holder,
                                 Context context, @NonNull int... layout)
         {
@@ -71,6 +76,18 @@ public abstract class AdapterRecycler<Item>
         }
 
         @Override
+        public void onChanged() {
+            super.onChanged();
+            AdapterRecycler.this.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onInvalidated() {
+            super.onInvalidated();
+            AdapterRecycler.this.notifyDataSetChanged();
+        }
+
+        @Override
         public Item getItem(int position) {
             return AdapterRecycler.this.getItem(position);
         }
@@ -85,6 +102,11 @@ public abstract class AdapterRecycler<Item>
     @Override // twin method because Java type-conversion restrictions
     public final void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         onBindViewHolder((Holder) holder, position);
+    }
+
+    @Override
+    public int getItemCount() {
+        return template.getItemCount();
     }
 
     @Override

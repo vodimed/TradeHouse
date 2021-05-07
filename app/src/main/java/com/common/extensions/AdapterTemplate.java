@@ -1,6 +1,8 @@
 package com.common.extensions;
 
 import android.content.Context;
+import android.database.AbstractCursor;
+import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.util.ArraySet;
 import android.view.LayoutInflater;
@@ -9,26 +11,32 @@ import android.view.ViewGroup;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * Adapter for ListView class (when RecycledView library is not connected)
+ * Adapter for ListView class (when RecycledView library is not connected).
  */
-public abstract class AdapterTemplate<Item> implements AdapterInterface<Item> {
+public abstract class AdapterTemplate<Item>
+        extends DataSetObserver
+        implements AdapterInterface<Item>
+{
     public static final long NO_ID = -1;
     private final ArraySet<DataSetObserver> observers = new ArraySet<DataSetObserver>(1);
     private final Constructor<? extends Holder> creator;
     private final Constructor<? extends View>[] instance;
     private final LayoutInflater inflater;
     private final int[] layout;
+    private Cursor dataset = null;
     private boolean stableIds = false;
 
     public AdapterTemplate(Context context, @NonNull @LayoutRes int... layout) {
         this(ViewHolder.class, context, layout);
     }
 
+    @SafeVarargs
     public AdapterTemplate(Context context, @NonNull Class<? extends View>... layer) {
         this(ViewHolder.class, context, layer);
     }
@@ -42,6 +50,7 @@ public abstract class AdapterTemplate<Item> implements AdapterInterface<Item> {
         this.layout = layout;
     }
 
+    @SafeVarargs
     protected AdapterTemplate(Class<? extends Holder> holder,
                               Context context, @NonNull Class<? extends View>... layer)
     {
@@ -75,9 +84,26 @@ public abstract class AdapterTemplate<Item> implements AdapterInterface<Item> {
         return result;
     }
 
+    public @Nullable Cursor dataset() {
+        return this.dataset;
+    }
+
+    public AdapterTemplate<Item> from(@Nullable Cursor dataset) {
+        if (this.dataset != null) this.dataset.unregisterDataSetObserver(this);
+        this.dataset = dataset;
+        if (this.dataset != null) this.dataset.registerDataSetObserver(this);
+        return this;
+    }
+
     @Override // returning ViewHolder would be invalid typecast for AdapterRecycler
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return createViewHolder(parent, viewType);
+    }
+
+    @Override
+    public int getItemCount() {
+        if (dataset == null) return 0;
+        return dataset.getCount();
     }
 
     protected final Holder createViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -183,6 +209,16 @@ public abstract class AdapterTemplate<Item> implements AdapterInterface<Item> {
         return (getCount() == 0);
     }
 
+    @Override
+    public void onChanged() {
+        for (DataSetObserver observer : observers) observer.onChanged();
+    }
+
+    @Override
+    public void onInvalidated() {
+        for (DataSetObserver observer : observers) observer.onInvalidated();
+    }
+
     public static class ViewHolder implements AdapterInterface.Holder {
         public final View itemView;
 
@@ -193,6 +229,53 @@ public abstract class AdapterTemplate<Item> implements AdapterInterface<Item> {
         @Override
         public View getView() {
             return itemView;
+        }
+    }
+
+    public static abstract class SimpleCursor extends AbstractCursor {
+        @Override
+        public int getCount() {
+            return -1;
+        }
+
+        @Override
+        public String[] getColumnNames() {
+            return new String[0];
+        }
+
+        @Override
+        public String getString(int column) {
+            return null;
+        }
+
+        @Override
+        public short getShort(int column) {
+            return 0;
+        }
+
+        @Override
+        public int getInt(int column) {
+            return 0;
+        }
+
+        @Override
+        public long getLong(int column) {
+            return 0;
+        }
+
+        @Override
+        public float getFloat(int column) {
+            return 0;
+        }
+
+        @Override
+        public double getDouble(int column) {
+            return 0;
+        }
+
+        @Override
+        public boolean isNull(int column) {
+            return false;
         }
     }
 }

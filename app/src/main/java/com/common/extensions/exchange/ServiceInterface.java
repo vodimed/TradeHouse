@@ -11,7 +11,6 @@ import android.os.RemoteException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.versionedparcelable.NonParcelField;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -45,14 +44,14 @@ public interface ServiceInterface {
         protected final int jobId;
         protected final int resId;
         protected final ComponentName process;
-        protected @NonParcelField Object extra = null;
+        protected Object extra = null; // @NonParcelField
 
         // Not auto-generated
-        public JobInfo(int jobId, @NonNull Class<? extends Task> cls, @Nullable Receiver res) {
+        public JobInfo(int jobId, @NonNull Class<? extends Task> task, @Nullable Receiver result) {
             this.jobId = jobId;
-            this.resId = (res != null ? res.hashCode() : 0);
-            final Package pkg = cls.getPackage();
-            this.process = new ComponentName((pkg != null ? pkg.getName() : null), cls.getName());
+            this.resId = (result != null ? result.hashCode() : 0);
+            final Package pkg = task.getPackage();
+            this.process = new ComponentName((pkg != null ? pkg.getName() : null), task.getName());
         }
 
         protected JobInfo(Parcel in) {
@@ -95,23 +94,23 @@ public interface ServiceInterface {
             return 31 * jobId + process.hashCode();
         }
 
-        protected @Nullable Class<? extends Task> getTask() throws ClassNotFoundException {
+        // Not auto-generated
+        protected Class<? extends Task> getTask() throws ClassNotFoundException {
             return Class.forName(process.getClassName()).asSubclass(Task.class);
         }
 
         // Not auto-generated
-        protected JobInfo(Intent intent) {
+        protected JobInfo(@NonNull Intent intent) {
             this.jobId = intent.getSourceBounds().left;
             this.resId = intent.getSourceBounds().right;
             this.process = new ComponentName(intent.getPackage(), intent.getAction());
         }
 
         // Not auto-generated
-        public Intent asIntent(@NonNull Context client, @NonNull Class<?> server) {
-            final Intent intent = new Intent(client, server);
+        public Intent asIntent(@NonNull Context context, @NonNull Class<?> server) {
+            final Intent intent = new Intent(context, server);
             intent.setSourceBounds(new Rect(jobId, 0, resId, 0));
-            intent.setPackage(process.getPackageName());
-            intent.setAction(process.getClassName());
+            intent.setPackage(process.getPackageName()).setAction(process.getClassName());
             return intent;
         }
     }

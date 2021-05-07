@@ -12,7 +12,6 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -27,8 +26,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 
 import com.common.extensions.AdapterTemplate;
-import com.expertek.tradehouse.tradehouse.TradeHouseService;
 
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -55,7 +54,9 @@ import java.util.Locale;
  * }
  */
 public class ServiceActivity extends Activity {
+    private final TaskList tasklist = new TaskList();
     private ActivityLayout activity = null;
+    private ServiceConnector service = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,18 +65,18 @@ public class ServiceActivity extends Activity {
         //setContentView(R.layout.service_activity);
 
         activity = (ActivityLayout) this.getActivityLayout();
-        activity.listActions.setAdapter(new RAdapter(this, AdapterLayout.class));
+        activity.listActions.setAdapter(new TaskAdapter(this, AdapterLayout.class).from(tasklist));
 
-        ComponentName c = getCallingActivity();
-        Intent intent = getIntent();
+        final Class<? extends ServiceEngine> sender = getService(
+                new ComponentName(getIntent().getPackage(), getIntent().getAction()));
 
-        //boolean res = processor.bindService(0);
-        //res = res;
+        service = new ServiceSender(this, sender);
+        final boolean bound = service.bindService(0);
     }
 
     @Override
     protected void onDestroy() {
-        processor.unbindService();
+        service.unbindService();
         super.onDestroy();
     }
 
@@ -134,11 +135,10 @@ public class ServiceActivity extends Activity {
         }
 
         final Intent intent = new Intent(context, activity);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        //intent.setPackage(context.getClass().getName()); //TODO
+        intent.setPackage(context.getPackageName()).setAction(context.getClass().getName());
 
         final PendingIntent pending = PendingIntent.getActivity(context, 0,
-                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK), PendingIntent.FLAG_UPDATE_CURRENT);
 
         return builder.setContentIntent(pending) // The intent to send when the entry is clicked
                 .setWhen(System.currentTimeMillis()) // the time stamp
@@ -160,9 +160,21 @@ public class ServiceActivity extends Activity {
         return ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
     }
 
+    protected @Nullable Class<? extends ServiceEngine> getService(ComponentName component) {
+        try {
+            return Class.forName(component.getClassName()).asSubclass(ServiceEngine.class);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static class AdapterLayout extends TextView {
+        public final TextView textName;
+
         public AdapterLayout(Context context) {
             super(context);
+            textName = this;
         }
     }
 
@@ -186,6 +198,7 @@ public class ServiceActivity extends Activity {
             listActions = new ListView(context);
             listActions.setLayoutParams(new LinearLayout.LayoutParams(
                     LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 3.0f));
+            listActions.invalidateViews();
             this.addView(listActions);
 
             final TextView labelProtocol = new TextView(context);
@@ -233,43 +246,52 @@ public class ServiceActivity extends Activity {
         };
     }
 
-    private static class RAdapter extends AdapterTemplate<Long> {
-        public RAdapter(Context context, @NonNull Class<? extends View>... layer) {
+    private static class TaskAdapter extends AdapterTemplate<ServiceInterface.JobInfo> {
+        public TaskAdapter(Context context, @NonNull Class<? extends View>... layer) {
             super(context, layer);
-        }
-
-        @NonNull
-        @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return (ViewHolder) super.onCreateViewHolder(parent, viewType);
         }
 
         @Override
         public void onBindViewHolder(@NonNull Holder holder, int position) {
             AdapterLayout layout = (AdapterLayout) holder.getView();
-            layout.setText(String.valueOf(position));
+            layout.textName.setText("Task: " + position);
         }
 
         @Override
-        public int getItemCount() {
-            return 10;
-        }
-
-        @Override
-        public Long getItem(int position) {
-            return null;
+        public ServiceInterface.JobInfo getItem(int position) {
+            final TaskList dataset = (TaskList) dataset();
+            if (dataset == null) return null;
+            dataset.moveToPosition(position);
+            return dataset.getValue(0);
         }
     }
 
-    private final ServiceConnector processor = new ServiceConnector(this, TradeHouseService.class) {
+    private static class TaskList extends AdapterTemplate.SimpleCursor {
+        private List<ServiceInterface.JobInfo> dataset = null;
+
+        public void setData(List<ServiceInterface.JobInfo> dataset) {
+            if (this.dataset != null && !this.dataset.equals(dataset)) {
+                this.dataset = dataset;
+                requery();
+            }
+        }
+
+        public ServiceInterface.JobInfo getValue(int column) {
+            return dataset.get(getPosition());
+        }
+    }
+
+    private static class ServiceSender extends ServiceConnector {
+        public ServiceSender(@NonNull Context client, @NonNull Class<? extends ServiceEngine> server) {
+            super(client, server);
+        }
+
         @Override
         public void onServiceResult(@NonNull JobInfo work, @Nullable Bundle result) {
-            Log.d("RESULT", "onReceiveResult");
         }
 
         @Override
         public void onServiceException(@NonNull JobInfo work, @NonNull Throwable e) {
-
         }
-    };
+    }
 }
