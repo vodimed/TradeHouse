@@ -234,11 +234,6 @@ public abstract class AdapterTemplate<Item>
 
     public static abstract class SimpleCursor extends AbstractCursor {
         @Override
-        public int getCount() {
-            return -1;
-        }
-
-        @Override
         public String[] getColumnNames() {
             return new String[0];
         }

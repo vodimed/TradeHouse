@@ -12,6 +12,8 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -29,6 +31,8 @@ import com.common.extensions.AdapterTemplate;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Service control center: add the following code to your Serice extends ServiceEngine
@@ -54,9 +58,12 @@ import java.util.Locale;
  * }
  */
 public class ServiceActivity extends Activity {
+    enum ServiceState {disabled, disconnected, connected}
     private final TaskList tasklist = new TaskList();
+    private Timer autorefresh = null;
     private ActivityLayout activity = null;
     private ServiceConnector service = null;
+    private boolean bound = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +78,25 @@ public class ServiceActivity extends Activity {
                 new ComponentName(getIntent().getPackage(), getIntent().getAction()));
 
         service = new ServiceSender(this, sender);
-        final boolean bound = service.bindService(0);
+        bound = service.bindService(ServiceEngine.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (bound) {
+            autorefresh = new Timer();
+            autorefresh.schedule(refresh, 2000, 2000);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        if (autorefresh != null) {
+            autorefresh.cancel();
+            autorefresh = null;
+        }
+        super.onPause();
     }
 
     @Override
@@ -79,6 +104,18 @@ public class ServiceActivity extends Activity {
         service.unbindService();
         super.onDestroy();
     }
+
+    private final TimerTask refresh = new TimerTask() {
+        @Override
+        public void run() {
+            if (service.isConnected()) try {
+                tasklist.setData(service.getAllPendingJobs());
+                activity.onDataReceived();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    };
 
     /**
      * Call this method once - on your Application start.
@@ -181,6 +218,7 @@ public class ServiceActivity extends Activity {
     public static class ActivityLayout extends LinearLayout {
         private static final String ru = new Locale("ru").getLanguage();
         private final boolean russian = Locale.getDefault().getLanguage().equals(ru);
+        public final TextView labelActions;
         public final ListView listActions;
         public final TextView textProtocol;
         public final Button buttonClear;
@@ -190,14 +228,14 @@ public class ServiceActivity extends Activity {
             super(context);
             this.setOrientation(VERTICAL);
 
-            final TextView labelActions = new TextView(context);
+            labelActions = new TextView(context);
             labelActions.setTypeface(null, Typeface.BOLD);
-            labelActions.setText(android.R.string.selectTextMode);
+            labelActions.setText(android.R.string.unknownName);
             this.addView(labelActions);
 
             listActions = new ListView(context);
             listActions.setLayoutParams(new LinearLayout.LayoutParams(
-                    LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 3.0f));
+                    LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 2.7f));
             listActions.invalidateViews();
             this.addView(listActions);
 
@@ -238,6 +276,10 @@ public class ServiceActivity extends Activity {
             layoutButtons.addView(buttonClose);
         }
 
+        public void onDataReceived() {
+            labelActions.setText(android.R.string.selectTextMode);
+        }
+
         private final OnClickListener OnClickClose = new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -253,8 +295,9 @@ public class ServiceActivity extends Activity {
 
         @Override
         public void onBindViewHolder(@NonNull Holder holder, int position) {
-            AdapterLayout layout = (AdapterLayout) holder.getView();
-            layout.textName.setText("Task: " + position);
+            final AdapterLayout layout = (AdapterLayout) holder.getView();
+            final ServiceInterface.JobInfo item = getItem(position);
+            layout.textName.setText(item.process.getClassName());
         }
 
         @Override
@@ -270,7 +313,7 @@ public class ServiceActivity extends Activity {
         private List<ServiceInterface.JobInfo> dataset = null;
 
         public void setData(List<ServiceInterface.JobInfo> dataset) {
-            if (this.dataset != null && !this.dataset.equals(dataset)) {
+            if (this.dataset == null || !this.dataset.equals(dataset)) {
                 this.dataset = dataset;
                 requery();
             }
@@ -279,11 +322,23 @@ public class ServiceActivity extends Activity {
         public ServiceInterface.JobInfo getValue(int column) {
             return dataset.get(getPosition());
         }
+
+        @Override
+        public int getCount() {
+            if (dataset == null) return 0;
+            return dataset.size();
+        }
     }
 
-    private static class ServiceSender extends ServiceConnector {
+    private class ServiceSender extends ServiceConnector {
         public ServiceSender(@NonNull Context client, @NonNull Class<? extends ServiceEngine> server) {
             super(client, server);
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            super.onServiceConnected(name, service);
+            refresh.run();
         }
 
         @Override

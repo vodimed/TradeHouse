@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class ServiceConnector implements ServiceConnection, ServiceInterface, ServiceInterface.Receiver {
+    private final static Parcel empty = Parcel.obtain();
     private final ServiceReceiver delegate = new ServiceReceiver(this);
     private final WeakReference<Context> client;
     private final Class<? extends ServiceEngine> server;
@@ -68,12 +69,16 @@ public abstract class ServiceConnector implements ServiceConnection, ServiceInte
     private List<JobInfo> joblist(int action) throws RemoteException {
         final Parcel parcel = Parcel.obtain();
 
-        if (service != null && service.transact(action, null, parcel, 0)) {
+        if (service != null && service.transact(action, empty, parcel, 0)) {
             final List<JobInfo> result = new ArrayList<JobInfo>(parcel.dataSize());
             parcel.readTypedList(result, JobInfo.CREATOR);
             return result;
         }
         throw new RemoteException();
+    }
+
+    public boolean isConnected() {
+        return (this.service != null);
     }
 
     @NonNull
@@ -94,7 +99,7 @@ public abstract class ServiceConnector implements ServiceConnection, ServiceInte
         // @Override method must run after
     }
 
-    @Override // Bind link Temporarily unavailable (onServiceConnected will be risen)
+    @Override // Bind link Temporarily unavailable (onServiceConnected will be called)
     public void onServiceDisconnected(ComponentName name) {
         this.service = null;
         // @Override method must run after
