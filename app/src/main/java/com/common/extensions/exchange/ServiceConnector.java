@@ -58,23 +58,28 @@ public abstract class ServiceConnector implements ServiceConnection, ServiceInte
 
     @Override
     public void cancel(@NonNull JobInfo work) throws RemoteException {
-        if (service != null) {
+        try {
             final Parcel parcel = Parcel.obtain();
             parcel.writeParcelable(work, 0);
-            if (service.transact(ACTION_CANCEL, parcel, null, IBinder.FLAG_ONEWAY)) return;
+            service.transact(ACTION_CANCEL, parcel, null, IBinder.FLAG_ONEWAY);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RemoteException("Service unavailable");
         }
-        throw new RemoteException();
     }
 
     private List<JobInfo> joblist(int action) throws RemoteException {
-        final Parcel parcel = Parcel.obtain();
-
-        if (service != null && service.transact(action, empty, parcel, 0)) {
-            final List<JobInfo> result = new ArrayList<JobInfo>(parcel.dataSize());
-            parcel.readTypedList(result, JobInfo.CREATOR);
-            return result;
+        try {
+            final Parcel parcel = Parcel.obtain();
+            if (service.transact(action, empty, parcel, 0)) {
+                final List<JobInfo> result = new ArrayList<JobInfo>(parcel.dataSize());
+                parcel.readTypedList(result, JobInfo.CREATOR);
+                return result;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        throw new RemoteException();
+        throw new RemoteException("Service unavailable");
     }
 
     public boolean isConnected() {

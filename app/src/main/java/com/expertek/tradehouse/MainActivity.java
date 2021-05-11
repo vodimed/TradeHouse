@@ -23,7 +23,7 @@ import com.common.extensions.exchange.ServiceReceiver;
 import com.expertek.tradehouse.dictionaries.entity.Objects;
 import com.expertek.tradehouse.documents.entity.Documents;
 import com.expertek.tradehouse.documents.entity.Lines;
-import com.expertek.tradehouse.tradehouse.ThSettings;
+import com.expertek.tradehouse.tradehouse.Настройки;
 import com.expertek.tradehouse.tradehouse.TradeHouseService;
 import com.honeywell.aidc.AidcManager;
 import com.honeywell.aidc.AidcManager.CreatedCallback;
@@ -238,7 +238,7 @@ public class MainActivity extends Activity implements BarcodeReader.BarcodeListe
             //final ComponentName service = new ComponentName(this, JobsService.class);
             final JobInfo.Builder jobInfo = new JobInfo.Builder(jobID, service).setOverrideDeadline(0);
 
-            final Intent intent = new ServiceInterface.JobInfo(jobID, ThSettings.class, scheduler.receiver()).asIntent(this, TradeHouseService.class);
+            final Intent intent = new ServiceInterface.JobInfo(jobID, Настройки.class, scheduler.receiver()).asIntent(this, TradeHouseService.class);
 
             mScheduler.enqueue(jobInfo.build(), new JobWorkItem(intent));
             mScheduler.enqueue(jobInfo.build(), new JobWorkItem(intent));
@@ -247,9 +247,9 @@ public class MainActivity extends Activity implements BarcodeReader.BarcodeListe
 
     public void doUnbindService(View view) {
         //tradehouse.unregisterService();
-        //tradehouse.enqueue(new ServiceInterface.JobInfo(1, ThSettings.class, tradehouse.receiver()), null);
-        //tradehouse.enqueue(new ServiceInterface.JobInfo(1, ThDictionaries.class, tradehouse.receiver()), null);
-        //tradehouse.enqueue(new ServiceInterface.JobInfo(2, ThDocuments.class, tradehouse.receiver()), null);
+        //tradehouse.enqueue(new ServiceInterface.JobInfo(1, Настройки.class, tradehouse.receiver()), null);
+        //tradehouse.enqueue(new ServiceInterface.JobInfo(1, Словари.class, tradehouse.receiver()), null);
+        //tradehouse.enqueue(new ServiceInterface.JobInfo(2, Документы.class, tradehouse.receiver()), null);
         tradehouse.unregisterService();
         //List<JobInfo> jobs = mScheduler.getAllPendingJobs();
         //System.out.println("TASKS PLANNED = " + jobs.size());

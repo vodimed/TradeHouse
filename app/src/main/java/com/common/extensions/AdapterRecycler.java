@@ -1,22 +1,27 @@
 package com.common.extensions;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Adapter for RecyclerView and ListView classes.
+ * All ViewHolder controls must use ItemListener interface
+ * (pass events through) for listening events of mouse clicks
  */
 public abstract class AdapterRecycler<Item>
         extends RecyclerView.Adapter<AdapterRecycler.ViewHolder>
         implements AdapterInterface<Item>
 {
+    public static final long NO_ID = RecyclerView.NO_ID;
     private final AdapterTemplate<Item> template;
 
     public AdapterRecycler(Context context, @NonNull @LayoutRes int... layout) {
@@ -32,7 +37,8 @@ public abstract class AdapterRecycler<Item>
                               Context context, @NonNull@LayoutRes int... layout)
     {
         super();
-        this.template = new AdapterActual(ViewHolder.class, context, layout);
+        this.template = new AdapterActual(holder, context, layout);
+        this.template.registerDataSetObserver(observer); // Dataset notification
     }
 
     @SafeVarargs
@@ -40,7 +46,16 @@ public abstract class AdapterRecycler<Item>
                               Context context, @NonNull Class<? extends View>... layer)
     {
         super();
-        this.template = new AdapterActual(ViewHolder.class, context, layer);
+        this.template = new AdapterActual(holder, context, layer);
+        this.template.registerDataSetObserver(observer); // Dataset notification
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        final RecyclerView.LayoutManager current = recyclerView.getLayoutManager();
+        if (current == null || !LinearLayoutManager.class.equals(current.getClass()))
+            recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
     }
 
     private class AdapterActual extends AdapterTemplate<Item> {
@@ -71,26 +86,19 @@ public abstract class AdapterRecycler<Item>
         }
 
         @Override
-        public int getItemCount() {
-            return AdapterRecycler.this.getItemCount();
-        }
-
-        @Override
-        public void onChanged() {
-            super.onChanged();
-            AdapterRecycler.this.notifyDataSetChanged();
-        }
-
-        @Override
-        public void onInvalidated() {
-            super.onInvalidated();
-            AdapterRecycler.this.notifyDataSetChanged();
-        }
-
-        @Override
         public Item getItem(int position) {
             return AdapterRecycler.this.getItem(position);
         }
+    }
+
+    public @Nullable Cursor dataset() {
+        return template.dataset();
+    }
+
+    @SuppressWarnings("unchecked") // just only exception: when type of receiving variable != this
+    public <C extends AdapterRecycler<Item>> C from(@Nullable Cursor dataset) {
+        template.from(dataset);
+        return (C) this;
     }
 
     @NonNull
@@ -106,7 +114,7 @@ public abstract class AdapterRecycler<Item>
 
     @Override
     public int getItemCount() {
-        return template.getItemCount();
+        return getCount();
     }
 
     @Override
@@ -121,7 +129,7 @@ public abstract class AdapterRecycler<Item>
 
     @Override
     public int getCount() {
-        return getItemCount();
+        return template.getCount();
     }
 
     @Override
@@ -149,12 +157,24 @@ public abstract class AdapterRecycler<Item>
         return template.isEnabled(position);
     }
 
-    @Override
-    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
-    }
+    /**
+     * Implementation of Dataset notification kernel
+     */
+    private final DataSetObserver observer = new DataSetObserver() {
+        @Override
+        public void onChanged() {
+            notifyDataSetChanged();
+        }
 
+        @Override
+        public void onInvalidated() {
+            notifyDataSetChanged();
+        }
+    };
+
+    /**
+     * ViewHolder template. You should inherit your ViewHolder from this class
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder implements AdapterInterface.Holder {
         public ViewHolder(@NonNull View itemView) {
             super(itemView);

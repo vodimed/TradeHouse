@@ -138,6 +138,7 @@ public class ServiceQueue implements Runnable {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             } catch (Throwable e) {
+                // TODO: ThreadDeath
                 result.putSerializable(ServiceInterface.THROWABLE, e);
                 provided = true;
             }

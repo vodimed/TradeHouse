@@ -55,8 +55,10 @@ android {
     // Requires: implementation 'androidx.recyclerview:recyclerview:1.2.0'
     if (!project.findProperty('recycler').asBoolean()) {
         sourceSets.main.java.exclude '**/AdapterRecycler.java'
+        sourceSets.main.java.exclude '**/RecyclerViewInter.java'
     } else dependencies {
         implementation 'androidx.recyclerview:recyclerview:1.2.0'
+        implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
     }
 
     dependencies {
@@ -85,3 +87,4 @@ android {
         targetCompatibility JavaVersion.VERSION_1_6
     }
 }
+

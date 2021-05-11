@@ -17,6 +17,8 @@ import android.os.RemoteException;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Checkable;
+import android.widget.CheckedTextView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
@@ -27,7 +29,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 
+import com.common.extensions.AdapterInterface;
+import com.common.extensions.AdapterRecycler;
 import com.common.extensions.AdapterTemplate;
+import com.common.extensions.RecyclerViewInter;
 
 import java.util.List;
 import java.util.Locale;
@@ -58,8 +63,7 @@ import java.util.TimerTask;
  * }
  */
 public class ServiceActivity extends Activity {
-    enum ServiceState {disabled, disconnected, connected}
-    private final TaskList tasklist = new TaskList();
+    private final TaskCursor taskcursor = new TaskCursor();
     private Timer autorefresh = null;
     private ActivityLayout activity = null;
     private ServiceConnector service = null;
@@ -71,14 +75,23 @@ public class ServiceActivity extends Activity {
         setContentView(new ActivityLayout(this));
         //setContentView(R.layout.service_activity);
 
+        @SuppressWarnings("unchecked") // Unchecked generics array creation for varargs parameter
+        //final TaskAdapter adapter = new TaskAdapter(this, android.R.layout.simple_list_item_single_choice).from(taskcursor);
+        final TaskAdapter adapter = new TaskAdapter(this, AdapterLayout.class).from(taskcursor);
+
         activity = (ActivityLayout) this.getActivityLayout();
-        activity.listActions.setAdapter(new TaskAdapter(this, AdapterLayout.class).from(tasklist));
+        activity.listActions.setAdapter(adapter);
+        activity.listActions.setOnItemSelectionListener(onItemSelection);
+        activity.buttonClear.setOnClickListener(onClickClear);
+        activity.buttonCancel.setOnClickListener(onClickCancel);
 
         final Class<? extends ServiceEngine> sender = getService(
                 new ComponentName(getIntent().getPackage(), getIntent().getAction()));
 
-        service = new ServiceSender(this, sender);
-        bound = service.bindService(ServiceEngine.BIND_AUTO_CREATE);
+        if (sender != null) {
+            service = new ServiceSender(this, sender);
+            bound = service.bindService(ServiceEngine.BIND_AUTO_CREATE);
+        }
     }
 
     @Override
@@ -86,7 +99,7 @@ public class ServiceActivity extends Activity {
         super.onResume();
         if (bound) {
             autorefresh = new Timer();
-            autorefresh.schedule(refresh, 2000, 2000);
+            autorefresh.schedule(refresh, 5000, 5000);
         }
     }
 
@@ -106,14 +119,60 @@ public class ServiceActivity extends Activity {
     }
 
     private final TimerTask refresh = new TimerTask() {
+        private List<ServiceInterface.JobInfo> dataset = null;
+
+        private final Runnable refreshUI = new Runnable() {
+            @Override
+            public void run() {
+                taskcursor.setData(dataset);
+                activity.onDataReceived(true);
+            }
+        };
+
         @Override
         public void run() {
             if (service.isConnected()) try {
-                tasklist.setData(service.getAllPendingJobs());
-                activity.onDataReceived();
+                dataset = service.getAllPendingJobs();
+                runOnUiThread(refreshUI);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
+        }
+    };
+
+    private final View.OnClickListener onClickClear = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            service.cancelAll();
+        }
+    };
+
+    private final View.OnClickListener onClickCancel = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            final ServiceInterface.JobInfo work =
+                    (ServiceInterface.JobInfo) activity.listActions.getSelectedItem();
+            if (work != null) try {
+                service.cancel(work);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
+    private final AdapterInterface.OnItemSelectionListener onItemSelection =
+            new AdapterInterface.OnItemSelectionListener()
+    {
+        @Override
+        public void onItemSelection(ViewGroup parent, View view, int position, long id) {
+            activity.onItemSelection(true);
+            System.out.println("SELECTED " + id);
+        }
+
+        @Override
+        public void onNothingSelected(ViewGroup parent) {
+            activity.onItemSelection(false);
+            System.out.println("NOTHING SELECTED");
         }
     };
 
@@ -192,11 +251,13 @@ public class ServiceActivity extends Activity {
         return builder;
     }
 
+    // Documented request for Root view of Activity
     // https://titanwolf.org/Network/Articles/Article?AID=3a5e6098-dfd4-47a9-8313-da431e5ee3bb
     private View getActivityLayout() {
         return ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
     }
 
+    // Restore Service class from Component name
     protected @Nullable Class<? extends ServiceEngine> getService(ComponentName component) {
         try {
             return Class.forName(component.getClassName()).asSubclass(ServiceEngine.class);
@@ -206,20 +267,15 @@ public class ServiceActivity extends Activity {
         }
     }
 
-    public static class AdapterLayout extends TextView {
-        public final TextView textName;
-
-        public AdapterLayout(Context context) {
-            super(context);
-            textName = this;
-        }
-    }
-
+    /**
+     * Activity layout: dynamically created view controls
+     * Creates the same controls as layout.xml resource
+     */
     public static class ActivityLayout extends LinearLayout {
         private static final String ru = new Locale("ru").getLanguage();
         private final boolean russian = Locale.getDefault().getLanguage().equals(ru);
         public final TextView labelActions;
-        public final ListView listActions;
+        public final RecyclerViewInter listActions;
         public final TextView textProtocol;
         public final Button buttonClear;
         public final Button buttonCancel;
@@ -230,13 +286,13 @@ public class ServiceActivity extends Activity {
 
             labelActions = new TextView(context);
             labelActions.setTypeface(null, Typeface.BOLD);
-            labelActions.setText(android.R.string.unknownName);
             this.addView(labelActions);
 
-            listActions = new ListView(context);
+            listActions = new RecyclerViewInter(context);
             listActions.setLayoutParams(new LinearLayout.LayoutParams(
                     LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 2.7f));
-            listActions.invalidateViews();
+            listActions.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+            setupList(listActions);
             this.addView(listActions);
 
             final TextView labelProtocol = new TextView(context);
@@ -272,15 +328,27 @@ public class ServiceActivity extends Activity {
             buttonClose.setLayoutParams(new LinearLayout.LayoutParams(
                     LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 1.0f));
             buttonClose.setText(android.R.string.ok);
-            buttonClose.setOnClickListener(OnClickClose);
+            buttonClose.setOnClickListener(onClickClose);
             layoutButtons.addView(buttonClose);
+
+            onDataReceived(false);
+            onItemSelection(false);
         }
 
-        public void onDataReceived() {
-            labelActions.setText(android.R.string.selectTextMode);
+        private void setupList(ViewGroup listActions) {
+            if (listActions instanceof ListView)
+                ((ListView) listActions).setSelector(android.R.drawable.list_selector_background);
         }
 
-        private final OnClickListener OnClickClose = new OnClickListener() {
+        public void onDataReceived(boolean on) {
+            labelActions.setText(on ? android.R.string.selectTextMode : android.R.string.unknownName);
+        }
+
+        public void onItemSelection(boolean on) {
+            buttonCancel.setEnabled(on);
+        }
+
+        private final OnClickListener onClickClose = new OnClickListener() {
             @Override
             public void onClick(View v) {
                 ((ServiceActivity)v.getContext()).finish();
@@ -288,28 +356,85 @@ public class ServiceActivity extends Activity {
         };
     }
 
-    private static class TaskAdapter extends AdapterTemplate<ServiceInterface.JobInfo> {
+    /**
+     * Adapter layout: dynamically created view controls
+     * See also: "android.R.layout.simple_list_item_single_choice"
+     */
+    public static class AdapterLayout extends CheckedTextView implements Checkable {
+        public final TextView textName;
+
+        public AdapterLayout(Context context) {
+            super(context);
+            textName = this;
+            setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT));
+        }
+
+        @Override
+        public void setChecked(boolean checked) {
+            super.setChecked(checked);
+            setCheckMarkDrawable(checked ?
+                    android.R.drawable.radiobutton_on_background :
+                    android.R.drawable.radiobutton_off_background);
+        }
+    }
+
+    /**
+     * ListView data Adapter: list of all pending jobs
+     */
+    private static class TaskAdapter extends AdapterRecycler<ServiceInterface.JobInfo> {
+        public TaskAdapter(Context context, @NonNull int... layout) {
+            super(context, layout);
+            setHasStableIds(true);
+        }
+
         public TaskAdapter(Context context, @NonNull Class<? extends View>... layer) {
             super(context, layer);
+            setHasStableIds(true);
+        }
+
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            return (ViewHolder) super.onCreateViewHolder(parent, viewType);
         }
 
         @Override
         public void onBindViewHolder(@NonNull Holder holder, int position) {
-            final AdapterLayout layout = (AdapterLayout) holder.getView();
-            final ServiceInterface.JobInfo item = getItem(position);
-            layout.textName.setText(item.process.getClassName());
+            final ServiceInterface.JobInfo work = getItem(position);
+            final String[] name = work.process.getClassName().split("\\.");
+            final String text = String.format(Locale.getDefault(), "%d. %s <%s>",
+                    work.jobId, name[name.length - 1], name[name.length - 2]);
+
+            if (holder.getView() instanceof AdapterLayout) {
+                final AdapterLayout layout = (AdapterLayout) holder.getView();
+                layout.textName.setText(text);
+            } else { //"android.R.layout.simple_list_item_single_choice"
+                final TextView text1 = holder.getView().findViewById(android.R.id.text1);
+                text1.setText(text);
+            }
         }
 
         @Override
         public ServiceInterface.JobInfo getItem(int position) {
-            final TaskList dataset = (TaskList) dataset();
+            final TaskCursor dataset = (TaskCursor) dataset();
             if (dataset == null) return null;
             dataset.moveToPosition(position);
             return dataset.getValue(0);
         }
+
+        @Override
+        public long getItemId(int position) {
+            if (position >= getCount()) return NO_ID; // called if hasStableIds
+            return getItem(position).jobId;
+        }
     }
 
-    private static class TaskList extends AdapterTemplate.SimpleCursor {
+    /**
+     * ListView data Cursor: list of all pending jobs
+     */
+    private static class TaskCursor extends AdapterTemplate.SimpleCursor {
         private List<ServiceInterface.JobInfo> dataset = null;
 
         public void setData(List<ServiceInterface.JobInfo> dataset) {
@@ -330,6 +455,9 @@ public class ServiceActivity extends Activity {
         }
     }
 
+    /**
+     * Service Control and Result receiver
+     */
     private class ServiceSender extends ServiceConnector {
         public ServiceSender(@NonNull Context client, @NonNull Class<? extends ServiceEngine> server) {
             super(client, server);

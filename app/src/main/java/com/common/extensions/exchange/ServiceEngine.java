@@ -17,8 +17,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import com.expertek.tradehouse.tradehouse.Настройки;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class ServiceEngine extends Service implements ServiceInterface, ServiceInterface.Receiver {
     private final ServiceQueue queue = new ServiceQueue();
@@ -97,7 +100,14 @@ public class ServiceEngine extends Service implements ServiceInterface, ServiceI
     @Override
     public List<JobInfo> getAllPendingJobs() throws RemoteException {
         ArrayList<JobInfo> result = new ArrayList<JobInfo>();
-        result.add(new JobInfo(-1, null, null));
+        Random rand = new Random();
+        for (int i = 1, j = 7; i < j; i++) {
+            result.add(new JobInfo(i, Настройки.class, null));
+        }
+        try {
+            result.remove(rand.nextInt(7));
+            result.remove(rand.nextInt(6));
+        } catch (Exception e) {}
         return result;
     }
 
@@ -117,20 +127,25 @@ public class ServiceEngine extends Service implements ServiceInterface, ServiceI
 
         @Override
         protected boolean onTransact(int code, @NonNull Parcel data, @Nullable Parcel reply, int flags) throws RemoteException {
-            switch (code) {
-                case ACTION_CANCEL:
-                    service.cancel(data.readTypedObject(JobInfo.CREATOR));
-                    return true;
-                case ACTION_LISTALL:
-                    assert reply != null;
-                    reply.writeTypedList(service.getAllPendingJobs());
-                    return true;
-                case ACTION_LISTRUN:
-                    assert reply != null;
-                    reply.writeTypedList(service.getStartedJobs());
-                    return true;
-                default:
-                    return super.onTransact(code, data, reply, flags);
+            try {
+                switch (code) {
+                    case ACTION_CANCEL:
+                        service.cancel(data.readTypedObject(JobInfo.CREATOR));
+                        return true;
+                    case ACTION_LISTALL:
+                        assert reply != null;
+                        reply.writeTypedList(service.getAllPendingJobs());
+                        return true;
+                    case ACTION_LISTRUN:
+                        assert reply != null;
+                        reply.writeTypedList(service.getStartedJobs());
+                        return true;
+                    default:
+                        return super.onTransact(code, data, reply, flags);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
             }
         }
     }

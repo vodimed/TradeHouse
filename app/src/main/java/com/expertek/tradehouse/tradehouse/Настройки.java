@@ -3,7 +3,7 @@ package com.expertek.tradehouse.tradehouse;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
-public class ThSettings extends TradeHouseTask {
+public class Настройки extends TradeHouseTask {
     @Override
     public Boolean call() throws Exception {
         if (!cancelled) {

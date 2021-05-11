@@ -27,6 +27,7 @@ public class MainApplication extends Application {
     public MainApplication() {
         super();
         app = this;
+        Thread.setDefaultUncaughtExceptionHandler(allerrors);
         dictionaries = new DataBase<DbDictionaries>(this);
         documents = new DataBase<DBDocuments>(this);
     }
@@ -41,6 +42,7 @@ public class MainApplication extends Application {
                 R.string.CHANNEL_ID,
                 R.string.service_tradehouse);
 
+        //AccessibilityManager -- logging
         //ActivityManager.killBackgroundProcesses(Service); ActivityManager.AppTask
     }
 
@@ -67,4 +69,17 @@ public class MainApplication extends Application {
     {
         return documents.replace(version, source);
     }
+
+    /**
+     * Handle all uncaught Exceptions and Errors of the project
+     */
+    private final Thread.UncaughtExceptionHandler allerrors = new Thread.UncaughtExceptionHandler() {
+        private final Thread.UncaughtExceptionHandler original = Thread.getDefaultUncaughtExceptionHandler();
+
+        @Override
+        public void uncaughtException(@NonNull Thread t, @NonNull Throwable e) {
+            e.printStackTrace();
+            original.uncaughtException(t, e);
+        }
+    };
 }

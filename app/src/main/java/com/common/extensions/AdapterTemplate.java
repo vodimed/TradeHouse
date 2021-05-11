@@ -4,7 +4,7 @@ import android.content.Context;
 import android.database.AbstractCursor;
 import android.database.Cursor;
 import android.database.DataSetObserver;
-import android.util.ArraySet;
+import android.database.Observable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,13 +18,13 @@ import java.lang.reflect.InvocationTargetException;
 
 /**
  * Adapter for ListView class (when RecycledView library is not connected).
+ * To correct handling onItemClick events items must implement Checkable interface
  */
 public abstract class AdapterTemplate<Item>
-        extends DataSetObserver
         implements AdapterInterface<Item>
 {
     public static final long NO_ID = -1;
-    private final ArraySet<DataSetObserver> observers = new ArraySet<DataSetObserver>(1);
+    private final Notifier notifier = new Notifier();
     private final Constructor<? extends Holder> creator;
     private final Constructor<? extends View>[] instance;
     private final LayoutInflater inflater;
@@ -88,22 +88,20 @@ public abstract class AdapterTemplate<Item>
         return this.dataset;
     }
 
-    public AdapterTemplate<Item> from(@Nullable Cursor dataset) {
-        if (this.dataset != null) this.dataset.unregisterDataSetObserver(this);
-        this.dataset = dataset;
-        if (this.dataset != null) this.dataset.registerDataSetObserver(this);
-        return this;
+    @SuppressWarnings("unchecked") // just only exception: when type of receiving variable != this
+    public <C extends AdapterTemplate<Item>> C from(@Nullable Cursor dataset) {
+        if (this.dataset != dataset) {
+            if (this.dataset != null) this.dataset.unregisterDataSetObserver(notifier.observer);
+            this.dataset = dataset;
+            if (this.dataset != null) this.dataset.registerDataSetObserver(notifier.observer);
+            notifier.observer.onChanged();
+        }
+        return (C) this;
     }
 
     @Override // returning ViewHolder would be invalid typecast for AdapterRecycler
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return createViewHolder(parent, viewType);
-    }
-
-    @Override
-    public int getItemCount() {
-        if (dataset == null) return 0;
-        return dataset.getCount();
     }
 
     protected final Holder createViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -138,6 +136,11 @@ public abstract class AdapterTemplate<Item>
     }
 
     @Override
+    public int getItemCount() {
+        return getCount();
+    }
+
+    @Override
     public boolean areAllItemsEnabled() {
         return true;
     }
@@ -149,17 +152,18 @@ public abstract class AdapterTemplate<Item>
 
     @Override
     public void registerDataSetObserver(DataSetObserver observer) {
-        observers.add(observer);
+        this.notifier.registerObserver(observer);
     }
 
     @Override
     public void unregisterDataSetObserver(DataSetObserver observer) {
-        observers.remove(observer);
+        this.notifier.unregisterObserver(observer);
     }
 
     @Override
     public int getCount() {
-        return getItemCount();
+        if (dataset == null) return 0;
+        return dataset.getCount();
     }
 
     @Override
@@ -173,7 +177,7 @@ public abstract class AdapterTemplate<Item>
     }
 
     public void setHasStableIds(boolean hasStableIds) {
-        if (!observers.isEmpty()) throw new IllegalStateException("Adapter has registered observers");
+        if (!notifier.isEmpty()) throw new IllegalStateException("Adapter has registered observers");
         stableIds = hasStableIds;
     }
 
@@ -209,16 +213,28 @@ public abstract class AdapterTemplate<Item>
         return (getCount() == 0);
     }
 
-    @Override
-    public void onChanged() {
-        for (DataSetObserver observer : observers) observer.onChanged();
+    /**
+     * Implementation of Dataset notification kernel
+     */
+    private static class Notifier extends Observable<DataSetObserver> {
+        public boolean isEmpty() {
+            return mObservers.isEmpty();
+        }
+
+        public final DataSetObserver observer = new DataSetObserver() {
+            public void onChanged() {
+                for (DataSetObserver observer : mObservers) observer.onChanged();
+            }
+
+            public void onInvalidated() {
+                for (DataSetObserver observer : mObservers) observer.onInvalidated();
+            }
+        };
     }
 
-    @Override
-    public void onInvalidated() {
-        for (DataSetObserver observer : observers) observer.onInvalidated();
-    }
-
+    /**
+     * ViewHolder template. But you are not forced to use it (interface is enough)
+     */
     public static class ViewHolder implements AdapterInterface.Holder {
         public final View itemView;
 
@@ -232,6 +248,9 @@ public abstract class AdapterTemplate<Item>
         }
     }
 
+    /**
+     * Simple Dataset template to avoid stupid code in user Application
+     */
     public static abstract class SimpleCursor extends AbstractCursor {
         @Override
         public String[] getColumnNames() {

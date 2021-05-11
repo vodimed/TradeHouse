@@ -20,4 +20,15 @@ public interface AdapterInterface<Item> extends ListAdapter {
     interface Holder {
         View getView();
     }
+
+    interface Viewer {
+        void setOnItemSelectionListener(OnItemSelectionListener listener);
+        OnItemSelectionListener getOnItemSelectionListener();
+    }
+
+    // Based on AdapterView.OnItemSelectedListener()
+    interface OnItemSelectionListener {
+        void onItemSelection(ViewGroup parent, View view, int position, long id);
+        void onNothingSelected(ViewGroup parent);
+    }
 }

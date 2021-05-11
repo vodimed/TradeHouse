@@ -7,21 +7,14 @@ import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
-public class ThDocuments extends TradeHouseTask {
-    @Override
-    protected void setRequestHeaders() {
-        connection.setRequestProperty("Content-Type", "raw");
-        connection.setRequestProperty("User-Agent", "маг?202?True?.");
-        connection.setDoOutput(true);
-    }
-
+public class Словари extends TradeHouseTask {
     @Override
     public Boolean call() throws Exception {
-        final File documents = MainApplication.app().getDatabasePath(MainSettings.Documents_db);
+        final File dictionaries = MainApplication.app().getDatabasePath(MainSettings.Dictionaries_db);
 
         if (!cancelled) {
             connection.connect();
-            cancelled = !binary_request(connection.getOutputStream(), documents);
+            request(connection.getOutputStream(), REQ_DICTIONARIES);
         }
 
         if (!cancelled) {
@@ -31,8 +24,8 @@ public class ThDocuments extends TradeHouseTask {
 
             if ("text/csv".equals(connection.getContentType())) {
                 response(connection.getInputStream(), result);
-            } else if (binary_response(connection.getInputStream(), documents)) {
-                result.putInt(documents.getName(), 1);
+            } else if (binary_response(connection.getInputStream(), dictionaries)) {
+                result.putInt(dictionaries.getName(), 1);
             }
         }
 
