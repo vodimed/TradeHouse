@@ -99,7 +99,7 @@ public class ServiceActivity extends Activity {
         super.onResume();
         if (bound) {
             autorefresh = new Timer();
-            autorefresh.schedule(refresh, 5000, 5000);
+            //TODO: autorefresh.schedule(refresh, 7000, 5000);
         }
     }
 
@@ -369,6 +369,22 @@ public class ServiceActivity extends Activity {
             setLayoutParams(new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT));
+
+            //TODO
+            /*
+            textName.setOnClickListener(new OnClickItemListener(ListView.CHOICE_MODE_SINGLE) {
+                @Override
+                public void onItemClick(ViewGroup parent, View view, int position, long id) {
+                    System.out.println(((TextView) view).getText());
+                }
+            });
+            */
+            textName.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    System.out.println(((TextView) v).getText());
+                }
+            });
         }
 
         @Override

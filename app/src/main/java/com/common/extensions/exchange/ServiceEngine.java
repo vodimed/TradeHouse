@@ -101,7 +101,7 @@ public class ServiceEngine extends Service implements ServiceInterface, ServiceI
     public List<JobInfo> getAllPendingJobs() throws RemoteException {
         ArrayList<JobInfo> result = new ArrayList<JobInfo>();
         Random rand = new Random();
-        for (int i = 1, j = 7; i < j; i++) {
+        for (int i = 1, j = 17; i < j; i++) {
             result.add(new JobInfo(i, Настройки.class, null));
         }
         try {

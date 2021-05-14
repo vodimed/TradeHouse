@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 30
-    buildToolsVersion '30.0.3'
+    compileSdkVersion 27
+    buildToolsVersion '31.0.0 rc2'
 
     defaultConfig {
         applicationId 'com.expertek.tradehouse'
         minSdkVersion 26
-        targetSdkVersion 30
+        targetSdkVersion 27
         versionCode 1
         versionName "1.0"
 

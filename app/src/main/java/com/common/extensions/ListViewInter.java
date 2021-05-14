@@ -4,12 +4,15 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.util.SparseBooleanArray;
 import android.view.MotionEvent;
+import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import androidx.annotation.Nullable;
+
 /**
- * Extension of ListView, allowing unmasked handling onItemClick events
+ * Extension of ListView, allowing unmasked handling onItemClick events.
  */
 public class ListViewInter extends ListView implements AdapterInterface.Viewer {
     private AdapterInterface.OnItemSelectionListener onItemSelectionListener = null;
@@ -31,14 +34,10 @@ public class ListViewInter extends ListView implements AdapterInterface.Viewer {
     }
 
     @Override
-    public void setOnItemSelectionListener(AdapterInterface.OnItemSelectionListener listener) {
+    public void setOnItemSelectionListener(@Nullable AdapterInterface.OnItemSelectionListener listener) {
         onItemSelectionListener = listener;
     }
 
-    @Override
-    public AdapterInterface.OnItemSelectionListener getOnItemSelectionListener() {
-        return onItemSelectionListener;
-    }
     // We are unable to override layoutChildren(), because it is called
     // at least twice: with the old and then with the new item choices
     @Override
@@ -55,24 +54,47 @@ public class ListViewInter extends ListView implements AdapterInterface.Viewer {
     // https://developer.android.com/training/gestures/viewgroup
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        final View view = getTouchEventView(this, ev);
-        if (onItemSelectionListener != null && view != null) {
-            final int position = getPositionForView(view);
-            if (position != INVALID_POSITION) onItemSelectionListener.onItemSelection(
-                    this, view, position, getItemIdAtPosition(position));
-        }
-        return super.onInterceptTouchEvent(ev);
+        super.onInterceptTouchEvent(ev);
+        return true;
     }
 
-    // Find View in the Adapter's ViewGroup
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        boolean result = super.onTouchEvent(ev);
+        final View child = getTouchEventView(this, ev);
+        if (child != this) result |= child.dispatchTouchEvent(ev);
+        return result;
+    }
+
+    @Override
+    public boolean performItemClick(View view, int position, long id) {
+        if (isSoundEffectsEnabled())
+            playSoundEffect(SoundEffectConstants.CLICK);
+        if (onItemSelectionListener != null)
+            onItemSelectionListener.onItemSelection(this, view, position, id);
+        return super.performItemClick(view, position, id);
+    }
+
+    // Find leaf View in the Adapter's ViewGroup
     protected static View getTouchEventView(ViewGroup parent, MotionEvent event) {
-        final int coordinate = (int) event.getY();
+        final int coordinateX = (int) event.getX();
+        final int coordinateY = (int) event.getY();
+
         for (int i = 0; i < parent.getChildCount(); i++) {
             final View child = parent.getChildAt(i);
-            if (child.getTop() <= coordinate && coordinate <= child.getBottom()) {
-                return child;
+
+            if (child.getLeft() <= coordinateX && coordinateX <= child.getRight() &&
+                child.getTop() <= coordinateY && coordinateY <= child.getBottom())
+            {
+                if (child instanceof ViewGroup) {
+                    return getTouchEventView((ViewGroup) child, event);
+                } else {
+                    if (child.isSoundEffectsEnabled())
+                        child.setSoundEffectsEnabled(false);
+                    return child;
+                }
             }
         }
-        return null;
+        return parent;
     }
 }

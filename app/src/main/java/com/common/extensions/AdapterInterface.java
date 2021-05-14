@@ -5,6 +5,7 @@ import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * If you use RecyclerView, implement these interfaces in
@@ -22,8 +23,8 @@ public interface AdapterInterface<Item> extends ListAdapter {
     }
 
     interface Viewer {
-        void setOnItemSelectionListener(OnItemSelectionListener listener);
-        OnItemSelectionListener getOnItemSelectionListener();
+        void setOnItemSelectionListener(@Nullable OnItemSelectionListener listener);
+        void setSoundEffectsEnabled(boolean soundEffectsEnabled);
     }
 
     // Based on AdapterView.OnItemSelectedListener()

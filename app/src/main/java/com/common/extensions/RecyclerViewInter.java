@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.util.LongSparseArray;
 import android.view.MotionEvent;
+import android.view.SoundEffectConstants;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.Checkable;
@@ -12,6 +13,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+/**
+ * Extension of RecyclerView, allowing unmasked handling onItemClick events.
+*/
 public class RecyclerViewInter extends RecyclerView implements AdapterInterface.Viewer {
     private static final int CHECK_POSITION_SEARCH_DISTANCE = 20;
     private AdapterInterface.OnItemSelectionListener onItemSelectionListener = null;
@@ -52,13 +56,8 @@ public class RecyclerViewInter extends RecyclerView implements AdapterInterface.
     }
 
     @Override
-    public void setOnItemSelectionListener(AdapterInterface.OnItemSelectionListener listener) {
+    public void setOnItemSelectionListener(@Nullable  AdapterInterface.OnItemSelectionListener listener) {
         onItemSelectionListener = listener;
-    }
-
-    @Override
-    public AdapterInterface.OnItemSelectionListener getOnItemSelectionListener() {
-        return onItemSelectionListener;
     }
 
     @Override
@@ -116,21 +115,46 @@ public class RecyclerViewInter extends RecyclerView implements AdapterInterface.
     // Documented feature: "Manage touch events in a ViewGroup"
     // https://developer.android.com/training/gestures/viewgroup
     @Override
-    public boolean onInterceptTouchEvent(MotionEvent e) {
-        final View view = ListViewInter.getTouchEventView(this, e);
-        if (view != null) {
-            final int position = getChildAdapterPosition(view);
-            if (position != NO_POSITION) {
-                final long id = getChildItemId(view);
-                if (onItemSelectionListener != null)
-                    onItemSelectionListener.onItemSelection(this, view, position, id);
-                if (view instanceof Checkable)
-                    performCheckable((Checkable) view, position, id);
-            }
-        }
-        return super.onInterceptTouchEvent(e);
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        super.onInterceptTouchEvent(ev);
+        return true;
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        boolean result = super.onTouchEvent(ev);
+        final View child = ListViewInter.getTouchEventView(this, ev);
+
+        /*
+        if (child != this) {
+            final int position = getChildAdapterPosition(child);
+            if (position != NO_POSITION) {
+                final long id = getChildItemId(child);
+
+                if (child instanceof Checkable)
+                    performCheckable((Checkable) child, position, id);
+
+                performItemClick(child, position, id);
+            }
+        }
+        if (child != this) result |= child.dispatchTouchEvent(ev);
+        */
+
+        if (child != this) result |= child.dispatchTouchEvent(ev);
+        return result;
+    }
+
+    // We simulate this method, because unable to intercept anything
+    // after calling child.dispatchTouchEvent() in onTouchEvent()
+    private boolean performItemClick(View view, int position, long id) {
+        if (isSoundEffectsEnabled())
+            playSoundEffect(SoundEffectConstants.CLICK);
+        if (onItemSelectionListener != null)
+            onItemSelectionListener.onItemSelection(this, view, position, id);
+        return true;
+    }
+
+    // Control the states of Checkable elements
     private void performCheckable(Checkable view, long position, long id) {
         final boolean stable = getAdapter().hasStableIds();
         final int hint = (int) position;
@@ -141,14 +165,7 @@ public class RecyclerViewInter extends RecyclerView implements AdapterInterface.
             case AbsListView.CHOICE_MODE_SINGLE:
                 if (selection.get(position, Boolean.FALSE)) break;
                 final LayoutManager layout = getLayoutManager();
-                if (layout != null) {
-                    for (int i = 0; i < layout.getChildCount(); i++) {
-                        final View other = layout.getChildAt(i);
-                        if ((other instanceof Checkable) && ((Checkable) other).isChecked()) {
-                            ((Checkable) other).setChecked(false);
-                        }
-                    }
-                }
+                if (layout != null) toggleLayout(layout);
                 clearSelectionMarkers();
             case AbsListView.CHOICE_MODE_MULTIPLE:
                 final boolean checked = !view.isChecked();
@@ -178,5 +195,16 @@ public class RecyclerViewInter extends RecyclerView implements AdapterInterface.
             hintpos.put(id, NO_POSITION);
         }
         return NO_POSITION;
+    }
+
+    private static void toggleLayout(LayoutManager layout) {
+        for (int i = 0; i < layout.getChildCount(); i++) {
+            final View other = layout.getChildAt(i);
+
+            if (other instanceof Checkable) {
+                final Checkable item = (Checkable) other;
+                if (item.isChecked()) item.setChecked(false);
+            }
+        }
     }
 }
