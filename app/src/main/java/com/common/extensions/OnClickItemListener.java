@@ -9,7 +9,7 @@ import android.widget.Checkable;
 import java.lang.reflect.Method;
 
 /**
- * Alternative for ListViewInter & RecyclerViewInter usage
+ * Alternative for AdapterTemplate & AdapterRecycler usage
  * (without capability of onNothingSelected() notification).
  * You should use this class for implementation OnClick()
  * listeners of all event receiving ViewHolder's elements

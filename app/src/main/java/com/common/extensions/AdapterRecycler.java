@@ -3,8 +3,10 @@ package com.common.extensions;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DataSetObserver;
+import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Checkable;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
@@ -19,9 +21,9 @@ import androidx.recyclerview.widget.RecyclerView;
  */
 public abstract class AdapterRecycler<Item>
         extends RecyclerView.Adapter<AdapterRecycler.ViewHolder>
-        implements AdapterInterface<Item>
+        implements AdapterInterface<Item>, AdapterInterface.Viewer
 {
-    public static final long NO_ID = RecyclerView.NO_ID;
+    private final static boolean useActivated = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB);
     private final AdapterTemplate<Item> template;
 
     public AdapterRecycler(Context context, @NonNull @LayoutRes int... layout) {
@@ -37,8 +39,7 @@ public abstract class AdapterRecycler<Item>
                               Context context, @NonNull@LayoutRes int... layout)
     {
         super();
-        this.template = new AdapterActual(holder, context, layout);
-        this.template.registerDataSetObserver(observer); // Dataset notification
+        template = new AdapterActual(holder, context, layout);
     }
 
     @SafeVarargs
@@ -46,8 +47,7 @@ public abstract class AdapterRecycler<Item>
                               Context context, @NonNull Class<? extends View>... layer)
     {
         super();
-        this.template = new AdapterActual(holder, context, layer);
-        this.template.registerDataSetObserver(observer); // Dataset notification
+        template = new AdapterActual(holder, context, layer);
     }
 
     @Override
@@ -56,38 +56,33 @@ public abstract class AdapterRecycler<Item>
         final RecyclerView.LayoutManager current = recyclerView.getLayoutManager();
         if (current == null || !LinearLayoutManager.class.equals(current.getClass()))
             recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
+        template.registerParentObserver(recyclerView);
     }
 
-    private class AdapterActual extends AdapterTemplate<Item> {
-        public AdapterActual(Context context, @NonNull int... layout) {
-            super(context, layout);
-        }
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        template.unregisterParentObserver(recyclerView);
+    }
 
-        protected AdapterActual(Class<? extends Holder> holder,
-                                Context context, @NonNull int... layout)
-        {
-            super(holder, context, layout);
-        }
+    @Override
+    public void onViewAttachedToWindow(@NonNull ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        final View child = holder.getView();
 
-        protected AdapterActual(Class<? extends Holder> holder,
-                                Context context, @NonNull Class<? extends View>... layer)
-        {
-            super(holder, context, layer);
-        }
+        if (child instanceof Checkable) {
+            final ViewGroup parent = (ViewGroup) child.getParent();
+            final AdapterTemplate.Choicer choicer = template.getChoicerInternal(parent);
 
-        @Override
-        public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return AdapterRecycler.this.onCreateViewHolder(parent, viewType);
-        }
+            if (choicer != null) {
+                final int position = template.getPositionForView(parent, child);
 
-        @Override
-        public void onBindViewHolder(@NonNull Holder holder, int position) {
-            AdapterRecycler.this.onBindViewHolder(holder, position);
-        }
-
-        @Override
-        public Item getItem(int position) {
-            return AdapterRecycler.this.getItem(position);
+                // See AbsListView.updateOnScreenCheckedViews()
+                if (child instanceof Checkable) {
+                    ((Checkable) child).setChecked(choicer.isItemChecked(position));
+                } else if (useActivated) {
+                    child.setActivated(choicer.isItemChecked(position));
+                }
+            }
         }
     }
 
@@ -118,6 +113,16 @@ public abstract class AdapterRecycler<Item>
     }
 
     @Override
+    public boolean areAllItemsEnabled() {
+        return template.areAllItemsEnabled();
+    }
+
+    @Override
+    public boolean isEnabled(int position) {
+        return template.isEnabled(position);
+    }
+
+    @Override
     public void registerDataSetObserver(DataSetObserver observer) {
         template.registerDataSetObserver(observer);
     }
@@ -138,6 +143,11 @@ public abstract class AdapterRecycler<Item>
     }
 
     @Override
+    public View getDropDownView(int position, View convertView, ViewGroup parent) {
+        return template.getDropDownView(position, convertView, parent);
+    }
+
+    @Override
     public int getViewTypeCount() {
         return template.getViewTypeCount();
     }
@@ -148,29 +158,14 @@ public abstract class AdapterRecycler<Item>
     }
 
     @Override
-    public boolean areAllItemsEnabled() {
-        return template.areAllItemsEnabled();
+    public void setOnItemSelectionListener(@Nullable OnItemSelectionListener listener) {
+        template.setOnItemSelectionListener(listener);
     }
 
     @Override
-    public boolean isEnabled(int position) {
-        return template.isEnabled(position);
+    public void setChoiceMode(ViewGroup parent, int choiceMode) {
+        template.setChoiceMode(parent, choiceMode);
     }
-
-    /**
-     * Implementation of Dataset notification kernel
-     */
-    private final DataSetObserver observer = new DataSetObserver() {
-        @Override
-        public void onChanged() {
-            notifyDataSetChanged();
-        }
-
-        @Override
-        public void onInvalidated() {
-            notifyDataSetChanged();
-        }
-    };
 
     /**
      * ViewHolder template. You should inherit your ViewHolder from this class
@@ -183,6 +178,101 @@ public abstract class AdapterRecycler<Item>
         @Override
         public View getView() {
             return itemView;
+        }
+    }
+
+    /**
+     * Delegate, implementing basic functionality
+     */
+    private class AdapterActual extends AdapterTemplate<Item> {
+        public AdapterActual(Context context, @NonNull int... layout) {
+            super(context, layout);
+        }
+
+        protected AdapterActual(Class<? extends Holder> holder,
+                                Context context, @NonNull int... layout)
+        {
+            super(holder, context, layout);
+        }
+
+        @SafeVarargs
+        protected AdapterActual(Class<? extends Holder> holder,
+                                Context context, @NonNull Class<? extends View>... layer)
+        {
+            super(holder, context, layer);
+        }
+
+        @Override
+        public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            return AdapterRecycler.this.onCreateViewHolder(parent, viewType);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull Holder holder, int position) {
+            AdapterRecycler.this.onBindViewHolder(holder, position);
+        }
+
+        @Override
+        public Item getItem(int position) {
+            return AdapterRecycler.this.getItem(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return AdapterRecycler.this.getItemId(position);
+        }
+
+        @Override
+        protected int getPositionForView(ViewGroup parent, View layout) {
+            if (parent instanceof RecyclerView) {
+                return ((RecyclerView) parent).getChildAdapterPosition(layout);
+            } else {
+                return super.getPositionForView(parent, layout);
+            }
+        }
+
+        @Override
+        public long getItemIdForView(ViewGroup parent, View layout) {
+            if (parent instanceof RecyclerView) {
+                return ((RecyclerView) parent).getChildItemId(layout);
+            } else {
+                return super.getItemIdForView(parent, layout);
+            }
+        }
+
+        @Override
+        protected boolean performItemClick(ViewGroup parent, View layout, View view, int position) {
+            final boolean result = super.performItemClick(parent, layout, view, position);
+
+            if (parent instanceof RecyclerView) {
+                final Choicer choicer = getChoicerInternal(parent);
+                if (choicer != null) {
+                    final RecyclerView.LayoutManager owner = ((RecyclerView) parent).getLayoutManager();
+                    final int count = owner.getChildCount();
+
+                    for (int i = 0; i < count; i++) {
+                        final View child = owner.getChildAt(i);
+                        position = getPositionForView(parent, child);
+
+                        // See AbsListView.updateOnScreenCheckedViews()
+                        if (child instanceof Checkable) {
+                            ((Checkable) child).setChecked(choicer.isItemChecked(position));
+                        } else if (useActivated) {
+                            child.setActivated(choicer.isItemChecked(position));
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        @Override
+        protected void performDataSetChanged(ViewGroup parent) {
+            if (parent instanceof RecyclerView) {
+                AdapterRecycler.this.notifyDataSetChanged();
+            } else {
+                super.performDataSetChanged(parent);
+            }
         }
     }
 }

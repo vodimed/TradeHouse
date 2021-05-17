@@ -17,7 +17,6 @@ import android.os.RemoteException;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Checkable;
 import android.widget.CheckedTextView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -28,11 +27,11 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.common.extensions.AdapterInterface;
 import com.common.extensions.AdapterRecycler;
 import com.common.extensions.AdapterTemplate;
-import com.common.extensions.RecyclerViewInter;
 
 import java.util.List;
 import java.util.Locale;
@@ -78,10 +77,10 @@ public class ServiceActivity extends Activity {
         @SuppressWarnings("unchecked") // Unchecked generics array creation for varargs parameter
         //final TaskAdapter adapter = new TaskAdapter(this, android.R.layout.simple_list_item_single_choice).from(taskcursor);
         final TaskAdapter adapter = new TaskAdapter(this, AdapterLayout.class).from(taskcursor);
+        adapter.setOnItemSelectionListener(onItemSelection);
 
         activity = (ActivityLayout) this.getActivityLayout();
         activity.listActions.setAdapter(adapter);
-        activity.listActions.setOnItemSelectionListener(onItemSelection);
         activity.buttonClear.setOnClickListener(onClickClear);
         activity.buttonCancel.setOnClickListener(onClickCancel);
 
@@ -150,10 +149,11 @@ public class ServiceActivity extends Activity {
     private final View.OnClickListener onClickCancel = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            final ServiceInterface.JobInfo work =
-                    (ServiceInterface.JobInfo) activity.listActions.getSelectedItem();
-            if (work != null) try {
-                service.cancel(work);
+            final int position = activity.getSelectedPosition();
+            if (position != AdapterInterface.INVALID_POSITION) try {
+                final AdapterInterface<ServiceInterface.JobInfo> adapter =
+                        (TaskAdapter) activity.listActions.getAdapter();
+                service.cancel(adapter.getItem(position));
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -164,15 +164,13 @@ public class ServiceActivity extends Activity {
             new AdapterInterface.OnItemSelectionListener()
     {
         @Override
-        public void onItemSelection(ViewGroup parent, View view, int position, long id) {
-            activity.onItemSelection(true);
-            System.out.println("SELECTED " + id);
+        public void onItemSelected(ViewGroup parent, View view, int position, long id) {
+            activity.onItemSelection(position);
         }
 
         @Override
         public void onNothingSelected(ViewGroup parent) {
-            activity.onItemSelection(false);
-            System.out.println("NOTHING SELECTED");
+            activity.onItemSelection(AdapterInterface.INVALID_POSITION);
         }
     };
 
@@ -275,10 +273,11 @@ public class ServiceActivity extends Activity {
         private static final String ru = new Locale("ru").getLanguage();
         private final boolean russian = Locale.getDefault().getLanguage().equals(ru);
         public final TextView labelActions;
-        public final RecyclerViewInter listActions;
+        public final RecyclerView listActions;
         public final TextView textProtocol;
         public final Button buttonClear;
         public final Button buttonCancel;
+        private int position = AdapterInterface.INVALID_POSITION;
 
         public ActivityLayout(Context context) {
             super(context);
@@ -288,10 +287,9 @@ public class ServiceActivity extends Activity {
             labelActions.setTypeface(null, Typeface.BOLD);
             this.addView(labelActions);
 
-            listActions = new RecyclerViewInter(context);
+            listActions = new RecyclerView(context);
             listActions.setLayoutParams(new LinearLayout.LayoutParams(
                     LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 2.7f));
-            listActions.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
             setupList(listActions);
             this.addView(listActions);
 
@@ -332,20 +330,26 @@ public class ServiceActivity extends Activity {
             layoutButtons.addView(buttonClose);
 
             onDataReceived(false);
-            onItemSelection(false);
+            onItemSelection(position);
         }
 
         private void setupList(ViewGroup listActions) {
-            if (listActions instanceof ListView)
+            if (listActions instanceof ListView) {
+                ((ListView) listActions).setChoiceMode(ListView.CHOICE_MODE_SINGLE);
                 ((ListView) listActions).setSelector(android.R.drawable.list_selector_background);
+            }
         }
 
         public void onDataReceived(boolean on) {
             labelActions.setText(on ? android.R.string.selectTextMode : android.R.string.unknownName);
         }
 
-        public void onItemSelection(boolean on) {
-            buttonCancel.setEnabled(on);
+        public void onItemSelection(int position) {
+            buttonCancel.setEnabled(position != AdapterInterface.INVALID_POSITION);
+        }
+
+        public int getSelectedPosition() {
+            return position;
         }
 
         private final OnClickListener onClickClose = new OnClickListener() {
@@ -360,7 +364,7 @@ public class ServiceActivity extends Activity {
      * Adapter layout: dynamically created view controls
      * See also: "android.R.layout.simple_list_item_single_choice"
      */
-    public static class AdapterLayout extends CheckedTextView implements Checkable {
+    public static class AdapterLayout extends CheckedTextView {
         public final TextView textName;
 
         public AdapterLayout(Context context) {
@@ -442,7 +446,7 @@ public class ServiceActivity extends Activity {
 
         @Override
         public long getItemId(int position) {
-            if (position >= getCount()) return NO_ID; // called if hasStableIds
+            if (position >= getCount()) return INVALID_ROW_ID; // called if hasStableIds
             return getItem(position).jobId;
         }
     }

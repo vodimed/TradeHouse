@@ -5,9 +5,16 @@ import android.database.AbstractCursor;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.database.Observable;
+import android.os.Build;
+import android.util.LongSparseArray;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
+import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
@@ -15,22 +22,30 @@ import androidx.annotation.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 
 /**
  * Adapter for ListView class (when RecycledView library is not connected).
- * To correct handling onItemClick events items must implement Checkable interface
+ * To correct handling onItemClick events items must implement Checkable interface.
+ * To suppress second onClick sound (echo), set ListView.setSoundEffectsEnabled(false).
  */
 public abstract class AdapterTemplate<Item>
-        implements AdapterInterface<Item>
+        implements AdapterInterface<Item>, AdapterInterface.Viewer
 {
-    public static final long NO_ID = -1;
-    private final Notifier notifier = new Notifier();
+    private static final int CHECK_POSITION_SEARCH_DISTANCE = 20;
+    private final EventHandler handler = new EventHandler();
+    private final Listener delegate = new Listener(handler);
+    private final Notifier notifier = new Notifier(handler);
     private final Constructor<? extends Holder> creator;
     private final Constructor<? extends View>[] instance;
     private final LayoutInflater inflater;
     private final int[] layout;
     private Cursor dataset = null;
     private boolean stableIds = false;
+    /**
+     * The list allows up to one choice, may be unchecked
+     */
+    public static final int CHOICE_MODE_ALONE = -1;
 
     public AdapterTemplate(Context context, @NonNull @LayoutRes int... layout) {
         this(ViewHolder.class, context, layout);
@@ -84,6 +99,14 @@ public abstract class AdapterTemplate<Item>
         return result;
     }
 
+    protected void registerParentObserver(@NonNull ViewGroup parent) {
+        notifier.registerParent(parent);
+    }
+
+    protected void unregisterParentObserver(@NonNull ViewGroup parent) {
+        notifier.unregisterParent(parent);
+    }
+
     public @Nullable Cursor dataset() {
         return this.dataset;
     }
@@ -105,7 +128,12 @@ public abstract class AdapterTemplate<Item>
     }
 
     protected final Holder createViewHolder(@NonNull ViewGroup parent, int viewType) {
-        final View view = createView(parent, viewType);
+        // We have to protect View.AcessibilityDelegate from AbsListView.clearScrapForRebind(),
+        // which drops acessibility of non-transient layout (if this layout consists of one View).
+        // View.setHasTransientState(true) is overcomplicated way, so we just restore Acessibility
+        // on stage of binding ViewHolder (onBindViewHolder) in getView() method of this class.
+        final View view = acessible(createView(parent, viewType), true);
+        // view.setHasTransientState(true);
         try {
             final Holder result = creator.newInstance(view);
             view.setTag(result);
@@ -135,6 +163,18 @@ public abstract class AdapterTemplate<Item>
         throw new IllegalArgumentException("Invalid Constructor: " + instance[viewType].getName());
     }
 
+    private View acessible(View view, boolean indeepth) {
+        if (!(view instanceof ViewGroup)) {
+            view.setAccessibilityDelegate(delegate);
+        } else if (indeepth) {
+            final ViewGroup parent = (ViewGroup) view;
+            for (int i = parent.getChildCount() - 1; i >= 0; i--) {
+                acessible(parent.getChildAt(i), indeepth);
+            }
+        }
+        return view;
+    }
+
     @Override
     public int getItemCount() {
         return getCount();
@@ -152,12 +192,12 @@ public abstract class AdapterTemplate<Item>
 
     @Override
     public void registerDataSetObserver(DataSetObserver observer) {
-        this.notifier.registerObserver(observer);
+        notifier.registerObserver(observer);
     }
 
     @Override
     public void unregisterDataSetObserver(DataSetObserver observer) {
-        this.notifier.unregisterObserver(observer);
+        notifier.unregisterObserver(observer);
     }
 
     @Override
@@ -168,7 +208,7 @@ public abstract class AdapterTemplate<Item>
 
     @Override
     public long getItemId(int position) {
-        return NO_ID;
+        return INVALID_ROW_ID;
     }
 
     @Override
@@ -191,7 +231,12 @@ public abstract class AdapterTemplate<Item>
             convertView = holder.getView();
         }
         onBindViewHolder(holder, position);
-        return convertView;
+        return acessible(convertView, false); // instead of setHasTransientState(true)
+    }
+
+    @Override
+    public View getDropDownView(int position, View convertView, ViewGroup parent) {
+        return getView(position, convertView, parent);
     }
 
     @Override
@@ -213,23 +258,153 @@ public abstract class AdapterTemplate<Item>
         return (getCount() == 0);
     }
 
+    @Override
+    public void setOnItemSelectionListener(@Nullable OnItemSelectionListener listener) {
+        handler.onItemSelectionListener = listener;
+    }
+
+    @Override
+    public void setChoiceMode(ViewGroup parent, int choiceMode) {
+        if (parent instanceof AbsListView) {
+            final AbsListView abslist = (AbsListView) parent;
+            abslist.setChoiceMode(choiceMode);
+        } else {
+            final Choicer choicer = getChoicerInternal(parent);
+            if (choicer != null) {
+                choicer.setChoiceMode(choiceMode);
+            } else if (choiceMode != AbsListView.CHOICE_MODE_NONE) {
+                parent.setTag(new Choicer(choiceMode));
+            }
+        }
+    }
+
+    // Unable to return Choicer for AbsListView
+    @Nullable protected Choicer getChoicerInternal(ViewGroup parent) {
+        if (parent.getTag() instanceof Choicer) {
+            return (Choicer) parent.getTag();
+        } else {
+            return null;
+        }
+    }
+
     /**
-     * Implementation of Dataset notification kernel
+     * Adapres's Event Handler Callback methods
      */
-    private static class Notifier extends Observable<DataSetObserver> {
-        public boolean isEmpty() {
-            return mObservers.isEmpty();
+    protected int getChoiceMode(ViewGroup parent) {
+        if (parent instanceof AbsListView) {
+            final AbsListView abslist = (AbsListView) parent;
+            return abslist.getChoiceMode();
+        } else {
+            final Choicer choicer = getChoicerInternal(parent);
+            return (choicer != null ? choicer.getChoiceMode() : AbsListView.CHOICE_MODE_NONE);
+        }
+    }
+
+    protected int getPositionForView(ViewGroup parent, View layout) {
+        if (parent instanceof AdapterView) {
+            final AdapterView advlist = (AdapterView) parent;
+            return advlist.getPositionForView(layout);
+        } else {
+            return INVALID_POSITION;
+        }
+    }
+
+    protected long getItemIdForView(ViewGroup parent, View layout) {
+        if (parent instanceof AdapterView) {
+            final AdapterView advlist = (AdapterView) parent;
+            return advlist.getItemIdAtPosition(advlist.getPositionForView(layout));
+        } else {
+            return INVALID_ROW_ID;
+        }
+    }
+
+    // Analyse currently selected positions of the ViewGroup
+    protected boolean isAnyChecked(ViewGroup parent) {
+        final SparseBooleanArray selection;
+        if (parent instanceof AbsListView) {
+            final AbsListView abslist = (AbsListView) parent;
+            selection = abslist.getCheckedItemPositions();
+        } else {
+            final Choicer choicer = getChoicerInternal(parent);
+            selection = (choicer != null ? choicer.getCheckedItemPositions() : null);
         }
 
-        public final DataSetObserver observer = new DataSetObserver() {
-            public void onChanged() {
-                for (DataSetObserver observer : mObservers) observer.onChanged();
-            }
+        if (selection != null) {
+            return (selection.indexOfValue(true) >= 0);
+        } else {
+            return false;
+        }
+    }
 
-            public void onInvalidated() {
-                for (DataSetObserver observer : mObservers) observer.onInvalidated();
+    // Result: True = processed (OnClick event), False = otherwise (unClick, whatever...)
+    protected boolean performItemClick(ViewGroup parent, View layout, View view, int position) {
+        boolean checked = true;
+        if (parent instanceof AbsListView) {
+            final AbsListView abslist = (AbsListView) parent;
+            if (getChoiceMode(parent) != AbsListView.CHOICE_MODE_SINGLE)
+                checked = !abslist.isItemChecked(position);
+            abslist.setItemChecked(position, checked);
+        } else {
+            final Choicer choicer = getChoicerInternal(parent);
+            if (choicer == null) return true; // CHOICE_MODE_NONE
+            if (getChoiceMode(parent) != AbsListView.CHOICE_MODE_SINGLE)
+                checked = !choicer.isItemChecked(position);
+            final long id = getItemIdForView(parent, layout);
+            if (choicer != null) choicer.setItemChecked(position, id, checked);
+        }
+        return checked;
+    }
+
+    // Synchronize Choicer with changed Dataset
+    protected void performDataSetChanged(ViewGroup parent) {
+        final Choicer choicer = getChoicerInternal(parent);
+        if (choicer == null) return; // CHOICE_MODE_NONE
+
+        final SparseBooleanArray selection = choicer.getCheckedItemPositions();
+        final LongSparseArray<Integer> hintpos = choicer.getCheckedItemIds();
+
+        if (hintpos.size() <= 0) {
+            if (hasStableIds()) {
+                choicer.clearSelectionMarkers();
+            } else {
+                final int count = getItemCount();
+                for (int i = selection.size() - 1; i >= 0; i--) {
+                    if (selection.valueAt(i) && (selection.keyAt(i) >= count)) {
+                        selection.delete(selection.keyAt(i));
+                    }
+                }
             }
-        };
+        } else {
+            int delta = 0;
+            for (int i = hintpos.size() - 1; i >= 0; i--) {
+                final int position = hintpos.valueAt(i);
+                final long id = hintpos.keyAt(i);
+                final int reposition = findPositionById(id, position, delta);
+                delta = reposition - position;
+
+                if (reposition != position) {
+                    selection.delete(position);
+                    if (reposition != INVALID_POSITION) {
+                        hintpos.setValueAt(i, reposition);
+                        selection.put(reposition, true);
+                    } else {
+                        hintpos.removeAt(i);
+                    }
+                }
+            }
+        }
+    }
+
+    // Expanded search from the epicenter (pos = position)
+    private int findPositionById(long id, int position, int delta) {
+        final int size = getItemCount();
+        position += delta;
+
+        for (int i = 0; i < CHECK_POSITION_SEARCH_DISTANCE * 2; i++) {
+            final int pos = position + (((i % 2) << 1) - 1) * (i + 1) / 2;
+            if ((0 <= pos) && (pos < size) && (getItemId(pos) == id)) return pos;
+        }
+        return INVALID_POSITION;
     }
 
     /**
@@ -245,6 +420,180 @@ public abstract class AdapterTemplate<Item>
         @Override
         public View getView() {
             return itemView;
+        }
+    }
+
+    /**
+     * Argegator of various events for Adapter
+     */
+    private class EventHandler implements Handler {
+        public AdapterInterface.OnItemSelectionListener onItemSelectionListener = null;
+
+        @Override
+        public void onItemClick(ViewGroup parent, View layout, View view) {
+            final int position = AdapterTemplate.this.getPositionForView(parent, layout);
+            if (AdapterTemplate.this.performItemClick(parent, layout, view, position)) {
+                processSelection(parent, layout, position);
+            } else {
+                processRejection(parent, layout);
+            }
+        }
+
+        @Override
+        public void onDataSetChanged(ViewGroup parent) {
+            AdapterTemplate.this.performDataSetChanged(parent);
+            processRejection(parent, null);
+        }
+
+        private void processSelection(ViewGroup parent, View layout, int position) {
+            if (onItemSelectionListener != null) {
+                if (parent.isSoundEffectsEnabled()) parent.playSoundEffect(SoundEffectConstants.CLICK);
+                final long id = AdapterTemplate.this.getItemIdForView(parent, layout);
+                onItemSelectionListener.onItemSelected(parent, layout, position, id);
+            }
+        }
+
+        private void processRejection(ViewGroup parent, View layout) {
+            if ((onItemSelectionListener != null) && (layout != null)) {
+                if (parent.isSoundEffectsEnabled()) parent.playSoundEffect(SoundEffectConstants.CLICK);
+            }
+            if ((onItemSelectionListener != null) && !AdapterTemplate.this.isAnyChecked(parent)) {
+                onItemSelectionListener.onNothingSelected(parent);
+            }
+        }
+    }
+
+    /**
+     * Feedback events from ViewHolder Views
+     */
+    private static class Listener extends View.AccessibilityDelegate {
+        private final Handler handler;
+
+        private Listener(Handler handler) {
+            this.handler = handler;
+        }
+
+        // Retrieve ListView Layout of this View
+        private View getLayout(View view) {
+            while (!(view.getTag() instanceof Holder))
+                view = (View) view.getParent();
+            return view;
+        }
+
+        @Override
+        public void sendAccessibilityEvent(View host, int eventType) {
+            super.sendAccessibilityEvent(host, eventType);
+            final View layout = getLayout(host);
+
+            switch (eventType) {
+                case AccessibilityEvent.TYPE_VIEW_CLICKED:
+                    handler.onItemClick((ViewGroup) layout.getParent(), layout, host);
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Implementation of Dataset notification kernel
+     */
+    private static class Notifier extends Observable<DataSetObserver> {
+        private final ArrayList<ViewGroup> mParents = new ArrayList<ViewGroup>();
+        private final Handler handler;
+
+        private Notifier(Handler handler) {
+            this.handler = handler;
+        }
+
+        public boolean isEmpty() {
+            return mParents.isEmpty() && mObservers.isEmpty();
+        }
+
+        public void registerParent(@NonNull ViewGroup parent) {
+            if (mParents.contains(parent)) return;
+            mParents.add(parent);
+        }
+
+        public void unregisterParent(@NonNull ViewGroup parent) {
+            mParents.remove(parent);
+        }
+
+        @Override
+        public void unregisterAll() {
+            mParents.clear();
+            super.unregisterAll();
+        }
+
+        public final DataSetObserver observer = new DataSetObserver() {
+            public void onChanged() {
+                for (DataSetObserver observer : mObservers) observer.onChanged();
+                for (ViewGroup parent : mParents) handler.onDataSetChanged(parent);
+            }
+
+            public void onInvalidated() {
+                for (DataSetObserver observer : mObservers) observer.onInvalidated();
+            }
+        };
+    }
+
+    /**
+     * Checkable logic implementation
+     */
+    protected static class Choicer {
+        private final static boolean fastop = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P);
+        private final SparseBooleanArray selection = new SparseBooleanArray();
+        private final LongSparseArray<Integer> hintpos = new LongSparseArray<Integer>();
+        private int choiceMode;
+
+        public Choicer(int choiceMode) {
+            this.choiceMode = choiceMode;
+        }
+
+        public void setChoiceMode(int choiceMode) {
+            if (this.choiceMode != choiceMode) clearSelectionMarkers();
+            this.choiceMode = choiceMode;
+        }
+
+        public int getChoiceMode() {
+            return choiceMode;
+        }
+
+        public boolean isItemChecked(int position) {
+            return selection.get(position);
+        }
+
+        public void setItemChecked(int position, long id, boolean value) {
+            boolean checked = isItemChecked(position);
+            switch (choiceMode) {
+                case AbsListView.CHOICE_MODE_NONE:
+                case AbsListView.CHOICE_MODE_MULTIPLE_MODAL:
+                    break;
+                case AbsListView.CHOICE_MODE_SINGLE:
+                    if (checked) break;
+                case AdapterTemplate.CHOICE_MODE_ALONE:
+                    clearSelectionMarkers();
+                case AbsListView.CHOICE_MODE_MULTIPLE:
+                    if (!checked) {
+                        selection.put(position, true);
+                        if (id != INVALID_ROW_ID) hintpos.put(id, position);
+                    } else {
+                        selection.delete(position);
+                        if (id != INVALID_ROW_ID) hintpos.delete(id);
+                    }
+                    break;
+            }
+        }
+
+        public SparseBooleanArray getCheckedItemPositions() {
+            return selection;
+        }
+
+        public LongSparseArray<Integer> getCheckedItemIds() {
+            return hintpos;
+        }
+
+        public void clearSelectionMarkers() {
+            selection.clear();
+            hintpos.clear();
         }
     }
 
