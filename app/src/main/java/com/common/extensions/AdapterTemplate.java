@@ -163,7 +163,7 @@ public abstract class AdapterTemplate<Item>
         throw new IllegalArgumentException("Invalid Constructor: " + instance[viewType].getName());
     }
 
-    private View acessible(View view, boolean indeepth) {
+    protected View acessible(View view, boolean indeepth) {
         if (!(view instanceof ViewGroup)) {
             view.setAccessibilityDelegate(delegate);
         } else if (indeepth) {

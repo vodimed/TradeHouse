@@ -67,7 +67,7 @@ public abstract class AdapterRecycler<Item>
     @Override
     public void onViewAttachedToWindow(@NonNull ViewHolder holder) {
         super.onViewAttachedToWindow(holder);
-        final View child = holder.getView();
+        final View child = template.acessible(holder.getView(), false);
 
         if (child instanceof Checkable) {
             final ViewGroup parent = (ViewGroup) child.getParent();
