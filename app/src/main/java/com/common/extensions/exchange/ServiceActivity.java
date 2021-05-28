@@ -27,11 +27,9 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.common.extensions.AdapterInterface;
-import com.common.extensions.AdapterRecycler;
-import com.common.extensions.AdapterTemplate;
+import com.common.extensions.database.AdapterInterface;
+import com.common.extensions.database.AdapterTemplate;
 
 import java.util.List;
 import java.util.Locale;
@@ -62,7 +60,8 @@ import java.util.TimerTask;
  * }
  */
 public class ServiceActivity extends Activity {
-    private final TaskCursor taskcursor = new TaskCursor();
+    //private final TaskAdapter adapter = new TaskAdapter(this, android.R.layout.simple_list_item_single_choice);
+    private final TaskAdapter adapter = new TaskAdapter(this, AdapterLayout.class);
     private Timer autorefresh = null;
     private ActivityLayout activity = null;
     private ServiceConnector service = null;
@@ -74,11 +73,7 @@ public class ServiceActivity extends Activity {
         setContentView(new ActivityLayout(this));
         //setContentView(R.layout.service_activity);
 
-        @SuppressWarnings("unchecked") // Unchecked generics array creation for varargs parameter
-        //final TaskAdapter adapter = new TaskAdapter(this, android.R.layout.simple_list_item_single_choice).from(taskcursor);
-        final TaskAdapter adapter = new TaskAdapter(this, AdapterLayout.class).from(taskcursor);
         adapter.setOnItemSelectionListener(onItemSelection);
-
         activity = (ActivityLayout) this.getActivityLayout();
         activity.listActions.setAdapter(adapter);
         activity.buttonClear.setOnClickListener(onClickClear);
@@ -98,7 +93,7 @@ public class ServiceActivity extends Activity {
         super.onResume();
         if (bound) {
             autorefresh = new Timer();
-            //TODO: autorefresh.schedule(refresh, 7000, 5000);
+            autorefresh.schedule(refresh, 7000, 5000);
         }
     }
 
@@ -123,7 +118,7 @@ public class ServiceActivity extends Activity {
         private final Runnable refreshUI = new Runnable() {
             @Override
             public void run() {
-                taskcursor.setData(dataset);
+                adapter.setDataSet(dataset);
                 activity.onDataReceived(true);
             }
         };
@@ -273,7 +268,7 @@ public class ServiceActivity extends Activity {
         private static final String ru = new Locale("ru").getLanguage();
         private final boolean russian = Locale.getDefault().getLanguage().equals(ru);
         public final TextView labelActions;
-        public final RecyclerView listActions;
+        public final ListView listActions;
         public final TextView textProtocol;
         public final Button buttonClear;
         public final Button buttonCancel;
@@ -287,7 +282,7 @@ public class ServiceActivity extends Activity {
             labelActions.setTypeface(null, Typeface.BOLD);
             this.addView(labelActions);
 
-            listActions = new RecyclerView(context);
+            listActions = new ListView(context);
             listActions.setLayoutParams(new LinearLayout.LayoutParams(
                     LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 2.7f));
             setupList(listActions);
@@ -373,22 +368,6 @@ public class ServiceActivity extends Activity {
             setLayoutParams(new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT));
-
-            //TODO
-            /*
-            textName.setOnClickListener(new OnClickItemListener(ListView.CHOICE_MODE_SINGLE) {
-                @Override
-                public void onItemClick(ViewGroup parent, View view, int position, long id) {
-                    System.out.println(((TextView) view).getText());
-                }
-            });
-            */
-            textName.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    System.out.println(((TextView) v).getText());
-                }
-            });
         }
 
         @Override
@@ -403,12 +382,13 @@ public class ServiceActivity extends Activity {
     /**
      * ListView data Adapter: list of all pending jobs
      */
-    private static class TaskAdapter extends AdapterRecycler<ServiceInterface.JobInfo> {
+    private static class TaskAdapter extends AdapterTemplate<ServiceInterface.JobInfo> {
         public TaskAdapter(Context context, @NonNull int... layout) {
             super(context, layout);
             setHasStableIds(true);
         }
 
+        @SafeVarargs
         public TaskAdapter(Context context, @NonNull Class<? extends View>... layer) {
             super(context, layer);
             setHasStableIds(true);
@@ -438,40 +418,18 @@ public class ServiceActivity extends Activity {
 
         @Override
         public ServiceInterface.JobInfo getItem(int position) {
-            final TaskCursor dataset = (TaskCursor) dataset();
-            if (dataset == null) return null;
-            dataset.moveToPosition(position);
-            return dataset.getValue(0);
+            final Object dataset = getDataSet();
+            if (dataset instanceof List<?>) {
+                return (ServiceInterface.JobInfo) ((List<?>) dataset).get(position);
+            } else {
+                return null;
+            }
         }
 
         @Override
         public long getItemId(int position) {
             if (position >= getCount()) return INVALID_ROW_ID; // called if hasStableIds
             return getItem(position).jobId;
-        }
-    }
-
-    /**
-     * ListView data Cursor: list of all pending jobs
-     */
-    private static class TaskCursor extends AdapterTemplate.SimpleCursor {
-        private List<ServiceInterface.JobInfo> dataset = null;
-
-        public void setData(List<ServiceInterface.JobInfo> dataset) {
-            if (this.dataset == null || !this.dataset.equals(dataset)) {
-                this.dataset = dataset;
-                requery();
-            }
-        }
-
-        public ServiceInterface.JobInfo getValue(int column) {
-            return dataset.get(getPosition());
-        }
-
-        @Override
-        public int getCount() {
-            if (dataset == null) return 0;
-            return dataset.size();
         }
     }
 
@@ -490,11 +448,11 @@ public class ServiceActivity extends Activity {
         }
 
         @Override
-        public void onServiceResult(@NonNull JobInfo work, @Nullable Bundle result) {
+        public void onServiceResult(@NonNull ServiceInterface.JobInfo work, @Nullable Bundle result) {
         }
 
         @Override
-        public void onServiceException(@NonNull JobInfo work, @NonNull Throwable e) {
+        public void onServiceException(@NonNull ServiceInterface.JobInfo work, @NonNull Throwable e) {
         }
     }
 }

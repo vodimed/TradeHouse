@@ -1,9 +1,9 @@
 package com.expertek.tradehouse.dictionaries;
 
 public interface DbDictionaries {
-    TBarcodes barcodes();
-    TClients clients();
-    TGoods goods();
-    TObjects objects();
-    TUsers users();
+    Barcodes barcodes();
+    Clients clients();
+    Goods goods();
+    Objects objects();
+    Users users();
 }

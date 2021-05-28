@@ -11,7 +11,7 @@ public class Документы extends TradeHouseTask {
     @Override
     protected void setRequestHeaders() {
         connection.setRequestProperty("Content-Type", "raw");
-        connection.setRequestProperty("User-Agent", "маг?202?True?.");
+        connection.setRequestProperty("user-Agent", "маг?202?True?.");
         connection.setDoOutput(true);
     }
 

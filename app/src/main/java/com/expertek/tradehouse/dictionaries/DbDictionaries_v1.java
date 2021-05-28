@@ -8,15 +8,15 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.common.extensions.database.DataEngine;
 import com.common.extensions.database.TypeConv;
-import com.expertek.tradehouse.dictionaries.entity.Barcodes;
-import com.expertek.tradehouse.dictionaries.entity.Clients;
-import com.expertek.tradehouse.dictionaries.entity.Goods;
-import com.expertek.tradehouse.dictionaries.entity.Objects;
-import com.expertek.tradehouse.dictionaries.entity.Users;
+import com.expertek.tradehouse.dictionaries.entity.barcode;
+import com.expertek.tradehouse.dictionaries.entity.client;
+import com.expertek.tradehouse.dictionaries.entity.good;
+import com.expertek.tradehouse.dictionaries.entity.object;
+import com.expertek.tradehouse.dictionaries.entity.user;
 
 @TypeConverters({TypeConv.class})
 @Database(version = 1,
-        entities = {Barcodes.class, Clients.class, Goods.class, Objects.class, Users.class},
+        entities = {barcode.class, client.class, good.class, object.class, user.class},
         autoMigrations = {
         //@AutoMigration(from = -0, to = 0, spec = DbDictionaries_v1.AutoMigration.class)
 })

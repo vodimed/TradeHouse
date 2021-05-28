@@ -50,6 +50,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".InvoicesActivity" />
+        <activity android:name=".InventoriesActivity" />
+        <activity android:name=".PricecontrolActivity" />
+        <activity android:name=".DictionariesActivity" />
+        <activity android:name=".SettingsActivity" />
     </application>
 
 </manifest>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--MainActivity-->
+    <dimen name="main_pagging">32dp</dimen>
+    <dimen name="main_spacing">18dp</dimen>
+    <dimen name="main_textsize">24sp</dimen>
+
+    <!--InvoicesActivity-->
+    <dimen name="invc_pagging">16dp</dimen>
+    <dimen name="invc_spacing">0dp</dimen>
+</resources>

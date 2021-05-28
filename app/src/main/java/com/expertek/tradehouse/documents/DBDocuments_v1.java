@@ -8,13 +8,13 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.common.extensions.database.DataEngine;
 import com.common.extensions.database.TypeConv;
-import com.expertek.tradehouse.documents.entity.Documents;
-import com.expertek.tradehouse.documents.entity.Lines;
-import com.expertek.tradehouse.documents.entity.Marklines;
+import com.expertek.tradehouse.documents.entity.document;
+import com.expertek.tradehouse.documents.entity.line;
+import com.expertek.tradehouse.documents.entity.markline;
 
 @TypeConverters({TypeConv.class})
 @Database(version = 1,
-        entities = {Documents.class, Lines.class, Marklines.class},
+        entities = {document.class, line.class, markline.class},
         autoMigrations = {
         //@AutoMigration(from = -0, to = 0, spec = DBDocuments_v1.AutoMigration.class)
 })

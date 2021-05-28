@@ -97,7 +97,7 @@ public abstract class TradeHouseTask implements ServiceInterface.Task {
         final XmlSerializer serializer = xmlfactory.newSerializer();
         serializer.setOutput(writer);
 
-        // Start Document
+        // Start document
         serializer.startDocument(charset.name(), true);
         serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
 
@@ -130,7 +130,7 @@ public abstract class TradeHouseTask implements ServiceInterface.Task {
         // End tag <TSD>
         serializer.endTag("", "TSD");
 
-        // End Document
+        // End document
         serializer.endDocument();
 
         serializer.flush();

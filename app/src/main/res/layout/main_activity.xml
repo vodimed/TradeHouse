@@ -1,49 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0"
-        android:background="#5C8A8A"
-        android:gravity="left"
-        android:padding="6dp"
-        android:text="Press SCAN button"
-        android:textColor="#FFFFFF"
-        android:textSize="13sp" >
-    </TextView>
-
-    <ListView
-        android:id="@+id/listViewBarcodeData"
+    <Button
+        android:id="@+id/buttonInvoices"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="1"
-        android:textSize="25sp" >
-    </ListView>
-
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/main_pagging"
+        android:drawablePadding="@dimen/main_spacing"
+        android:textStyle="bold"
+        android:textSize="@dimen/main_textsize"
+        android:text="@string/mainmenu_invoices"
+        android:drawableLeft="@android:drawable/gallery_thumb" />
+    <Button
+        android:id="@+id/buttonInventories"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0">
-        <Button
-            android:id="@+id/buttonStart"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="doBindService"
-            android:layout_weight="1"
-            android:text="Start">
-        </Button>
-        <Button
-            android:id="@+id/buttonStop"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="doUnbindService"
-            android:layout_weight="1"
-            android:text="Stop">
-        </Button>
-    </LinearLayout>
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/main_pagging"
+        android:drawablePadding="@dimen/main_spacing"
+        android:textStyle="bold"
+        android:textSize="@dimen/main_textsize"
+        android:text="@string/mainmenu_inventories"
+        android:drawableLeft="@android:drawable/gallery_thumb" />
+    <Button
+        android:id="@+id/buttonPricecontrol"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/main_pagging"
+        android:drawablePadding="@dimen/main_spacing"
+        android:textStyle="bold"
+        android:textSize="@dimen/main_textsize"
+        android:text="@string/mainmenu_pricecontrol"
+        android:drawableLeft="@android:drawable/gallery_thumb" />
+    <Button
+        android:id="@+id/buttonDictionaries"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/main_pagging"
+        android:drawablePadding="@dimen/main_spacing"
+        android:textStyle="bold"
+        android:textSize="@dimen/main_textsize"
+        android:text="@string/mainmenu_dictionaries"
+        android:drawableLeft="@android:drawable/gallery_thumb" />
+    <Button
+        android:id="@+id/buttonSettings"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/main_pagging"
+        android:drawablePadding="@dimen/main_spacing"
+        android:textStyle="bold"
+        android:textSize="@dimen/main_textsize"
+        android:text="@string/mainmenu_settings"
+        android:drawableLeft="@android:drawable/gallery_thumb" />
 </LinearLayout>

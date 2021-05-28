@@ -52,7 +52,7 @@ public class ServiceEngine extends Service implements ServiceInterface, ServiceI
 
     @Override
     public boolean onUnbind(Intent intent) {
-        return super.onUnbind(intent); // TODO: Cancel asynchronous running transactions
+        return super.onUnbind(intent); // TODO: Cancel asynchronous running transactions (?) notify mb
     }
 
     @Override
