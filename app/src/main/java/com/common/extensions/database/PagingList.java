@@ -26,6 +26,7 @@ public class PagingList<Value> extends AbstractList<Value> {
         Value cached = cache.get(index);
 
         if (cached == null) {
+            if (cache.size() > 100 * pagesize) cache.clear();
             final int base = (index / pagesize) * pagesize;
 
             @SuppressLint("RestrictedApi")

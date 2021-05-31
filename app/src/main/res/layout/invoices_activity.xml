@@ -53,6 +53,16 @@
         android:orientation="horizontal">
 
         <Button
+            android:id="@+id/bSearch0"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:paddingTop="@dimen/invc_pagging"
+            android:drawablePadding="@dimen/invc_spacing"
+            android:text="@string/zero_value"
+            android:drawableTop="@android:drawable/gallery_thumb" />
+        <Button
             android:id="@+id/bSearch1"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
