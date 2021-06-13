@@ -78,6 +78,11 @@ android {
         // Android junior JobIntentService
         //implementation 'androidx.core:core:1.3.2'
 
+        // TabView component
+        //implementation 'androidx.viewpager2:viewpager2:1.0.0'
+        //implementation 'com.google.android.material:material:1.3.0'
+
+        // General annotations
         implementation 'androidx.annotation:annotation:1.2.0'
     }
 

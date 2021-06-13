@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:id="@+id/tabGeneral"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <TextView
+                android:id="@+id/labelSerial"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:labelFor="@+id/editSerial"
+                android:text="@string/setting_serial" />
+
+            <EditText
+                android:id="@+id/editSerial"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="@string/setting_serial"
+                android:inputType="text" />
+
+            <TextView
+                android:id="@+id/labelObject"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:labelFor="@+id/editObject"
+                android:text="@string/setting_object" />
+
+            <EditText
+                android:id="@+id/editObject"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="@string/setting_object"
+                android:inputType="text" />
+
+            <TextView
+                android:id="@+id/labelConnect"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:labelFor="@+id/editConnect"
+                android:text="@string/setting_connect" />
+
+            <EditText
+                android:id="@+id/editConnect"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="@string/setting_connect"
+                android:inputType="text" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/buttonCheck"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/setting_check" />
+
+                <Button
+                    android:id="@+id/buttonApply"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/setting_apply" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tabOptions"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <Switch
+                android:id="@+id/checkOffline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/option_offline" />
+
+            <Switch
+                android:id="@+id/checkLoadInvents"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/option_loadinv" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/labelLines"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:labelFor="@+id/seekLines"
+                    android:text="@string/option_lines" />
+
+                <TextView
+                    android:id="@+id/textLines"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end" />
+            </FrameLayout>
+
+            <SeekBar
+                android:id="@+id/seekLines"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="10"
+                android:progress="3" />
+
+            <Switch
+                android:id="@+id/checkMarks"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/option_marks" />
+
+            <TextView
+                android:id="@+id/labelPrefixes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:labelFor="@+id/editPrefixes"
+                android:text="@string/option_prefixes" />
+
+            <EditText
+                android:id="@+id/editPrefixes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="@string/option_prefixes"
+                android:inputType="textMultiLine"
+                android:maxLines="10"
+                android:minLines="1" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tabTimeouts"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/labelConnectDelay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:labelFor="@+id/seekConnectDelay"
+                    android:text="@string/delay_connect" />
+
+                <TextView
+                    android:id="@+id/textConnectDelay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end" />
+            </FrameLayout>
+
+            <SeekBar
+                android:id="@+id/seekConnectDelay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="10"
+                android:progress="3" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/labelCheckDelay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:labelFor="@+id/seekCheckDelay"
+                    android:text="@string/delay_check" />
+
+                <TextView
+                    android:id="@+id/textCheckDelay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end" />
+            </FrameLayout>
+
+            <SeekBar
+                android:id="@+id/seekCheckDelay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="10"
+                android:progress="3" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/labelLoadDelay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:labelFor="@+id/seekLoadDelay"
+                    android:text="@string/delay_load" />
+
+                <TextView
+                    android:id="@+id/textLoadDelay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end" />
+            </FrameLayout>
+
+            <SeekBar
+                android:id="@+id/seekLoadDelay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="10"
+                android:progress="3" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/labelSendDelay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:labelFor="@+id/seekSendDelay"
+                    android:text="@string/delay_send" />
+
+                <TextView
+                    android:id="@+id/textSendDelay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end" />
+            </FrameLayout>
+
+            <SeekBar
+                android:id="@+id/seekSendDelay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="10"
+                android:progress="3" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0">
+
+        <ToggleButton
+            android:id="@+id/toggleGeneral"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="true"
+            android:textAllCaps="true"
+            android:textOff="@string/setting_general"
+            android:textOn="@string/setting_general" />
+
+        <ToggleButton
+            android:id="@+id/toggleOptions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="false"
+            android:textAllCaps="true"
+            android:textOff="@string/setting_options"
+            android:textOn="@string/setting_options" />
+
+        <ToggleButton
+            android:id="@+id/toggleTimeouts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="false"
+            android:textAllCaps="true"
+            android:textOff="@string/setting_timeouts"
+            android:textOn="@string/setting_timeouts" />
+    </LinearLayout>
+</LinearLayout>

@@ -30,4 +30,26 @@
         <item>Terminal|приход УТД</item>
     </string-array>
 
+    <!--SettingsActivity-->
+    <string name="setting_general">Основные</string>
+    <string name="setting_options">Опции</string>
+    <string name="setting_timeouts">Таймауты</string>
+
+    <string name="setting_serial">Серийный номер</string>
+    <string name="setting_object">Объект</string>
+    <string name="setting_connect">Параметры подключения</string>
+    <string name="setting_check">Тест соединения</string>
+    <string name="setting_apply">Применить</string>
+
+    <string name="option_offline">Оффлайн-режим</string>
+    <string name="option_loadinv">Загружать накладные</string>
+    <string name="option_lines">Линий на страницу</string>
+    <string name="option_marks">Помарочный учет</string>
+    <string name="option_prefixes">Префиксы вес. баркодов</string>
+
+    <string name="delay_connect">Подключения</string>
+    <string name="delay_check">Проверки настроек</string>
+    <string name="delay_load">Загрузки справочников</string>
+    <string name="delay_send">Отправки документов</string>
+
 </resources>
