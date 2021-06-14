@@ -5,6 +5,7 @@
     android:versionName="1.97.00.0026">
 
     <uses-permission android:name="com.honeywell.decode.permission.DECODE" /> <!--HoneyWell-->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" /> <!--Serial-->
     <uses-permission android:name="android.permission.INTERNET" /> <!--Network-->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> <!--Service-->
     <!--<uses-permission android:name="android.permission.WAKE_LOCK" />--> <!--JobIntentService-->

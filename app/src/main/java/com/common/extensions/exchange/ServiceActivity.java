@@ -212,6 +212,7 @@ public class ServiceActivity extends Activity {
                 Icon.createWithResource(context, icon), context.getText(title), context.getText(text));
     }
 
+    @SuppressWarnings("deprecation")
     public static Notification createNotification(
             Class<? extends ServiceActivity> activity, @NonNull Context context, @NonNull String id,
             Icon icon, CharSequence title, CharSequence text)
@@ -220,7 +221,8 @@ public class ServiceActivity extends Activity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             builder = new Notification.Builder(context, id);
         } else {
-            builder = DeprecatedNotificationBuilder(context);
+            builder = new Notification.Builder(context);
+            // builder.setSound(null);
         }
 
         final Intent intent = new Intent(context, activity);
@@ -235,13 +237,6 @@ public class ServiceActivity extends Activity {
                 .setContentTitle(title) // the label of the entry
                 .setContentText(text) // the contents of the entry
                 .build();
-    }
-
-    @Deprecated
-    private static Notification.Builder DeprecatedNotificationBuilder(Context context) {
-        final Notification.Builder builder = new Notification.Builder(context);
-        // builder.setSound(null);
-        return builder;
     }
 
     // Documented request for Root view of Activity
