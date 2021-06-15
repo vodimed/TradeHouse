@@ -100,8 +100,8 @@ public class SettingsActivity extends Activity {
     }
 
     private static class TabController implements View.OnClickListener {
-        private final ToggleButton toggle[];
-        private final LinearLayout tab[];
+        private final ToggleButton[] toggle;
+        private final LinearLayout[] tab;
         private int count = 0;
 
         TabController(int size) {
@@ -162,7 +162,8 @@ public class SettingsActivity extends Activity {
     }
 
     private static Set<String> setFromString(String value) {
-        return Arrays.stream(value.split(";")).collect(Collectors.<String>toSet());
+        final String src = value.replaceAll("[^\\d;]", "");
+        return Arrays.stream(src.split(";")).collect(Collectors.<String>toSet());
     }
 
     private static String setToString(Set<String> set) {
