@@ -3,6 +3,7 @@ package com.expertek.tradehouse;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Switch;
@@ -11,6 +12,9 @@ import android.widget.ToggleButton;
 
 import androidx.annotation.IdRes;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Set;
@@ -41,8 +45,8 @@ public class SettingsActivity extends Activity {
         final TextView object = findViewById(R.id.editObject);
         object.setText(MainSettings.TradeHouseObject);
 
-        final TextView connect = findViewById(R.id.editConnect);
-        connect.setText(String.format(Locale.getDefault(), "%s:%d",
+        final TextView connection = findViewById(R.id.editConnect);
+        connection.setText(String.format(Locale.getDefault(), "%s:%d",
                 MainSettings.TradeHouseAddress, MainSettings.TradeHousePort));
 
         final Switch offline = findViewById(R.id.checkOffline);
@@ -56,6 +60,9 @@ public class SettingsActivity extends Activity {
 
         final TextView prefixes = findViewById(R.id.editPrefixes);
         prefixes.setText(setToString(MainSettings.BarcodePrefixes));
+
+        final Button buttonCheck = findViewById(R.id.buttonCheck);
+        buttonCheck.setOnClickListener(onCheckClick);
     }
 
     @Override
@@ -179,4 +186,32 @@ public class SettingsActivity extends Activity {
             return 80;
         }
     }
+
+    private final View.OnClickListener onCheckClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            final TextView connection = findViewById(R.id.editConnect);
+            final SeekBar check = findViewById(R.id.seekCheckDelay);
+            final String[] addr = connection.getText().toString().split(":", 2);
+
+            if (checkConnection(addr[0], getPort(addr), check.getProgress() * 1000)) {
+                connection.setBackgroundColor(0);
+            } else {
+                connection.setBackgroundColor(-1);
+            }
+        }
+
+        private boolean checkConnection(String addr, int port, int timeout) {
+            try {
+                final HttpURLConnection connection = (HttpURLConnection) new URL(
+                        "http", addr, port, "").openConnection();
+                connection.setConnectTimeout(timeout);
+                connection.connect();
+                connection.disconnect();
+                return true;
+            } catch (IOException e) {
+                return false;
+            }
+        }
+    };
 }

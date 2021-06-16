@@ -47,7 +47,7 @@ public abstract class TradeHouseTask implements ServiceInterface.Task {
         this.params = params;
         this.result = result;
 
-        connection = (HttpURLConnection)new URL(
+        connection = (HttpURLConnection) new URL(
                 "http", MainSettings.TradeHouseAddress, MainSettings.TradeHousePort,
                 (getquery != null ? "?" + getquery : "")).openConnection();
         connection.setConnectTimeout(MainSettings.ConnectionTimeout);
