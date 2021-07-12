@@ -1,16 +1,18 @@
 package com.expertek.tradehouse.dictionaries;
 
 import android.database.Cursor;
+import androidx.paging.DataSource;
 import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.EntityInsertionAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
+import androidx.room.paging.LimitOffsetDataSource;
 import androidx.room.util.CursorUtil;
-import androidx.room.util.DBUtil;
 import androidx.room.util.StringUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import com.expertek.tradehouse.dictionaries.entity.user;
 import java.lang.Class;
+import java.lang.Integer;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.StringBuilder;
@@ -91,39 +93,42 @@ public final class Users_Impl implements Users {
   }
 
   @Override
-  public List<user> getAll() {
+  public DataSource.Factory<Integer, user> getAll() {
     final String _sql = "SELECT `TH_users`.`userID` AS `userID`, `TH_users`.`userName` AS `userName` FROM TH_users";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
-    __db.assertNotSuspendingTransaction();
-    final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-    try {
-      final int _cursorIndexOfUserID = CursorUtil.getColumnIndexOrThrow(_cursor, "userID");
-      final int _cursorIndexOfUserName = CursorUtil.getColumnIndexOrThrow(_cursor, "userName");
-      final List<user> _result = new ArrayList<user>(_cursor.getCount());
-      while(_cursor.moveToNext()) {
-        final user _item;
-        _item = new user();
-        if (_cursor.isNull(_cursorIndexOfUserID)) {
-          _item.userID = null;
-        } else {
-          _item.userID = _cursor.getString(_cursorIndexOfUserID);
-        }
-        if (_cursor.isNull(_cursorIndexOfUserName)) {
-          _item.userName = null;
-        } else {
-          _item.userName = _cursor.getString(_cursorIndexOfUserName);
-        }
-        _result.add(_item);
+    return new DataSource.Factory<Integer, user>() {
+      @Override
+      public LimitOffsetDataSource<user> create() {
+        return new LimitOffsetDataSource<user>(__db, _statement, false, true , "TH_users") {
+          @Override
+          protected List<user> convertRows(Cursor cursor) {
+            final int _cursorIndexOfUserID = CursorUtil.getColumnIndexOrThrow(cursor, "userID");
+            final int _cursorIndexOfUserName = CursorUtil.getColumnIndexOrThrow(cursor, "userName");
+            final List<user> _res = new ArrayList<user>(cursor.getCount());
+            while(cursor.moveToNext()) {
+              final user _item;
+              _item = new user();
+              if (cursor.isNull(_cursorIndexOfUserID)) {
+                _item.userID = null;
+              } else {
+                _item.userID = cursor.getString(_cursorIndexOfUserID);
+              }
+              if (cursor.isNull(_cursorIndexOfUserName)) {
+                _item.userName = null;
+              } else {
+                _item.userName = cursor.getString(_cursorIndexOfUserName);
+              }
+              _res.add(_item);
+            }
+            return _res;
+          }
+        };
       }
-      return _result;
-    } finally {
-      _cursor.close();
-      _statement.release();
-    }
+    };
   }
 
   @Override
-  public List<user> loadAllByIds(final String[] objIds) {
+  public DataSource.Factory<Integer, user> loadAllByIds(final String[] objIds) {
     StringBuilder _stringBuilder = StringUtil.newStringBuilder();
     _stringBuilder.append("SELECT * FROM TH_users WHERE userID IN (");
     final int _inputSize = objIds.length;
@@ -141,32 +146,35 @@ public final class Users_Impl implements Users {
       }
       _argIndex ++;
     }
-    __db.assertNotSuspendingTransaction();
-    final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-    try {
-      final int _cursorIndexOfUserID = CursorUtil.getColumnIndexOrThrow(_cursor, "userID");
-      final int _cursorIndexOfUserName = CursorUtil.getColumnIndexOrThrow(_cursor, "userName");
-      final List<user> _result = new ArrayList<user>(_cursor.getCount());
-      while(_cursor.moveToNext()) {
-        final user _item_1;
-        _item_1 = new user();
-        if (_cursor.isNull(_cursorIndexOfUserID)) {
-          _item_1.userID = null;
-        } else {
-          _item_1.userID = _cursor.getString(_cursorIndexOfUserID);
-        }
-        if (_cursor.isNull(_cursorIndexOfUserName)) {
-          _item_1.userName = null;
-        } else {
-          _item_1.userName = _cursor.getString(_cursorIndexOfUserName);
-        }
-        _result.add(_item_1);
+    return new DataSource.Factory<Integer, user>() {
+      @Override
+      public LimitOffsetDataSource<user> create() {
+        return new LimitOffsetDataSource<user>(__db, _statement, false, true , "TH_users") {
+          @Override
+          protected List<user> convertRows(Cursor cursor) {
+            final int _cursorIndexOfUserID = CursorUtil.getColumnIndexOrThrow(cursor, "userID");
+            final int _cursorIndexOfUserName = CursorUtil.getColumnIndexOrThrow(cursor, "userName");
+            final List<user> _res = new ArrayList<user>(cursor.getCount());
+            while(cursor.moveToNext()) {
+              final user _item_1;
+              _item_1 = new user();
+              if (cursor.isNull(_cursorIndexOfUserID)) {
+                _item_1.userID = null;
+              } else {
+                _item_1.userID = cursor.getString(_cursorIndexOfUserID);
+              }
+              if (cursor.isNull(_cursorIndexOfUserName)) {
+                _item_1.userName = null;
+              } else {
+                _item_1.userName = cursor.getString(_cursorIndexOfUserName);
+              }
+              _res.add(_item_1);
+            }
+            return _res;
+          }
+        };
       }
-      return _result;
-    } finally {
-      _cursor.close();
-      _statement.release();
-    }
+    };
   }
 
   public static List<Class<?>> getRequiredConverters() {

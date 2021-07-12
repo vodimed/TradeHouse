@@ -1,16 +1,18 @@
 package com.expertek.tradehouse.dictionaries;
 
 import android.database.Cursor;
+import androidx.paging.DataSource;
 import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.EntityInsertionAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
+import androidx.room.paging.LimitOffsetDataSource;
 import androidx.room.util.CursorUtil;
-import androidx.room.util.DBUtil;
 import androidx.room.util.StringUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import com.expertek.tradehouse.dictionaries.entity.object;
 import java.lang.Class;
+import java.lang.Integer;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.StringBuilder;
@@ -93,41 +95,44 @@ public final class Objects_Impl implements Objects {
   }
 
   @Override
-  public List<object> getAll() {
+  public DataSource.Factory<Integer, object> getAll() {
     final String _sql = "SELECT `TH_objects`.`obj_code` AS `obj_code`, `TH_objects`.`obj_type` AS `obj_type`, `TH_objects`.`Name` AS `Name` FROM TH_objects";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
-    __db.assertNotSuspendingTransaction();
-    final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-    try {
-      final int _cursorIndexOfObjCode = CursorUtil.getColumnIndexOrThrow(_cursor, "obj_code");
-      final int _cursorIndexOfObjType = CursorUtil.getColumnIndexOrThrow(_cursor, "obj_type");
-      final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "Name");
-      final List<object> _result = new ArrayList<object>(_cursor.getCount());
-      while(_cursor.moveToNext()) {
-        final object _item;
-        _item = new object();
-        _item.obj_code = _cursor.getInt(_cursorIndexOfObjCode);
-        if (_cursor.isNull(_cursorIndexOfObjType)) {
-          _item.obj_type = null;
-        } else {
-          _item.obj_type = _cursor.getString(_cursorIndexOfObjType);
-        }
-        if (_cursor.isNull(_cursorIndexOfName)) {
-          _item.Name = null;
-        } else {
-          _item.Name = _cursor.getString(_cursorIndexOfName);
-        }
-        _result.add(_item);
+    return new DataSource.Factory<Integer, object>() {
+      @Override
+      public LimitOffsetDataSource<object> create() {
+        return new LimitOffsetDataSource<object>(__db, _statement, false, true , "TH_objects") {
+          @Override
+          protected List<object> convertRows(Cursor cursor) {
+            final int _cursorIndexOfObjCode = CursorUtil.getColumnIndexOrThrow(cursor, "obj_code");
+            final int _cursorIndexOfObjType = CursorUtil.getColumnIndexOrThrow(cursor, "obj_type");
+            final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(cursor, "Name");
+            final List<object> _res = new ArrayList<object>(cursor.getCount());
+            while(cursor.moveToNext()) {
+              final object _item;
+              _item = new object();
+              _item.obj_code = cursor.getInt(_cursorIndexOfObjCode);
+              if (cursor.isNull(_cursorIndexOfObjType)) {
+                _item.obj_type = null;
+              } else {
+                _item.obj_type = cursor.getString(_cursorIndexOfObjType);
+              }
+              if (cursor.isNull(_cursorIndexOfName)) {
+                _item.Name = null;
+              } else {
+                _item.Name = cursor.getString(_cursorIndexOfName);
+              }
+              _res.add(_item);
+            }
+            return _res;
+          }
+        };
       }
-      return _result;
-    } finally {
-      _cursor.close();
-      _statement.release();
-    }
+    };
   }
 
   @Override
-  public List<object> loadAllByIds(final int[] objIds) {
+  public DataSource.Factory<Integer, object> loadAllByIds(final int[] objIds) {
     StringBuilder _stringBuilder = StringUtil.newStringBuilder();
     _stringBuilder.append("SELECT * FROM TH_objects WHERE obj_code IN (");
     final int _inputSize = objIds.length;
@@ -141,34 +146,37 @@ public final class Objects_Impl implements Objects {
       _statement.bindLong(_argIndex, _item);
       _argIndex ++;
     }
-    __db.assertNotSuspendingTransaction();
-    final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-    try {
-      final int _cursorIndexOfObjCode = CursorUtil.getColumnIndexOrThrow(_cursor, "obj_code");
-      final int _cursorIndexOfObjType = CursorUtil.getColumnIndexOrThrow(_cursor, "obj_type");
-      final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "Name");
-      final List<object> _result = new ArrayList<object>(_cursor.getCount());
-      while(_cursor.moveToNext()) {
-        final object _item_1;
-        _item_1 = new object();
-        _item_1.obj_code = _cursor.getInt(_cursorIndexOfObjCode);
-        if (_cursor.isNull(_cursorIndexOfObjType)) {
-          _item_1.obj_type = null;
-        } else {
-          _item_1.obj_type = _cursor.getString(_cursorIndexOfObjType);
-        }
-        if (_cursor.isNull(_cursorIndexOfName)) {
-          _item_1.Name = null;
-        } else {
-          _item_1.Name = _cursor.getString(_cursorIndexOfName);
-        }
-        _result.add(_item_1);
+    return new DataSource.Factory<Integer, object>() {
+      @Override
+      public LimitOffsetDataSource<object> create() {
+        return new LimitOffsetDataSource<object>(__db, _statement, false, true , "TH_objects") {
+          @Override
+          protected List<object> convertRows(Cursor cursor) {
+            final int _cursorIndexOfObjCode = CursorUtil.getColumnIndexOrThrow(cursor, "obj_code");
+            final int _cursorIndexOfObjType = CursorUtil.getColumnIndexOrThrow(cursor, "obj_type");
+            final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(cursor, "Name");
+            final List<object> _res = new ArrayList<object>(cursor.getCount());
+            while(cursor.moveToNext()) {
+              final object _item_1;
+              _item_1 = new object();
+              _item_1.obj_code = cursor.getInt(_cursorIndexOfObjCode);
+              if (cursor.isNull(_cursorIndexOfObjType)) {
+                _item_1.obj_type = null;
+              } else {
+                _item_1.obj_type = cursor.getString(_cursorIndexOfObjType);
+              }
+              if (cursor.isNull(_cursorIndexOfName)) {
+                _item_1.Name = null;
+              } else {
+                _item_1.Name = cursor.getString(_cursorIndexOfName);
+              }
+              _res.add(_item_1);
+            }
+            return _res;
+          }
+        };
       }
-      return _result;
-    } finally {
-      _cursor.close();
-      _statement.release();
-    }
+    };
   }
 
   public static List<Class<?>> getRequiredConverters() {

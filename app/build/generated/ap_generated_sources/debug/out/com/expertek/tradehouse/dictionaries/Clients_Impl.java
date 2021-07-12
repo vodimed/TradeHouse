@@ -1,16 +1,18 @@
 package com.expertek.tradehouse.dictionaries;
 
 import android.database.Cursor;
+import androidx.paging.DataSource;
 import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.EntityInsertionAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
+import androidx.room.paging.LimitOffsetDataSource;
 import androidx.room.util.CursorUtil;
-import androidx.room.util.DBUtil;
 import androidx.room.util.StringUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import com.expertek.tradehouse.dictionaries.entity.client;
 import java.lang.Class;
+import java.lang.Integer;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.StringBuilder;
@@ -85,37 +87,40 @@ public final class Clients_Impl implements Clients {
   }
 
   @Override
-  public List<client> getAll() {
+  public DataSource.Factory<Integer, client> getAll() {
     final String _sql = "SELECT `TH_clients`.`cli_code` AS `cli_code`, `TH_clients`.`cli_type` AS `cli_type`, `TH_clients`.`Name` AS `Name` FROM TH_clients";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
-    __db.assertNotSuspendingTransaction();
-    final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-    try {
-      final int _cursorIndexOfCliCode = CursorUtil.getColumnIndexOrThrow(_cursor, "cli_code");
-      final int _cursorIndexOfCliType = CursorUtil.getColumnIndexOrThrow(_cursor, "cli_type");
-      final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "Name");
-      final List<client> _result = new ArrayList<client>(_cursor.getCount());
-      while(_cursor.moveToNext()) {
-        final client _item;
-        _item = new client();
-        _item.cli_code = _cursor.getInt(_cursorIndexOfCliCode);
-        _item.cli_type = _cursor.getInt(_cursorIndexOfCliType);
-        if (_cursor.isNull(_cursorIndexOfName)) {
-          _item.Name = null;
-        } else {
-          _item.Name = _cursor.getString(_cursorIndexOfName);
-        }
-        _result.add(_item);
+    return new DataSource.Factory<Integer, client>() {
+      @Override
+      public LimitOffsetDataSource<client> create() {
+        return new LimitOffsetDataSource<client>(__db, _statement, false, true , "TH_clients") {
+          @Override
+          protected List<client> convertRows(Cursor cursor) {
+            final int _cursorIndexOfCliCode = CursorUtil.getColumnIndexOrThrow(cursor, "cli_code");
+            final int _cursorIndexOfCliType = CursorUtil.getColumnIndexOrThrow(cursor, "cli_type");
+            final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(cursor, "Name");
+            final List<client> _res = new ArrayList<client>(cursor.getCount());
+            while(cursor.moveToNext()) {
+              final client _item;
+              _item = new client();
+              _item.cli_code = cursor.getInt(_cursorIndexOfCliCode);
+              _item.cli_type = cursor.getInt(_cursorIndexOfCliType);
+              if (cursor.isNull(_cursorIndexOfName)) {
+                _item.Name = null;
+              } else {
+                _item.Name = cursor.getString(_cursorIndexOfName);
+              }
+              _res.add(_item);
+            }
+            return _res;
+          }
+        };
       }
-      return _result;
-    } finally {
-      _cursor.close();
-      _statement.release();
-    }
+    };
   }
 
   @Override
-  public List<client> loadAllByIds(final int[] objIds) {
+  public DataSource.Factory<Integer, client> loadAllByIds(final int[] objIds) {
     StringBuilder _stringBuilder = StringUtil.newStringBuilder();
     _stringBuilder.append("SELECT * FROM TH_clients WHERE cli_code IN (");
     final int _inputSize = objIds.length;
@@ -129,30 +134,33 @@ public final class Clients_Impl implements Clients {
       _statement.bindLong(_argIndex, _item);
       _argIndex ++;
     }
-    __db.assertNotSuspendingTransaction();
-    final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-    try {
-      final int _cursorIndexOfCliCode = CursorUtil.getColumnIndexOrThrow(_cursor, "cli_code");
-      final int _cursorIndexOfCliType = CursorUtil.getColumnIndexOrThrow(_cursor, "cli_type");
-      final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "Name");
-      final List<client> _result = new ArrayList<client>(_cursor.getCount());
-      while(_cursor.moveToNext()) {
-        final client _item_1;
-        _item_1 = new client();
-        _item_1.cli_code = _cursor.getInt(_cursorIndexOfCliCode);
-        _item_1.cli_type = _cursor.getInt(_cursorIndexOfCliType);
-        if (_cursor.isNull(_cursorIndexOfName)) {
-          _item_1.Name = null;
-        } else {
-          _item_1.Name = _cursor.getString(_cursorIndexOfName);
-        }
-        _result.add(_item_1);
+    return new DataSource.Factory<Integer, client>() {
+      @Override
+      public LimitOffsetDataSource<client> create() {
+        return new LimitOffsetDataSource<client>(__db, _statement, false, true , "TH_clients") {
+          @Override
+          protected List<client> convertRows(Cursor cursor) {
+            final int _cursorIndexOfCliCode = CursorUtil.getColumnIndexOrThrow(cursor, "cli_code");
+            final int _cursorIndexOfCliType = CursorUtil.getColumnIndexOrThrow(cursor, "cli_type");
+            final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(cursor, "Name");
+            final List<client> _res = new ArrayList<client>(cursor.getCount());
+            while(cursor.moveToNext()) {
+              final client _item_1;
+              _item_1 = new client();
+              _item_1.cli_code = cursor.getInt(_cursorIndexOfCliCode);
+              _item_1.cli_type = cursor.getInt(_cursorIndexOfCliType);
+              if (cursor.isNull(_cursorIndexOfName)) {
+                _item_1.Name = null;
+              } else {
+                _item_1.Name = cursor.getString(_cursorIndexOfName);
+              }
+              _res.add(_item_1);
+            }
+            return _res;
+          }
+        };
       }
-      return _result;
-    } finally {
-      _cursor.close();
-      _statement.release();
-    }
+    };
   }
 
   public static List<Class<?>> getRequiredConverters() {

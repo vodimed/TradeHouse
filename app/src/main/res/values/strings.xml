@@ -6,6 +6,24 @@
     <string name="CHANNEL_ID">tradehouse.notification.service</string>
     <string name="msgTradeHouseServiceNotification">Открыть менеджер обмена с TradeHouse</string>
     <string name="errTradeHouseServiceConnection">Не доступен сервис обмена с TradeHouse</string>
+    <string name="create">Создать</string>
+    <string name="add">Добавить</string>
+    <string name="edit">Изменить</string>
+    <string name="delete">Удалить</string>
+    <string name="save">Сохранить</string>
+    <string name="send">Отправить</string>
+    <string name="zero_value">0,00</string>
+
+    <string-array name="doc_types">
+        <item>Invoices|накладные</item>
+        <item>Inventories|инвентаризации</item>
+        <item>IntPurchWB|внут. прих. накл.</item>
+        <item>IntSaleWB|внут. расх. накл.</item>
+        <item>ExtPurchWB|внеш. прих. накл.</item>
+        <item>ExtSaleWB|внеш. расх. накл.</item>
+        <item>Initial|первоначальный ввод</item>
+        <item>Terminal|приход УТД</item>
+    </string-array>
 
     <!--MainActivity-->
     <string name="mainmenu_invoices">1. Накладные</string>
@@ -17,17 +35,15 @@
     <!--InvoicesActivity-->
     <string name="invoice_selector">Отобразить</string>
     <string name="invoice_summary">Общая сумма</string>
-    <string name="zero_value">0,00</string>
+    <string name="invoice_number">Номер документа</string>
+    <string name="invoice_type">Тип накладной</string>
+    <string name="invoice_contragent">Контрагент</string>
 
     <string-array name="invoice_types">
-        <item>Invoices|накладные</item>
-        <item>Inventories|инвентаризации</item>
-        <item>IntPurchWB|внут. прих. накл.</item>
-        <item>IntSaleWB|внут. расх. накл.</item>
-        <item>ExtPurchWB|внеш. прих. накл.</item>
-        <item>ExtSaleWB|внеш. расх. накл.</item>
-        <item>Initial|первоначальный ввод</item>
-        <item>Terminal|приход УТД</item>
+        <item>IntPurchWB|Накладная внутренняя приходная</item>
+        <item>IntSaleWB|Накладная внутренняя расходная</item>
+        <item>ExtPurchWB|Накладная внешняя приходная</item>
+        <item>ExtSaleWB|Накладная внешняя расходная</item>
     </string-array>
 
     <!--SettingsActivity-->

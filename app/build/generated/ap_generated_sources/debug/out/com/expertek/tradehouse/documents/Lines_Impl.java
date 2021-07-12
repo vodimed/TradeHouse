@@ -1,16 +1,18 @@
 package com.expertek.tradehouse.documents;
 
 import android.database.Cursor;
+import androidx.paging.DataSource;
 import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.EntityInsertionAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
+import androidx.room.paging.LimitOffsetDataSource;
 import androidx.room.util.CursorUtil;
-import androidx.room.util.DBUtil;
 import androidx.room.util.StringUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import com.expertek.tradehouse.documents.entity.line;
 import java.lang.Class;
+import java.lang.Integer;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.StringBuilder;
@@ -114,77 +116,80 @@ public final class Lines_Impl implements Lines {
   }
 
   @Override
-  public List<line> getAll() {
+  public DataSource.Factory<Integer, line> getAll() {
     final String _sql = "SELECT `MT_lines`.`LineID` AS `LineID`, `MT_lines`.`DocName` AS `DocName`, `MT_lines`.`Pos` AS `Pos`, `MT_lines`.`GoodsID` AS `GoodsID`, `MT_lines`.`GoodsName` AS `GoodsName`, `MT_lines`.`UnitBC` AS `UnitBC`, `MT_lines`.`BC` AS `BC`, `MT_lines`.`Price` AS `Price`, `MT_lines`.`DocQnty` AS `DocQnty`, `MT_lines`.`FactQnty` AS `FactQnty`, `MT_lines`.`AlcCode` AS `AlcCode`, `MT_lines`.`PartIDTH` AS `PartIDTH`, `MT_lines`.`Flags` AS `Flags` FROM MT_lines";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
-    __db.assertNotSuspendingTransaction();
-    final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-    try {
-      final int _cursorIndexOfLineID = CursorUtil.getColumnIndexOrThrow(_cursor, "LineID");
-      final int _cursorIndexOfDocName = CursorUtil.getColumnIndexOrThrow(_cursor, "DocName");
-      final int _cursorIndexOfPos = CursorUtil.getColumnIndexOrThrow(_cursor, "Pos");
-      final int _cursorIndexOfGoodsID = CursorUtil.getColumnIndexOrThrow(_cursor, "GoodsID");
-      final int _cursorIndexOfGoodsName = CursorUtil.getColumnIndexOrThrow(_cursor, "GoodsName");
-      final int _cursorIndexOfUnitBC = CursorUtil.getColumnIndexOrThrow(_cursor, "UnitBC");
-      final int _cursorIndexOfBC = CursorUtil.getColumnIndexOrThrow(_cursor, "BC");
-      final int _cursorIndexOfPrice = CursorUtil.getColumnIndexOrThrow(_cursor, "Price");
-      final int _cursorIndexOfDocQnty = CursorUtil.getColumnIndexOrThrow(_cursor, "DocQnty");
-      final int _cursorIndexOfFactQnty = CursorUtil.getColumnIndexOrThrow(_cursor, "FactQnty");
-      final int _cursorIndexOfAlcCode = CursorUtil.getColumnIndexOrThrow(_cursor, "AlcCode");
-      final int _cursorIndexOfPartIDTH = CursorUtil.getColumnIndexOrThrow(_cursor, "PartIDTH");
-      final int _cursorIndexOfFlags = CursorUtil.getColumnIndexOrThrow(_cursor, "Flags");
-      final List<line> _result = new ArrayList<line>(_cursor.getCount());
-      while(_cursor.moveToNext()) {
-        final line _item;
-        _item = new line();
-        _item.LineID = _cursor.getInt(_cursorIndexOfLineID);
-        if (_cursor.isNull(_cursorIndexOfDocName)) {
-          _item.DocName = null;
-        } else {
-          _item.DocName = _cursor.getString(_cursorIndexOfDocName);
-        }
-        _item.Pos = _cursor.getInt(_cursorIndexOfPos);
-        _item.GoodsID = _cursor.getInt(_cursorIndexOfGoodsID);
-        if (_cursor.isNull(_cursorIndexOfGoodsName)) {
-          _item.GoodsName = null;
-        } else {
-          _item.GoodsName = _cursor.getString(_cursorIndexOfGoodsName);
-        }
-        if (_cursor.isNull(_cursorIndexOfUnitBC)) {
-          _item.UnitBC = null;
-        } else {
-          _item.UnitBC = _cursor.getString(_cursorIndexOfUnitBC);
-        }
-        if (_cursor.isNull(_cursorIndexOfBC)) {
-          _item.BC = null;
-        } else {
-          _item.BC = _cursor.getString(_cursorIndexOfBC);
-        }
-        _item.Price = _cursor.getDouble(_cursorIndexOfPrice);
-        _item.DocQnty = _cursor.getDouble(_cursorIndexOfDocQnty);
-        _item.FactQnty = _cursor.getDouble(_cursorIndexOfFactQnty);
-        if (_cursor.isNull(_cursorIndexOfAlcCode)) {
-          _item.AlcCode = null;
-        } else {
-          _item.AlcCode = _cursor.getString(_cursorIndexOfAlcCode);
-        }
-        if (_cursor.isNull(_cursorIndexOfPartIDTH)) {
-          _item.PartIDTH = null;
-        } else {
-          _item.PartIDTH = _cursor.getString(_cursorIndexOfPartIDTH);
-        }
-        _item.Flags = _cursor.getInt(_cursorIndexOfFlags);
-        _result.add(_item);
+    return new DataSource.Factory<Integer, line>() {
+      @Override
+      public LimitOffsetDataSource<line> create() {
+        return new LimitOffsetDataSource<line>(__db, _statement, false, true , "MT_lines") {
+          @Override
+          protected List<line> convertRows(Cursor cursor) {
+            final int _cursorIndexOfLineID = CursorUtil.getColumnIndexOrThrow(cursor, "LineID");
+            final int _cursorIndexOfDocName = CursorUtil.getColumnIndexOrThrow(cursor, "DocName");
+            final int _cursorIndexOfPos = CursorUtil.getColumnIndexOrThrow(cursor, "Pos");
+            final int _cursorIndexOfGoodsID = CursorUtil.getColumnIndexOrThrow(cursor, "GoodsID");
+            final int _cursorIndexOfGoodsName = CursorUtil.getColumnIndexOrThrow(cursor, "GoodsName");
+            final int _cursorIndexOfUnitBC = CursorUtil.getColumnIndexOrThrow(cursor, "UnitBC");
+            final int _cursorIndexOfBC = CursorUtil.getColumnIndexOrThrow(cursor, "BC");
+            final int _cursorIndexOfPrice = CursorUtil.getColumnIndexOrThrow(cursor, "Price");
+            final int _cursorIndexOfDocQnty = CursorUtil.getColumnIndexOrThrow(cursor, "DocQnty");
+            final int _cursorIndexOfFactQnty = CursorUtil.getColumnIndexOrThrow(cursor, "FactQnty");
+            final int _cursorIndexOfAlcCode = CursorUtil.getColumnIndexOrThrow(cursor, "AlcCode");
+            final int _cursorIndexOfPartIDTH = CursorUtil.getColumnIndexOrThrow(cursor, "PartIDTH");
+            final int _cursorIndexOfFlags = CursorUtil.getColumnIndexOrThrow(cursor, "Flags");
+            final List<line> _res = new ArrayList<line>(cursor.getCount());
+            while(cursor.moveToNext()) {
+              final line _item;
+              _item = new line();
+              _item.LineID = cursor.getInt(_cursorIndexOfLineID);
+              if (cursor.isNull(_cursorIndexOfDocName)) {
+                _item.DocName = null;
+              } else {
+                _item.DocName = cursor.getString(_cursorIndexOfDocName);
+              }
+              _item.Pos = cursor.getInt(_cursorIndexOfPos);
+              _item.GoodsID = cursor.getInt(_cursorIndexOfGoodsID);
+              if (cursor.isNull(_cursorIndexOfGoodsName)) {
+                _item.GoodsName = null;
+              } else {
+                _item.GoodsName = cursor.getString(_cursorIndexOfGoodsName);
+              }
+              if (cursor.isNull(_cursorIndexOfUnitBC)) {
+                _item.UnitBC = null;
+              } else {
+                _item.UnitBC = cursor.getString(_cursorIndexOfUnitBC);
+              }
+              if (cursor.isNull(_cursorIndexOfBC)) {
+                _item.BC = null;
+              } else {
+                _item.BC = cursor.getString(_cursorIndexOfBC);
+              }
+              _item.Price = cursor.getDouble(_cursorIndexOfPrice);
+              _item.DocQnty = cursor.getDouble(_cursorIndexOfDocQnty);
+              _item.FactQnty = cursor.getDouble(_cursorIndexOfFactQnty);
+              if (cursor.isNull(_cursorIndexOfAlcCode)) {
+                _item.AlcCode = null;
+              } else {
+                _item.AlcCode = cursor.getString(_cursorIndexOfAlcCode);
+              }
+              if (cursor.isNull(_cursorIndexOfPartIDTH)) {
+                _item.PartIDTH = null;
+              } else {
+                _item.PartIDTH = cursor.getString(_cursorIndexOfPartIDTH);
+              }
+              _item.Flags = cursor.getInt(_cursorIndexOfFlags);
+              _res.add(_item);
+            }
+            return _res;
+          }
+        };
       }
-      return _result;
-    } finally {
-      _cursor.close();
-      _statement.release();
-    }
+    };
   }
 
   @Override
-  public List<line> loadAllByIds(final int[] objIds) {
+  public DataSource.Factory<Integer, line> loadAllByIds(final int[] objIds) {
     StringBuilder _stringBuilder = StringUtil.newStringBuilder();
     _stringBuilder.append("SELECT * FROM MT_lines WHERE LineID IN (");
     final int _inputSize = objIds.length;
@@ -198,70 +203,73 @@ public final class Lines_Impl implements Lines {
       _statement.bindLong(_argIndex, _item);
       _argIndex ++;
     }
-    __db.assertNotSuspendingTransaction();
-    final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-    try {
-      final int _cursorIndexOfLineID = CursorUtil.getColumnIndexOrThrow(_cursor, "LineID");
-      final int _cursorIndexOfDocName = CursorUtil.getColumnIndexOrThrow(_cursor, "DocName");
-      final int _cursorIndexOfPos = CursorUtil.getColumnIndexOrThrow(_cursor, "Pos");
-      final int _cursorIndexOfGoodsID = CursorUtil.getColumnIndexOrThrow(_cursor, "GoodsID");
-      final int _cursorIndexOfGoodsName = CursorUtil.getColumnIndexOrThrow(_cursor, "GoodsName");
-      final int _cursorIndexOfUnitBC = CursorUtil.getColumnIndexOrThrow(_cursor, "UnitBC");
-      final int _cursorIndexOfBC = CursorUtil.getColumnIndexOrThrow(_cursor, "BC");
-      final int _cursorIndexOfPrice = CursorUtil.getColumnIndexOrThrow(_cursor, "Price");
-      final int _cursorIndexOfDocQnty = CursorUtil.getColumnIndexOrThrow(_cursor, "DocQnty");
-      final int _cursorIndexOfFactQnty = CursorUtil.getColumnIndexOrThrow(_cursor, "FactQnty");
-      final int _cursorIndexOfAlcCode = CursorUtil.getColumnIndexOrThrow(_cursor, "AlcCode");
-      final int _cursorIndexOfPartIDTH = CursorUtil.getColumnIndexOrThrow(_cursor, "PartIDTH");
-      final int _cursorIndexOfFlags = CursorUtil.getColumnIndexOrThrow(_cursor, "Flags");
-      final List<line> _result = new ArrayList<line>(_cursor.getCount());
-      while(_cursor.moveToNext()) {
-        final line _item_1;
-        _item_1 = new line();
-        _item_1.LineID = _cursor.getInt(_cursorIndexOfLineID);
-        if (_cursor.isNull(_cursorIndexOfDocName)) {
-          _item_1.DocName = null;
-        } else {
-          _item_1.DocName = _cursor.getString(_cursorIndexOfDocName);
-        }
-        _item_1.Pos = _cursor.getInt(_cursorIndexOfPos);
-        _item_1.GoodsID = _cursor.getInt(_cursorIndexOfGoodsID);
-        if (_cursor.isNull(_cursorIndexOfGoodsName)) {
-          _item_1.GoodsName = null;
-        } else {
-          _item_1.GoodsName = _cursor.getString(_cursorIndexOfGoodsName);
-        }
-        if (_cursor.isNull(_cursorIndexOfUnitBC)) {
-          _item_1.UnitBC = null;
-        } else {
-          _item_1.UnitBC = _cursor.getString(_cursorIndexOfUnitBC);
-        }
-        if (_cursor.isNull(_cursorIndexOfBC)) {
-          _item_1.BC = null;
-        } else {
-          _item_1.BC = _cursor.getString(_cursorIndexOfBC);
-        }
-        _item_1.Price = _cursor.getDouble(_cursorIndexOfPrice);
-        _item_1.DocQnty = _cursor.getDouble(_cursorIndexOfDocQnty);
-        _item_1.FactQnty = _cursor.getDouble(_cursorIndexOfFactQnty);
-        if (_cursor.isNull(_cursorIndexOfAlcCode)) {
-          _item_1.AlcCode = null;
-        } else {
-          _item_1.AlcCode = _cursor.getString(_cursorIndexOfAlcCode);
-        }
-        if (_cursor.isNull(_cursorIndexOfPartIDTH)) {
-          _item_1.PartIDTH = null;
-        } else {
-          _item_1.PartIDTH = _cursor.getString(_cursorIndexOfPartIDTH);
-        }
-        _item_1.Flags = _cursor.getInt(_cursorIndexOfFlags);
-        _result.add(_item_1);
+    return new DataSource.Factory<Integer, line>() {
+      @Override
+      public LimitOffsetDataSource<line> create() {
+        return new LimitOffsetDataSource<line>(__db, _statement, false, true , "MT_lines") {
+          @Override
+          protected List<line> convertRows(Cursor cursor) {
+            final int _cursorIndexOfLineID = CursorUtil.getColumnIndexOrThrow(cursor, "LineID");
+            final int _cursorIndexOfDocName = CursorUtil.getColumnIndexOrThrow(cursor, "DocName");
+            final int _cursorIndexOfPos = CursorUtil.getColumnIndexOrThrow(cursor, "Pos");
+            final int _cursorIndexOfGoodsID = CursorUtil.getColumnIndexOrThrow(cursor, "GoodsID");
+            final int _cursorIndexOfGoodsName = CursorUtil.getColumnIndexOrThrow(cursor, "GoodsName");
+            final int _cursorIndexOfUnitBC = CursorUtil.getColumnIndexOrThrow(cursor, "UnitBC");
+            final int _cursorIndexOfBC = CursorUtil.getColumnIndexOrThrow(cursor, "BC");
+            final int _cursorIndexOfPrice = CursorUtil.getColumnIndexOrThrow(cursor, "Price");
+            final int _cursorIndexOfDocQnty = CursorUtil.getColumnIndexOrThrow(cursor, "DocQnty");
+            final int _cursorIndexOfFactQnty = CursorUtil.getColumnIndexOrThrow(cursor, "FactQnty");
+            final int _cursorIndexOfAlcCode = CursorUtil.getColumnIndexOrThrow(cursor, "AlcCode");
+            final int _cursorIndexOfPartIDTH = CursorUtil.getColumnIndexOrThrow(cursor, "PartIDTH");
+            final int _cursorIndexOfFlags = CursorUtil.getColumnIndexOrThrow(cursor, "Flags");
+            final List<line> _res = new ArrayList<line>(cursor.getCount());
+            while(cursor.moveToNext()) {
+              final line _item_1;
+              _item_1 = new line();
+              _item_1.LineID = cursor.getInt(_cursorIndexOfLineID);
+              if (cursor.isNull(_cursorIndexOfDocName)) {
+                _item_1.DocName = null;
+              } else {
+                _item_1.DocName = cursor.getString(_cursorIndexOfDocName);
+              }
+              _item_1.Pos = cursor.getInt(_cursorIndexOfPos);
+              _item_1.GoodsID = cursor.getInt(_cursorIndexOfGoodsID);
+              if (cursor.isNull(_cursorIndexOfGoodsName)) {
+                _item_1.GoodsName = null;
+              } else {
+                _item_1.GoodsName = cursor.getString(_cursorIndexOfGoodsName);
+              }
+              if (cursor.isNull(_cursorIndexOfUnitBC)) {
+                _item_1.UnitBC = null;
+              } else {
+                _item_1.UnitBC = cursor.getString(_cursorIndexOfUnitBC);
+              }
+              if (cursor.isNull(_cursorIndexOfBC)) {
+                _item_1.BC = null;
+              } else {
+                _item_1.BC = cursor.getString(_cursorIndexOfBC);
+              }
+              _item_1.Price = cursor.getDouble(_cursorIndexOfPrice);
+              _item_1.DocQnty = cursor.getDouble(_cursorIndexOfDocQnty);
+              _item_1.FactQnty = cursor.getDouble(_cursorIndexOfFactQnty);
+              if (cursor.isNull(_cursorIndexOfAlcCode)) {
+                _item_1.AlcCode = null;
+              } else {
+                _item_1.AlcCode = cursor.getString(_cursorIndexOfAlcCode);
+              }
+              if (cursor.isNull(_cursorIndexOfPartIDTH)) {
+                _item_1.PartIDTH = null;
+              } else {
+                _item_1.PartIDTH = cursor.getString(_cursorIndexOfPartIDTH);
+              }
+              _item_1.Flags = cursor.getInt(_cursorIndexOfFlags);
+              _res.add(_item_1);
+            }
+            return _res;
+          }
+        };
       }
-      return _result;
-    } finally {
-      _cursor.close();
-      _statement.release();
-    }
+    };
   }
 
   public static List<Class<?>> getRequiredConverters() {

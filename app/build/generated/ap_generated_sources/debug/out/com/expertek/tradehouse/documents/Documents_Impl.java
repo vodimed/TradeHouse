@@ -8,7 +8,6 @@ import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
 import androidx.room.paging.LimitOffsetDataSource;
 import androidx.room.util.CursorUtil;
-import androidx.room.util.DBUtil;
 import androidx.room.util.StringUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import com.common.extensions.database.TypeConv;
@@ -136,89 +135,92 @@ public final class Documents_Impl implements Documents {
   }
 
   @Override
-  public List<document> getAll() {
+  public DataSource.Factory<Integer, document> getAll() {
     final String _sql = "SELECT `MT_documents`.`DocName` AS `DocName`, `MT_documents`.`DocType` AS `DocType`, `MT_documents`.`Complete` AS `Complete`, `MT_documents`.`Status` AS `Status`, `MT_documents`.`ClientID` AS `ClientID`, `MT_documents`.`ClientType` AS `ClientType`, `MT_documents`.`ObjectID` AS `ObjectID`, `MT_documents`.`ObjectType` AS `ObjectType`, `MT_documents`.`UserID` AS `UserID`, `MT_documents`.`UserName` AS `UserName`, `MT_documents`.`FactSum` AS `FactSum`, `MT_documents`.`StartDate` AS `StartDate`, `MT_documents`.`Flags` AS `Flags` FROM MT_documents";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
-    __db.assertNotSuspendingTransaction();
-    final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-    try {
-      final int _cursorIndexOfDocName = CursorUtil.getColumnIndexOrThrow(_cursor, "DocName");
-      final int _cursorIndexOfDocType = CursorUtil.getColumnIndexOrThrow(_cursor, "DocType");
-      final int _cursorIndexOfComplete = CursorUtil.getColumnIndexOrThrow(_cursor, "Complete");
-      final int _cursorIndexOfStatus = CursorUtil.getColumnIndexOrThrow(_cursor, "Status");
-      final int _cursorIndexOfClientID = CursorUtil.getColumnIndexOrThrow(_cursor, "ClientID");
-      final int _cursorIndexOfClientType = CursorUtil.getColumnIndexOrThrow(_cursor, "ClientType");
-      final int _cursorIndexOfObjectID = CursorUtil.getColumnIndexOrThrow(_cursor, "ObjectID");
-      final int _cursorIndexOfObjectType = CursorUtil.getColumnIndexOrThrow(_cursor, "ObjectType");
-      final int _cursorIndexOfUserID = CursorUtil.getColumnIndexOrThrow(_cursor, "UserID");
-      final int _cursorIndexOfUserName = CursorUtil.getColumnIndexOrThrow(_cursor, "UserName");
-      final int _cursorIndexOfFactSum = CursorUtil.getColumnIndexOrThrow(_cursor, "FactSum");
-      final int _cursorIndexOfStartDate = CursorUtil.getColumnIndexOrThrow(_cursor, "StartDate");
-      final int _cursorIndexOfFlags = CursorUtil.getColumnIndexOrThrow(_cursor, "Flags");
-      final List<document> _result = new ArrayList<document>(_cursor.getCount());
-      while(_cursor.moveToNext()) {
-        final document _item;
-        _item = new document();
-        if (_cursor.isNull(_cursorIndexOfDocName)) {
-          _item.DocName = null;
-        } else {
-          _item.DocName = _cursor.getString(_cursorIndexOfDocName);
-        }
-        if (_cursor.isNull(_cursorIndexOfDocType)) {
-          _item.DocType = null;
-        } else {
-          _item.DocType = _cursor.getString(_cursorIndexOfDocType);
-        }
-        final int _tmp;
-        _tmp = _cursor.getInt(_cursorIndexOfComplete);
-        _item.Complete = _tmp != 0;
-        if (_cursor.isNull(_cursorIndexOfStatus)) {
-          _item.Status = null;
-        } else {
-          _item.Status = _cursor.getString(_cursorIndexOfStatus);
-        }
-        _item.ClientID = _cursor.getInt(_cursorIndexOfClientID);
-        if (_cursor.isNull(_cursorIndexOfClientType)) {
-          _item.ClientType = null;
-        } else {
-          _item.ClientType = _cursor.getString(_cursorIndexOfClientType);
-        }
-        _item.ObjectID = _cursor.getInt(_cursorIndexOfObjectID);
-        if (_cursor.isNull(_cursorIndexOfObjectType)) {
-          _item.ObjectType = null;
-        } else {
-          _item.ObjectType = _cursor.getString(_cursorIndexOfObjectType);
-        }
-        if (_cursor.isNull(_cursorIndexOfUserID)) {
-          _item.UserID = null;
-        } else {
-          _item.UserID = _cursor.getString(_cursorIndexOfUserID);
-        }
-        if (_cursor.isNull(_cursorIndexOfUserName)) {
-          _item.UserName = null;
-        } else {
-          _item.UserName = _cursor.getString(_cursorIndexOfUserName);
-        }
-        _item.FactSum = _cursor.getDouble(_cursorIndexOfFactSum);
-        final String _tmp_1;
-        if (_cursor.isNull(_cursorIndexOfStartDate)) {
-          _tmp_1 = null;
-        } else {
-          _tmp_1 = _cursor.getString(_cursorIndexOfStartDate);
-        }
-        _item.StartDate = __typeConv.load(_tmp_1);
-        _item.Flags = _cursor.getInt(_cursorIndexOfFlags);
-        _result.add(_item);
+    return new DataSource.Factory<Integer, document>() {
+      @Override
+      public LimitOffsetDataSource<document> create() {
+        return new LimitOffsetDataSource<document>(__db, _statement, false, true , "MT_documents") {
+          @Override
+          protected List<document> convertRows(Cursor cursor) {
+            final int _cursorIndexOfDocName = CursorUtil.getColumnIndexOrThrow(cursor, "DocName");
+            final int _cursorIndexOfDocType = CursorUtil.getColumnIndexOrThrow(cursor, "DocType");
+            final int _cursorIndexOfComplete = CursorUtil.getColumnIndexOrThrow(cursor, "Complete");
+            final int _cursorIndexOfStatus = CursorUtil.getColumnIndexOrThrow(cursor, "Status");
+            final int _cursorIndexOfClientID = CursorUtil.getColumnIndexOrThrow(cursor, "ClientID");
+            final int _cursorIndexOfClientType = CursorUtil.getColumnIndexOrThrow(cursor, "ClientType");
+            final int _cursorIndexOfObjectID = CursorUtil.getColumnIndexOrThrow(cursor, "ObjectID");
+            final int _cursorIndexOfObjectType = CursorUtil.getColumnIndexOrThrow(cursor, "ObjectType");
+            final int _cursorIndexOfUserID = CursorUtil.getColumnIndexOrThrow(cursor, "UserID");
+            final int _cursorIndexOfUserName = CursorUtil.getColumnIndexOrThrow(cursor, "UserName");
+            final int _cursorIndexOfFactSum = CursorUtil.getColumnIndexOrThrow(cursor, "FactSum");
+            final int _cursorIndexOfStartDate = CursorUtil.getColumnIndexOrThrow(cursor, "StartDate");
+            final int _cursorIndexOfFlags = CursorUtil.getColumnIndexOrThrow(cursor, "Flags");
+            final List<document> _res = new ArrayList<document>(cursor.getCount());
+            while(cursor.moveToNext()) {
+              final document _item;
+              _item = new document();
+              if (cursor.isNull(_cursorIndexOfDocName)) {
+                _item.DocName = null;
+              } else {
+                _item.DocName = cursor.getString(_cursorIndexOfDocName);
+              }
+              if (cursor.isNull(_cursorIndexOfDocType)) {
+                _item.DocType = null;
+              } else {
+                _item.DocType = cursor.getString(_cursorIndexOfDocType);
+              }
+              final int _tmp;
+              _tmp = cursor.getInt(_cursorIndexOfComplete);
+              _item.Complete = _tmp != 0;
+              if (cursor.isNull(_cursorIndexOfStatus)) {
+                _item.Status = null;
+              } else {
+                _item.Status = cursor.getString(_cursorIndexOfStatus);
+              }
+              _item.ClientID = cursor.getInt(_cursorIndexOfClientID);
+              if (cursor.isNull(_cursorIndexOfClientType)) {
+                _item.ClientType = null;
+              } else {
+                _item.ClientType = cursor.getString(_cursorIndexOfClientType);
+              }
+              _item.ObjectID = cursor.getInt(_cursorIndexOfObjectID);
+              if (cursor.isNull(_cursorIndexOfObjectType)) {
+                _item.ObjectType = null;
+              } else {
+                _item.ObjectType = cursor.getString(_cursorIndexOfObjectType);
+              }
+              if (cursor.isNull(_cursorIndexOfUserID)) {
+                _item.UserID = null;
+              } else {
+                _item.UserID = cursor.getString(_cursorIndexOfUserID);
+              }
+              if (cursor.isNull(_cursorIndexOfUserName)) {
+                _item.UserName = null;
+              } else {
+                _item.UserName = cursor.getString(_cursorIndexOfUserName);
+              }
+              _item.FactSum = cursor.getDouble(_cursorIndexOfFactSum);
+              final String _tmp_1;
+              if (cursor.isNull(_cursorIndexOfStartDate)) {
+                _tmp_1 = null;
+              } else {
+                _tmp_1 = cursor.getString(_cursorIndexOfStartDate);
+              }
+              _item.StartDate = __typeConv.load(_tmp_1);
+              _item.Flags = cursor.getInt(_cursorIndexOfFlags);
+              _res.add(_item);
+            }
+            return _res;
+          }
+        };
       }
-      return _result;
-    } finally {
-      _cursor.close();
-      _statement.release();
-    }
+    };
   }
 
   @Override
-  public List<document> loadAllByIds(final String[] objIds) {
+  public DataSource.Factory<Integer, document> loadAllByIds(final String[] objIds) {
     StringBuilder _stringBuilder = StringUtil.newStringBuilder();
     _stringBuilder.append("SELECT * FROM MT_documents WHERE DocName IN (");
     final int _inputSize = objIds.length;
@@ -236,82 +238,85 @@ public final class Documents_Impl implements Documents {
       }
       _argIndex ++;
     }
-    __db.assertNotSuspendingTransaction();
-    final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-    try {
-      final int _cursorIndexOfDocName = CursorUtil.getColumnIndexOrThrow(_cursor, "DocName");
-      final int _cursorIndexOfDocType = CursorUtil.getColumnIndexOrThrow(_cursor, "DocType");
-      final int _cursorIndexOfComplete = CursorUtil.getColumnIndexOrThrow(_cursor, "Complete");
-      final int _cursorIndexOfStatus = CursorUtil.getColumnIndexOrThrow(_cursor, "Status");
-      final int _cursorIndexOfClientID = CursorUtil.getColumnIndexOrThrow(_cursor, "ClientID");
-      final int _cursorIndexOfClientType = CursorUtil.getColumnIndexOrThrow(_cursor, "ClientType");
-      final int _cursorIndexOfObjectID = CursorUtil.getColumnIndexOrThrow(_cursor, "ObjectID");
-      final int _cursorIndexOfObjectType = CursorUtil.getColumnIndexOrThrow(_cursor, "ObjectType");
-      final int _cursorIndexOfUserID = CursorUtil.getColumnIndexOrThrow(_cursor, "UserID");
-      final int _cursorIndexOfUserName = CursorUtil.getColumnIndexOrThrow(_cursor, "UserName");
-      final int _cursorIndexOfFactSum = CursorUtil.getColumnIndexOrThrow(_cursor, "FactSum");
-      final int _cursorIndexOfStartDate = CursorUtil.getColumnIndexOrThrow(_cursor, "StartDate");
-      final int _cursorIndexOfFlags = CursorUtil.getColumnIndexOrThrow(_cursor, "Flags");
-      final List<document> _result = new ArrayList<document>(_cursor.getCount());
-      while(_cursor.moveToNext()) {
-        final document _item_1;
-        _item_1 = new document();
-        if (_cursor.isNull(_cursorIndexOfDocName)) {
-          _item_1.DocName = null;
-        } else {
-          _item_1.DocName = _cursor.getString(_cursorIndexOfDocName);
-        }
-        if (_cursor.isNull(_cursorIndexOfDocType)) {
-          _item_1.DocType = null;
-        } else {
-          _item_1.DocType = _cursor.getString(_cursorIndexOfDocType);
-        }
-        final int _tmp;
-        _tmp = _cursor.getInt(_cursorIndexOfComplete);
-        _item_1.Complete = _tmp != 0;
-        if (_cursor.isNull(_cursorIndexOfStatus)) {
-          _item_1.Status = null;
-        } else {
-          _item_1.Status = _cursor.getString(_cursorIndexOfStatus);
-        }
-        _item_1.ClientID = _cursor.getInt(_cursorIndexOfClientID);
-        if (_cursor.isNull(_cursorIndexOfClientType)) {
-          _item_1.ClientType = null;
-        } else {
-          _item_1.ClientType = _cursor.getString(_cursorIndexOfClientType);
-        }
-        _item_1.ObjectID = _cursor.getInt(_cursorIndexOfObjectID);
-        if (_cursor.isNull(_cursorIndexOfObjectType)) {
-          _item_1.ObjectType = null;
-        } else {
-          _item_1.ObjectType = _cursor.getString(_cursorIndexOfObjectType);
-        }
-        if (_cursor.isNull(_cursorIndexOfUserID)) {
-          _item_1.UserID = null;
-        } else {
-          _item_1.UserID = _cursor.getString(_cursorIndexOfUserID);
-        }
-        if (_cursor.isNull(_cursorIndexOfUserName)) {
-          _item_1.UserName = null;
-        } else {
-          _item_1.UserName = _cursor.getString(_cursorIndexOfUserName);
-        }
-        _item_1.FactSum = _cursor.getDouble(_cursorIndexOfFactSum);
-        final String _tmp_1;
-        if (_cursor.isNull(_cursorIndexOfStartDate)) {
-          _tmp_1 = null;
-        } else {
-          _tmp_1 = _cursor.getString(_cursorIndexOfStartDate);
-        }
-        _item_1.StartDate = __typeConv.load(_tmp_1);
-        _item_1.Flags = _cursor.getInt(_cursorIndexOfFlags);
-        _result.add(_item_1);
+    return new DataSource.Factory<Integer, document>() {
+      @Override
+      public LimitOffsetDataSource<document> create() {
+        return new LimitOffsetDataSource<document>(__db, _statement, false, true , "MT_documents") {
+          @Override
+          protected List<document> convertRows(Cursor cursor) {
+            final int _cursorIndexOfDocName = CursorUtil.getColumnIndexOrThrow(cursor, "DocName");
+            final int _cursorIndexOfDocType = CursorUtil.getColumnIndexOrThrow(cursor, "DocType");
+            final int _cursorIndexOfComplete = CursorUtil.getColumnIndexOrThrow(cursor, "Complete");
+            final int _cursorIndexOfStatus = CursorUtil.getColumnIndexOrThrow(cursor, "Status");
+            final int _cursorIndexOfClientID = CursorUtil.getColumnIndexOrThrow(cursor, "ClientID");
+            final int _cursorIndexOfClientType = CursorUtil.getColumnIndexOrThrow(cursor, "ClientType");
+            final int _cursorIndexOfObjectID = CursorUtil.getColumnIndexOrThrow(cursor, "ObjectID");
+            final int _cursorIndexOfObjectType = CursorUtil.getColumnIndexOrThrow(cursor, "ObjectType");
+            final int _cursorIndexOfUserID = CursorUtil.getColumnIndexOrThrow(cursor, "UserID");
+            final int _cursorIndexOfUserName = CursorUtil.getColumnIndexOrThrow(cursor, "UserName");
+            final int _cursorIndexOfFactSum = CursorUtil.getColumnIndexOrThrow(cursor, "FactSum");
+            final int _cursorIndexOfStartDate = CursorUtil.getColumnIndexOrThrow(cursor, "StartDate");
+            final int _cursorIndexOfFlags = CursorUtil.getColumnIndexOrThrow(cursor, "Flags");
+            final List<document> _res = new ArrayList<document>(cursor.getCount());
+            while(cursor.moveToNext()) {
+              final document _item_1;
+              _item_1 = new document();
+              if (cursor.isNull(_cursorIndexOfDocName)) {
+                _item_1.DocName = null;
+              } else {
+                _item_1.DocName = cursor.getString(_cursorIndexOfDocName);
+              }
+              if (cursor.isNull(_cursorIndexOfDocType)) {
+                _item_1.DocType = null;
+              } else {
+                _item_1.DocType = cursor.getString(_cursorIndexOfDocType);
+              }
+              final int _tmp;
+              _tmp = cursor.getInt(_cursorIndexOfComplete);
+              _item_1.Complete = _tmp != 0;
+              if (cursor.isNull(_cursorIndexOfStatus)) {
+                _item_1.Status = null;
+              } else {
+                _item_1.Status = cursor.getString(_cursorIndexOfStatus);
+              }
+              _item_1.ClientID = cursor.getInt(_cursorIndexOfClientID);
+              if (cursor.isNull(_cursorIndexOfClientType)) {
+                _item_1.ClientType = null;
+              } else {
+                _item_1.ClientType = cursor.getString(_cursorIndexOfClientType);
+              }
+              _item_1.ObjectID = cursor.getInt(_cursorIndexOfObjectID);
+              if (cursor.isNull(_cursorIndexOfObjectType)) {
+                _item_1.ObjectType = null;
+              } else {
+                _item_1.ObjectType = cursor.getString(_cursorIndexOfObjectType);
+              }
+              if (cursor.isNull(_cursorIndexOfUserID)) {
+                _item_1.UserID = null;
+              } else {
+                _item_1.UserID = cursor.getString(_cursorIndexOfUserID);
+              }
+              if (cursor.isNull(_cursorIndexOfUserName)) {
+                _item_1.UserName = null;
+              } else {
+                _item_1.UserName = cursor.getString(_cursorIndexOfUserName);
+              }
+              _item_1.FactSum = cursor.getDouble(_cursorIndexOfFactSum);
+              final String _tmp_1;
+              if (cursor.isNull(_cursorIndexOfStartDate)) {
+                _tmp_1 = null;
+              } else {
+                _tmp_1 = cursor.getString(_cursorIndexOfStartDate);
+              }
+              _item_1.StartDate = __typeConv.load(_tmp_1);
+              _item_1.Flags = cursor.getInt(_cursorIndexOfFlags);
+              _res.add(_item_1);
+            }
+            return _res;
+          }
+        };
       }
-      return _result;
-    } finally {
-      _cursor.close();
-      _statement.release();
-    }
+    };
   }
 
   @Override

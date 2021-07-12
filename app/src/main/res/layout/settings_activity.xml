@@ -27,7 +27,6 @@
                 android:id="@+id/editSerial"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autofillHints="@string/setting_serial"
                 android:inputType="text" />
 
             <TextView
@@ -41,7 +40,6 @@
                 android:id="@+id/editObject"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autofillHints="@string/setting_object"
                 android:inputType="text" />
 
             <TextView
@@ -55,7 +53,6 @@
                 android:id="@+id/editConnect"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autofillHints="@string/setting_connect"
                 android:inputType="text" />
 
             <LinearLayout
@@ -141,7 +138,6 @@
                 android:id="@+id/editPrefixes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autofillHints="@string/option_prefixes"
                 android:inputType="textMultiLine"
                 android:maxLines="10"
                 android:minLines="1" />

@@ -1,16 +1,18 @@
 package com.expertek.tradehouse.documents;
 
 import android.database.Cursor;
+import androidx.paging.DataSource;
 import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.EntityInsertionAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
+import androidx.room.paging.LimitOffsetDataSource;
 import androidx.room.util.CursorUtil;
-import androidx.room.util.DBUtil;
 import androidx.room.util.StringUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import com.expertek.tradehouse.documents.entity.markline;
 import java.lang.Class;
+import java.lang.Integer;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.StringBuilder;
@@ -104,61 +106,64 @@ public final class Marklines_Impl implements Marklines {
   }
 
   @Override
-  public List<markline> getAll() {
+  public DataSource.Factory<Integer, markline> getAll() {
     final String _sql = "SELECT `MT_MarkLines`.`LineID` AS `LineID`, `MT_MarkLines`.`DocName` AS `DocName`, `MT_MarkLines`.`MarkCode` AS `MarkCode`, `MT_MarkLines`.`PartIDTH` AS `PartIDTH`, `MT_MarkLines`.`Sts` AS `Sts`, `MT_MarkLines`.`MarkParent` AS `MarkParent`, `MT_MarkLines`.`BoxQnty` AS `BoxQnty` FROM MT_MarkLines";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
-    __db.assertNotSuspendingTransaction();
-    final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-    try {
-      final int _cursorIndexOfLineID = CursorUtil.getColumnIndexOrThrow(_cursor, "LineID");
-      final int _cursorIndexOfDocName = CursorUtil.getColumnIndexOrThrow(_cursor, "DocName");
-      final int _cursorIndexOfMarkCode = CursorUtil.getColumnIndexOrThrow(_cursor, "MarkCode");
-      final int _cursorIndexOfPartIDTH = CursorUtil.getColumnIndexOrThrow(_cursor, "PartIDTH");
-      final int _cursorIndexOfSts = CursorUtil.getColumnIndexOrThrow(_cursor, "Sts");
-      final int _cursorIndexOfMarkParent = CursorUtil.getColumnIndexOrThrow(_cursor, "MarkParent");
-      final int _cursorIndexOfBoxQnty = CursorUtil.getColumnIndexOrThrow(_cursor, "BoxQnty");
-      final List<markline> _result = new ArrayList<markline>(_cursor.getCount());
-      while(_cursor.moveToNext()) {
-        final markline _item;
-        _item = new markline();
-        _item.LineID = _cursor.getInt(_cursorIndexOfLineID);
-        if (_cursor.isNull(_cursorIndexOfDocName)) {
-          _item.DocName = null;
-        } else {
-          _item.DocName = _cursor.getString(_cursorIndexOfDocName);
-        }
-        if (_cursor.isNull(_cursorIndexOfMarkCode)) {
-          _item.MarkCode = null;
-        } else {
-          _item.MarkCode = _cursor.getString(_cursorIndexOfMarkCode);
-        }
-        if (_cursor.isNull(_cursorIndexOfPartIDTH)) {
-          _item.PartIDTH = null;
-        } else {
-          _item.PartIDTH = _cursor.getString(_cursorIndexOfPartIDTH);
-        }
-        if (_cursor.isNull(_cursorIndexOfSts)) {
-          _item.Sts = null;
-        } else {
-          _item.Sts = _cursor.getString(_cursorIndexOfSts);
-        }
-        if (_cursor.isNull(_cursorIndexOfMarkParent)) {
-          _item.MarkParent = null;
-        } else {
-          _item.MarkParent = _cursor.getString(_cursorIndexOfMarkParent);
-        }
-        _item.BoxQnty = _cursor.getInt(_cursorIndexOfBoxQnty);
-        _result.add(_item);
+    return new DataSource.Factory<Integer, markline>() {
+      @Override
+      public LimitOffsetDataSource<markline> create() {
+        return new LimitOffsetDataSource<markline>(__db, _statement, false, true , "MT_MarkLines") {
+          @Override
+          protected List<markline> convertRows(Cursor cursor) {
+            final int _cursorIndexOfLineID = CursorUtil.getColumnIndexOrThrow(cursor, "LineID");
+            final int _cursorIndexOfDocName = CursorUtil.getColumnIndexOrThrow(cursor, "DocName");
+            final int _cursorIndexOfMarkCode = CursorUtil.getColumnIndexOrThrow(cursor, "MarkCode");
+            final int _cursorIndexOfPartIDTH = CursorUtil.getColumnIndexOrThrow(cursor, "PartIDTH");
+            final int _cursorIndexOfSts = CursorUtil.getColumnIndexOrThrow(cursor, "Sts");
+            final int _cursorIndexOfMarkParent = CursorUtil.getColumnIndexOrThrow(cursor, "MarkParent");
+            final int _cursorIndexOfBoxQnty = CursorUtil.getColumnIndexOrThrow(cursor, "BoxQnty");
+            final List<markline> _res = new ArrayList<markline>(cursor.getCount());
+            while(cursor.moveToNext()) {
+              final markline _item;
+              _item = new markline();
+              _item.LineID = cursor.getInt(_cursorIndexOfLineID);
+              if (cursor.isNull(_cursorIndexOfDocName)) {
+                _item.DocName = null;
+              } else {
+                _item.DocName = cursor.getString(_cursorIndexOfDocName);
+              }
+              if (cursor.isNull(_cursorIndexOfMarkCode)) {
+                _item.MarkCode = null;
+              } else {
+                _item.MarkCode = cursor.getString(_cursorIndexOfMarkCode);
+              }
+              if (cursor.isNull(_cursorIndexOfPartIDTH)) {
+                _item.PartIDTH = null;
+              } else {
+                _item.PartIDTH = cursor.getString(_cursorIndexOfPartIDTH);
+              }
+              if (cursor.isNull(_cursorIndexOfSts)) {
+                _item.Sts = null;
+              } else {
+                _item.Sts = cursor.getString(_cursorIndexOfSts);
+              }
+              if (cursor.isNull(_cursorIndexOfMarkParent)) {
+                _item.MarkParent = null;
+              } else {
+                _item.MarkParent = cursor.getString(_cursorIndexOfMarkParent);
+              }
+              _item.BoxQnty = cursor.getInt(_cursorIndexOfBoxQnty);
+              _res.add(_item);
+            }
+            return _res;
+          }
+        };
       }
-      return _result;
-    } finally {
-      _cursor.close();
-      _statement.release();
-    }
+    };
   }
 
   @Override
-  public List<markline> loadAllByIds(final int[] objIds) {
+  public DataSource.Factory<Integer, markline> loadAllByIds(final int[] objIds) {
     StringBuilder _stringBuilder = StringUtil.newStringBuilder();
     _stringBuilder.append("SELECT * FROM MT_MarkLines WHERE LineID IN (");
     final int _inputSize = objIds.length;
@@ -172,54 +177,57 @@ public final class Marklines_Impl implements Marklines {
       _statement.bindLong(_argIndex, _item);
       _argIndex ++;
     }
-    __db.assertNotSuspendingTransaction();
-    final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-    try {
-      final int _cursorIndexOfLineID = CursorUtil.getColumnIndexOrThrow(_cursor, "LineID");
-      final int _cursorIndexOfDocName = CursorUtil.getColumnIndexOrThrow(_cursor, "DocName");
-      final int _cursorIndexOfMarkCode = CursorUtil.getColumnIndexOrThrow(_cursor, "MarkCode");
-      final int _cursorIndexOfPartIDTH = CursorUtil.getColumnIndexOrThrow(_cursor, "PartIDTH");
-      final int _cursorIndexOfSts = CursorUtil.getColumnIndexOrThrow(_cursor, "Sts");
-      final int _cursorIndexOfMarkParent = CursorUtil.getColumnIndexOrThrow(_cursor, "MarkParent");
-      final int _cursorIndexOfBoxQnty = CursorUtil.getColumnIndexOrThrow(_cursor, "BoxQnty");
-      final List<markline> _result = new ArrayList<markline>(_cursor.getCount());
-      while(_cursor.moveToNext()) {
-        final markline _item_1;
-        _item_1 = new markline();
-        _item_1.LineID = _cursor.getInt(_cursorIndexOfLineID);
-        if (_cursor.isNull(_cursorIndexOfDocName)) {
-          _item_1.DocName = null;
-        } else {
-          _item_1.DocName = _cursor.getString(_cursorIndexOfDocName);
-        }
-        if (_cursor.isNull(_cursorIndexOfMarkCode)) {
-          _item_1.MarkCode = null;
-        } else {
-          _item_1.MarkCode = _cursor.getString(_cursorIndexOfMarkCode);
-        }
-        if (_cursor.isNull(_cursorIndexOfPartIDTH)) {
-          _item_1.PartIDTH = null;
-        } else {
-          _item_1.PartIDTH = _cursor.getString(_cursorIndexOfPartIDTH);
-        }
-        if (_cursor.isNull(_cursorIndexOfSts)) {
-          _item_1.Sts = null;
-        } else {
-          _item_1.Sts = _cursor.getString(_cursorIndexOfSts);
-        }
-        if (_cursor.isNull(_cursorIndexOfMarkParent)) {
-          _item_1.MarkParent = null;
-        } else {
-          _item_1.MarkParent = _cursor.getString(_cursorIndexOfMarkParent);
-        }
-        _item_1.BoxQnty = _cursor.getInt(_cursorIndexOfBoxQnty);
-        _result.add(_item_1);
+    return new DataSource.Factory<Integer, markline>() {
+      @Override
+      public LimitOffsetDataSource<markline> create() {
+        return new LimitOffsetDataSource<markline>(__db, _statement, false, true , "MT_MarkLines") {
+          @Override
+          protected List<markline> convertRows(Cursor cursor) {
+            final int _cursorIndexOfLineID = CursorUtil.getColumnIndexOrThrow(cursor, "LineID");
+            final int _cursorIndexOfDocName = CursorUtil.getColumnIndexOrThrow(cursor, "DocName");
+            final int _cursorIndexOfMarkCode = CursorUtil.getColumnIndexOrThrow(cursor, "MarkCode");
+            final int _cursorIndexOfPartIDTH = CursorUtil.getColumnIndexOrThrow(cursor, "PartIDTH");
+            final int _cursorIndexOfSts = CursorUtil.getColumnIndexOrThrow(cursor, "Sts");
+            final int _cursorIndexOfMarkParent = CursorUtil.getColumnIndexOrThrow(cursor, "MarkParent");
+            final int _cursorIndexOfBoxQnty = CursorUtil.getColumnIndexOrThrow(cursor, "BoxQnty");
+            final List<markline> _res = new ArrayList<markline>(cursor.getCount());
+            while(cursor.moveToNext()) {
+              final markline _item_1;
+              _item_1 = new markline();
+              _item_1.LineID = cursor.getInt(_cursorIndexOfLineID);
+              if (cursor.isNull(_cursorIndexOfDocName)) {
+                _item_1.DocName = null;
+              } else {
+                _item_1.DocName = cursor.getString(_cursorIndexOfDocName);
+              }
+              if (cursor.isNull(_cursorIndexOfMarkCode)) {
+                _item_1.MarkCode = null;
+              } else {
+                _item_1.MarkCode = cursor.getString(_cursorIndexOfMarkCode);
+              }
+              if (cursor.isNull(_cursorIndexOfPartIDTH)) {
+                _item_1.PartIDTH = null;
+              } else {
+                _item_1.PartIDTH = cursor.getString(_cursorIndexOfPartIDTH);
+              }
+              if (cursor.isNull(_cursorIndexOfSts)) {
+                _item_1.Sts = null;
+              } else {
+                _item_1.Sts = cursor.getString(_cursorIndexOfSts);
+              }
+              if (cursor.isNull(_cursorIndexOfMarkParent)) {
+                _item_1.MarkParent = null;
+              } else {
+                _item_1.MarkParent = cursor.getString(_cursorIndexOfMarkParent);
+              }
+              _item_1.BoxQnty = cursor.getInt(_cursorIndexOfBoxQnty);
+              _res.add(_item_1);
+            }
+            return _res;
+          }
+        };
       }
-      return _result;
-    } finally {
-      _cursor.close();
-      _statement.release();
-    }
+    };
   }
 
   public static List<Class<?>> getRequiredConverters() {

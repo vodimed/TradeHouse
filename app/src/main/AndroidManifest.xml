@@ -4,11 +4,10 @@
     android:versionCode="197000026"
     android:versionName="1.97.00.0026">
 
-    <uses-permission android:name="com.honeywell.decode.permission.DECODE" /> <!--HoneyWell-->
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" /> <!--Serial-->
-    <uses-permission android:name="android.permission.INTERNET" /> <!--Network-->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> <!--Service-->
-    <!--<uses-permission android:name="android.permission.WAKE_LOCK" />--> <!--JobIntentService-->
+    <uses-permission android:name="com.honeywell.decode.permission.DECODE" /> <!-- HoneyWell -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" /> <!-- Serial -->
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- Network -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:name=".MainApplication"
@@ -18,8 +17,13 @@
         android:roundIcon="@drawable/barcode_example_icon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true"> <!--android:networkSecurityConfig="@xml/network_security_config"-->
-
+        android:usesCleartextTraffic="true">
+        <activity android:name=".InvoiceActivity"></activity>
+        <activity android:name=".InvoiceEditActivity" />
+        <activity android:name=".InvoiceCreateActivity" />
+        <activity android:name=".InventoryActivity" />
+        <activity android:name=".InventoryEditActivity" />
+        <!-- android:networkSecurityConfig="@xml/network_security_config" -->
         <activity
             android:name="com.common.extensions.exchange.ServiceActivity"
             android:configChanges="orientation|screenSize"
@@ -27,6 +31,7 @@
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.exchange.TradeHouseActivity" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -37,6 +42,7 @@
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:process=":tradehouse" />
+
         <receiver
             android:name="com.common.extensions.exchange.ServiceReceiver"
             android:enabled="true"
@@ -51,7 +57,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity android:name=".InvoicesActivity" />
         <activity android:name=".InventoriesActivity" />
         <activity android:name=".PricecontrolActivity" />

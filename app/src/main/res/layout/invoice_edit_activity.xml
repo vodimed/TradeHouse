@@ -5,25 +5,33 @@
     android:layout_height="match_parent">
 
     <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/textSelector"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="@string/invoice_selector" />
-
-        <Spinner
-            android:id="@+id/spinSelector"
+            android:id="@+id/labelNumber"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:labelFor="@+id/editNumber"
+            android:text="@string/invoice_number" />
+
+        <EditText
+            android:id="@+id/editNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:inputType="text" />
+
+        <TextView
+            android:id="@+id/labelDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/zero_value" />
     </LinearLayout>
 
     <ListView
-        android:id="@+id/listInvoices"
+        android:id="@+id/listInvoice"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1" />
@@ -53,14 +61,14 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/buttonCreate"
+            android:id="@+id/buttonAdd"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center_horizontal"
             android:paddingTop="@dimen/invc_pagging"
             android:drawablePadding="@dimen/invc_spacing"
-            android:text="@string/create"
+            android:text="@string/add"
             android:drawableTop="@android:drawable/gallery_thumb" />
         <Button
             android:id="@+id/buttonEdit"
@@ -73,14 +81,14 @@
             android:text="@string/edit"
             android:drawableTop="@android:drawable/gallery_thumb" />
         <Button
-            android:id="@+id/buttonDelete"
+            android:id="@+id/buttonSave"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center_horizontal"
             android:paddingTop="@dimen/invc_pagging"
             android:drawablePadding="@dimen/invc_spacing"
-            android:text="@string/delete"
+            android:text="@string/save"
             android:drawableTop="@android:drawable/gallery_thumb" />
         <Button
             android:id="@+id/buttonSend"

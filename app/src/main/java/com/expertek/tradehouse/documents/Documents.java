@@ -8,15 +8,13 @@ import androidx.room.Query;
 
 import com.expertek.tradehouse.documents.entity.document;
 
-import java.util.List;
-
 @Dao
 public interface Documents {
     @Query("SELECT * FROM MT_documents")
-    List<document> getAll();
+    DataSource.Factory<Integer, document> getAll();
 
     @Query("SELECT * FROM MT_documents WHERE DocName IN (:objIds)")
-    List<document> loadAllByIds(String[] objIds);
+    DataSource.Factory<Integer, document> loadAllByIds(String[] objIds);
 
     //@Query("SELECT * FROM MT_documents WHERE first_name LIKE :first AND " +
     //        "last_name LIKE :last LIMIT 1")

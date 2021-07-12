@@ -1,16 +1,18 @@
 package com.expertek.tradehouse.dictionaries;
 
 import android.database.Cursor;
+import androidx.paging.DataSource;
 import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.EntityInsertionAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
+import androidx.room.paging.LimitOffsetDataSource;
 import androidx.room.util.CursorUtil;
-import androidx.room.util.DBUtil;
 import androidx.room.util.StringUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import com.expertek.tradehouse.dictionaries.entity.good;
 import java.lang.Class;
+import java.lang.Integer;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.StringBuilder;
@@ -102,61 +104,64 @@ public final class Goods_Impl implements Goods {
   }
 
   @Override
-  public List<good> getAll() {
+  public DataSource.Factory<Integer, good> getAll() {
     final String _sql = "SELECT `TH_goods`.`GoodsID` AS `GoodsID`, `TH_goods`.`Name` AS `Name`, `TH_goods`.`UnitBase` AS `UnitBase`, `TH_goods`.`PriceBase` AS `PriceBase`, `TH_goods`.`VAT` AS `VAT`, `TH_goods`.`Country` AS `Country`, `TH_goods`.`Struct` AS `Struct`, `TH_goods`.`FactQnty` AS `FactQnty`, `TH_goods`.`FreeQnty` AS `FreeQnty` FROM TH_goods";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
-    __db.assertNotSuspendingTransaction();
-    final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-    try {
-      final int _cursorIndexOfGoodsID = CursorUtil.getColumnIndexOrThrow(_cursor, "GoodsID");
-      final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "Name");
-      final int _cursorIndexOfUnitBase = CursorUtil.getColumnIndexOrThrow(_cursor, "UnitBase");
-      final int _cursorIndexOfPriceBase = CursorUtil.getColumnIndexOrThrow(_cursor, "PriceBase");
-      final int _cursorIndexOfVAT = CursorUtil.getColumnIndexOrThrow(_cursor, "VAT");
-      final int _cursorIndexOfCountry = CursorUtil.getColumnIndexOrThrow(_cursor, "Country");
-      final int _cursorIndexOfStruct = CursorUtil.getColumnIndexOrThrow(_cursor, "Struct");
-      final int _cursorIndexOfFactQnty = CursorUtil.getColumnIndexOrThrow(_cursor, "FactQnty");
-      final int _cursorIndexOfFreeQnty = CursorUtil.getColumnIndexOrThrow(_cursor, "FreeQnty");
-      final List<good> _result = new ArrayList<good>(_cursor.getCount());
-      while(_cursor.moveToNext()) {
-        final good _item;
-        _item = new good();
-        _item.GoodsID = _cursor.getInt(_cursorIndexOfGoodsID);
-        if (_cursor.isNull(_cursorIndexOfName)) {
-          _item.Name = null;
-        } else {
-          _item.Name = _cursor.getString(_cursorIndexOfName);
-        }
-        if (_cursor.isNull(_cursorIndexOfUnitBase)) {
-          _item.UnitBase = null;
-        } else {
-          _item.UnitBase = _cursor.getString(_cursorIndexOfUnitBase);
-        }
-        _item.PriceBase = _cursor.getDouble(_cursorIndexOfPriceBase);
-        _item.VAT = _cursor.getDouble(_cursorIndexOfVAT);
-        if (_cursor.isNull(_cursorIndexOfCountry)) {
-          _item.Country = null;
-        } else {
-          _item.Country = _cursor.getString(_cursorIndexOfCountry);
-        }
-        if (_cursor.isNull(_cursorIndexOfStruct)) {
-          _item.Struct = null;
-        } else {
-          _item.Struct = _cursor.getString(_cursorIndexOfStruct);
-        }
-        _item.FactQnty = _cursor.getDouble(_cursorIndexOfFactQnty);
-        _item.FreeQnty = _cursor.getDouble(_cursorIndexOfFreeQnty);
-        _result.add(_item);
+    return new DataSource.Factory<Integer, good>() {
+      @Override
+      public LimitOffsetDataSource<good> create() {
+        return new LimitOffsetDataSource<good>(__db, _statement, false, true , "TH_goods") {
+          @Override
+          protected List<good> convertRows(Cursor cursor) {
+            final int _cursorIndexOfGoodsID = CursorUtil.getColumnIndexOrThrow(cursor, "GoodsID");
+            final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(cursor, "Name");
+            final int _cursorIndexOfUnitBase = CursorUtil.getColumnIndexOrThrow(cursor, "UnitBase");
+            final int _cursorIndexOfPriceBase = CursorUtil.getColumnIndexOrThrow(cursor, "PriceBase");
+            final int _cursorIndexOfVAT = CursorUtil.getColumnIndexOrThrow(cursor, "VAT");
+            final int _cursorIndexOfCountry = CursorUtil.getColumnIndexOrThrow(cursor, "Country");
+            final int _cursorIndexOfStruct = CursorUtil.getColumnIndexOrThrow(cursor, "Struct");
+            final int _cursorIndexOfFactQnty = CursorUtil.getColumnIndexOrThrow(cursor, "FactQnty");
+            final int _cursorIndexOfFreeQnty = CursorUtil.getColumnIndexOrThrow(cursor, "FreeQnty");
+            final List<good> _res = new ArrayList<good>(cursor.getCount());
+            while(cursor.moveToNext()) {
+              final good _item;
+              _item = new good();
+              _item.GoodsID = cursor.getInt(_cursorIndexOfGoodsID);
+              if (cursor.isNull(_cursorIndexOfName)) {
+                _item.Name = null;
+              } else {
+                _item.Name = cursor.getString(_cursorIndexOfName);
+              }
+              if (cursor.isNull(_cursorIndexOfUnitBase)) {
+                _item.UnitBase = null;
+              } else {
+                _item.UnitBase = cursor.getString(_cursorIndexOfUnitBase);
+              }
+              _item.PriceBase = cursor.getDouble(_cursorIndexOfPriceBase);
+              _item.VAT = cursor.getDouble(_cursorIndexOfVAT);
+              if (cursor.isNull(_cursorIndexOfCountry)) {
+                _item.Country = null;
+              } else {
+                _item.Country = cursor.getString(_cursorIndexOfCountry);
+              }
+              if (cursor.isNull(_cursorIndexOfStruct)) {
+                _item.Struct = null;
+              } else {
+                _item.Struct = cursor.getString(_cursorIndexOfStruct);
+              }
+              _item.FactQnty = cursor.getDouble(_cursorIndexOfFactQnty);
+              _item.FreeQnty = cursor.getDouble(_cursorIndexOfFreeQnty);
+              _res.add(_item);
+            }
+            return _res;
+          }
+        };
       }
-      return _result;
-    } finally {
-      _cursor.close();
-      _statement.release();
-    }
+    };
   }
 
   @Override
-  public List<good> loadAllByIds(final int[] objIds) {
+  public DataSource.Factory<Integer, good> loadAllByIds(final int[] objIds) {
     StringBuilder _stringBuilder = StringUtil.newStringBuilder();
     _stringBuilder.append("SELECT * FROM TH_goods WHERE GoodsID IN (");
     final int _inputSize = objIds.length;
@@ -170,54 +175,57 @@ public final class Goods_Impl implements Goods {
       _statement.bindLong(_argIndex, _item);
       _argIndex ++;
     }
-    __db.assertNotSuspendingTransaction();
-    final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-    try {
-      final int _cursorIndexOfGoodsID = CursorUtil.getColumnIndexOrThrow(_cursor, "GoodsID");
-      final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "Name");
-      final int _cursorIndexOfUnitBase = CursorUtil.getColumnIndexOrThrow(_cursor, "UnitBase");
-      final int _cursorIndexOfPriceBase = CursorUtil.getColumnIndexOrThrow(_cursor, "PriceBase");
-      final int _cursorIndexOfVAT = CursorUtil.getColumnIndexOrThrow(_cursor, "VAT");
-      final int _cursorIndexOfCountry = CursorUtil.getColumnIndexOrThrow(_cursor, "Country");
-      final int _cursorIndexOfStruct = CursorUtil.getColumnIndexOrThrow(_cursor, "Struct");
-      final int _cursorIndexOfFactQnty = CursorUtil.getColumnIndexOrThrow(_cursor, "FactQnty");
-      final int _cursorIndexOfFreeQnty = CursorUtil.getColumnIndexOrThrow(_cursor, "FreeQnty");
-      final List<good> _result = new ArrayList<good>(_cursor.getCount());
-      while(_cursor.moveToNext()) {
-        final good _item_1;
-        _item_1 = new good();
-        _item_1.GoodsID = _cursor.getInt(_cursorIndexOfGoodsID);
-        if (_cursor.isNull(_cursorIndexOfName)) {
-          _item_1.Name = null;
-        } else {
-          _item_1.Name = _cursor.getString(_cursorIndexOfName);
-        }
-        if (_cursor.isNull(_cursorIndexOfUnitBase)) {
-          _item_1.UnitBase = null;
-        } else {
-          _item_1.UnitBase = _cursor.getString(_cursorIndexOfUnitBase);
-        }
-        _item_1.PriceBase = _cursor.getDouble(_cursorIndexOfPriceBase);
-        _item_1.VAT = _cursor.getDouble(_cursorIndexOfVAT);
-        if (_cursor.isNull(_cursorIndexOfCountry)) {
-          _item_1.Country = null;
-        } else {
-          _item_1.Country = _cursor.getString(_cursorIndexOfCountry);
-        }
-        if (_cursor.isNull(_cursorIndexOfStruct)) {
-          _item_1.Struct = null;
-        } else {
-          _item_1.Struct = _cursor.getString(_cursorIndexOfStruct);
-        }
-        _item_1.FactQnty = _cursor.getDouble(_cursorIndexOfFactQnty);
-        _item_1.FreeQnty = _cursor.getDouble(_cursorIndexOfFreeQnty);
-        _result.add(_item_1);
+    return new DataSource.Factory<Integer, good>() {
+      @Override
+      public LimitOffsetDataSource<good> create() {
+        return new LimitOffsetDataSource<good>(__db, _statement, false, true , "TH_goods") {
+          @Override
+          protected List<good> convertRows(Cursor cursor) {
+            final int _cursorIndexOfGoodsID = CursorUtil.getColumnIndexOrThrow(cursor, "GoodsID");
+            final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(cursor, "Name");
+            final int _cursorIndexOfUnitBase = CursorUtil.getColumnIndexOrThrow(cursor, "UnitBase");
+            final int _cursorIndexOfPriceBase = CursorUtil.getColumnIndexOrThrow(cursor, "PriceBase");
+            final int _cursorIndexOfVAT = CursorUtil.getColumnIndexOrThrow(cursor, "VAT");
+            final int _cursorIndexOfCountry = CursorUtil.getColumnIndexOrThrow(cursor, "Country");
+            final int _cursorIndexOfStruct = CursorUtil.getColumnIndexOrThrow(cursor, "Struct");
+            final int _cursorIndexOfFactQnty = CursorUtil.getColumnIndexOrThrow(cursor, "FactQnty");
+            final int _cursorIndexOfFreeQnty = CursorUtil.getColumnIndexOrThrow(cursor, "FreeQnty");
+            final List<good> _res = new ArrayList<good>(cursor.getCount());
+            while(cursor.moveToNext()) {
+              final good _item_1;
+              _item_1 = new good();
+              _item_1.GoodsID = cursor.getInt(_cursorIndexOfGoodsID);
+              if (cursor.isNull(_cursorIndexOfName)) {
+                _item_1.Name = null;
+              } else {
+                _item_1.Name = cursor.getString(_cursorIndexOfName);
+              }
+              if (cursor.isNull(_cursorIndexOfUnitBase)) {
+                _item_1.UnitBase = null;
+              } else {
+                _item_1.UnitBase = cursor.getString(_cursorIndexOfUnitBase);
+              }
+              _item_1.PriceBase = cursor.getDouble(_cursorIndexOfPriceBase);
+              _item_1.VAT = cursor.getDouble(_cursorIndexOfVAT);
+              if (cursor.isNull(_cursorIndexOfCountry)) {
+                _item_1.Country = null;
+              } else {
+                _item_1.Country = cursor.getString(_cursorIndexOfCountry);
+              }
+              if (cursor.isNull(_cursorIndexOfStruct)) {
+                _item_1.Struct = null;
+              } else {
+                _item_1.Struct = cursor.getString(_cursorIndexOfStruct);
+              }
+              _item_1.FactQnty = cursor.getDouble(_cursorIndexOfFactQnty);
+              _item_1.FreeQnty = cursor.getDouble(_cursorIndexOfFreeQnty);
+              _res.add(_item_1);
+            }
+            return _res;
+          }
+        };
       }
-      return _result;
-    } finally {
-      _cursor.close();
-      _statement.release();
-    }
+    };
   }
 
   public static List<Class<?>> getRequiredConverters() {

@@ -1,5 +1,6 @@
 package com.expertek.tradehouse.documents;
 
+import androidx.paging.DataSource;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -7,15 +8,13 @@ import androidx.room.Query;
 
 import com.expertek.tradehouse.documents.entity.markline;
 
-import java.util.List;
-
 @Dao
 public interface Marklines {
     @Query("SELECT * FROM MT_MarkLines")
-    List<markline> getAll();
+    DataSource.Factory<Integer, markline> getAll();
 
     @Query("SELECT * FROM MT_MarkLines WHERE LineID IN (:objIds)")
-    List<markline> loadAllByIds(int[] objIds);
+    DataSource.Factory<Integer, markline> loadAllByIds(int[] objIds);
 
     //@Query("SELECT * FROM MT_MarkLines WHERE first_name LIKE :first AND " +
     //        "last_name LIKE :last LIMIT 1")

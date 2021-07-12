@@ -2,9 +2,11 @@ package com.expertek.tradehouse;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -23,6 +25,10 @@ public class InvoicesActivity extends Activity {
     private final Documents documents = MainApplication.dbd().documents();
     private DocTypesAdapter adaptertypes = null;
     private DocumentsAdapter adapter = null;
+    protected Button buttonCreate = null;
+    private Button buttonEdit = null;
+    private Button buttonDelete = null;
+    private Button buttonSend = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +46,49 @@ public class InvoicesActivity extends Activity {
 
         final ListView listInvoices = findViewById(R.id.listInvoices);
         listInvoices.setAdapter(adapter);
+
+        buttonCreate = findViewById(R.id.buttonCreate);
+        buttonEdit = findViewById(R.id.buttonEdit);
+        buttonDelete = findViewById(R.id.buttonDelete);
+        buttonSend = findViewById(R.id.buttonSend);
+
+        buttonCreate.setOnClickListener(onClickAction);
+        buttonEdit.setOnClickListener(onClickAction);
+        buttonDelete.setOnClickListener(onClickAction);
+        buttonSend.setOnClickListener(onClickAction);
+    }
+
+    private final View.OnClickListener onClickAction = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (buttonCreate.equals(v)) {
+                actionCreate();
+            } else if (buttonEdit.equals(v)) {
+                actionEdit();
+            } else if (buttonDelete.equals(v)) {
+                actionDelete();
+            } else if (buttonSend.equals(v)) {
+                actionSend();
+            }
+        }
+    };
+
+    protected void actionCreate() {
+        final Intent intent = new Intent(InvoicesActivity.this, InvoiceCreateActivity.class);
+        startActivity(intent);
+    }
+
+    protected void actionEdit() {
+        final Intent intent = new Intent(InvoicesActivity.this, InvoiceEditActivity.class);
+        startActivity(intent);
+    }
+
+    protected void actionDelete() {
+
+    }
+
+    protected void actionSend() {
+
     }
 
     private final AdapterInterface.OnItemSelectionListener onTypeSelection =
@@ -63,14 +112,14 @@ public class InvoicesActivity extends Activity {
     private static class DocTypesAdapter extends AdapterTemplate<String> {
         public DocTypesAdapter(Context context, @NonNull int... layout) {
             super(context, layout);
-            setDataSet(context.getResources().getStringArray(R.array.invoice_types));
+            setDataSet(context.getResources().getStringArray(R.array.doc_types));
             setHasStableIds(true);
         }
 
         @SafeVarargs
         public DocTypesAdapter(Context context, @NonNull Class<? extends View>... layer) {
             super(context, layer);
-            setDataSet(context.getResources().getStringArray(R.array.invoice_types));
+            setDataSet(context.getResources().getStringArray(R.array.doc_types));
             setHasStableIds(true);
         }
 

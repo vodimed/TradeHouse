@@ -4,16 +4,16 @@ import android.util.Log;
 
 import androidx.annotation.StringRes;
 
-public final class HandleException {
-    public HandleException(Exception e) {
+public final class HandleException_ {
+    public HandleException_(Exception e) {
         this(e, 0);
     }
 
-    public HandleException(Exception e, @StringRes int id) {
+    public HandleException_(Exception e, @StringRes int id) {
         accept(e, id);
     }
 
-    public HandleException(Exception e, String msg) {
+    public HandleException_(Exception e, String msg) {
         accept(e, msg);
     }
 
@@ -24,7 +24,7 @@ public final class HandleException {
     public static void accept(Exception e, String msg) {
         final String message = (msg != null ? msg : e.getMessage());
         //Toast.makeText(MainApplication.getApplication(), message, Toast.LENGTH_SHORT).show();
-        Log.e("HandleException", message);
+        Log.e("HandleException_", message);
     }
 
     /*
