@@ -76,23 +76,18 @@ public class MainActivity_ extends Activity implements BarcodeReader.BarcodeList
             ob.obj_code = 1;
             ob.obj_type = "1";
             MainApplication.dbc().objects().insertAll(ob);
-            List<object> ls = MainApplication.dbc().objects().getAll();
-            int sz = ls.size();
-            System.out.println("LIST SIZE: " + sz);
 
             document dc = new document();
             dc.DocName = "aaa";
             dc.DocType = "aaa";
             dc.StartDate = Calendar.getInstance().getTime();
             MainApplication.dbd().documents().insertAll(dc);
-            System.out.println("LIST SIZE: " + MainApplication.dbd().documents().getAll().size());
 
             line ln = new line();
             ln.LineID = 1;
             ln.DocName = "aaa";
             ln.BC = "aaa";
             MainApplication.dbd().lines().insertAll(ln);
-            System.out.println("LIST SIZE: " + MainApplication.dbd().lines().getAll().size());
         } catch (Exception e) {
             e.printStackTrace();
         }

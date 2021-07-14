@@ -423,7 +423,7 @@ public class ServiceActivity extends Activity {
 
         @Override
         public long getItemId(int position) {
-            if (position >= getCount()) return INVALID_ROW_ID; // called if hasStableIds
+            if (position < 0) return INVALID_ROW_ID; // called if hasStableIds
             return getItem(position).jobId;
         }
     }

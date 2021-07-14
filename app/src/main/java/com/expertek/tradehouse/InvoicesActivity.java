@@ -189,7 +189,8 @@ public class InvoicesActivity extends Activity {
 
         @Override
         public long getItemId(int position) {
-            document item = getItem(position);
+            if (position < 0) return INVALID_ROW_ID;
+            final document item = getItem(position);
             return item.DocName.hashCode() * 31 + item.DocType.hashCode();
         }
     }

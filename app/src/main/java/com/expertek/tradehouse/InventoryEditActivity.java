@@ -20,7 +20,7 @@ public class InventoryEditActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.inventory_edit_activity);
+        setContentView(R.layout.invoice_edit_activity);
     }
 
     /**
@@ -56,7 +56,8 @@ public class InventoryEditActivity extends Activity {
 
         @Override
         public long getItemId(int position) {
-            document item = getItem(position);
+            if (position < 0) return INVALID_ROW_ID;
+            final document item = getItem(position);
             return item.DocName.hashCode() * 31 + item.DocType.hashCode();
         }
     }

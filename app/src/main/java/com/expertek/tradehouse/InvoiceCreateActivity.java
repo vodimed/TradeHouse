@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -32,15 +31,15 @@ public class InvoiceCreateActivity extends Activity {
 
         adaptertypes = new InvoiceTypesAdapter(this, android.R.layout.simple_list_item_single_choice);
 
-        final Spinner spinSelector = findViewById(R.id.spinSelector);
+        final Spinner spinSelector = findViewById(R.id.spinType);
         adaptertypes.setOnItemSelectionListener(onTypeSelection);
         spinSelector.setAdapter(adaptertypes);
 
         adapter = new ClientsAdapter(this, android.R.layout.simple_list_item_single_choice);
         adapter.setDataSet(new PagingList<client>(clients.getAll()));
 
-        final ListView listInvoices = findViewById(R.id.listInvoices);
-        listInvoices.setAdapter(adapter);
+        final Spinner spinContragent = findViewById(R.id.spinContragent);
+        spinContragent.setAdapter(adapter);
     }
 
     private final AdapterInterface.OnItemSelectionListener onTypeSelection =
@@ -107,7 +106,6 @@ public class InvoiceCreateActivity extends Activity {
         }
     }
 
-
     /**
      * Spinner data Adapter: list of Contragents
      */
@@ -141,8 +139,8 @@ public class InvoiceCreateActivity extends Activity {
 
         @Override
         public long getItemId(int position) {
-            client item = getItem(position);
-            return item.cli_code;
+            if (position < 0) return INVALID_ROW_ID;
+            return getItem(position).cli_code;
         }
     }
 }
