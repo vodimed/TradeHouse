@@ -1,8 +1,10 @@
-package com.expertek.tradehouse;
+package com.obsolete;
 
 import android.util.Log;
 
 import androidx.annotation.StringRes;
+
+import com.expertek.tradehouse.MainApplication;
 
 public final class HandleException_ {
     public HandleException_(Exception e) {

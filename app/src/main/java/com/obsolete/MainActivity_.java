@@ -1,4 +1,4 @@
-package com.expertek.tradehouse;
+package com.obsolete;
 
 import android.app.Activity;
 import android.app.job.JobInfo;
@@ -20,6 +20,8 @@ import androidx.annotation.Nullable;
 import com.common.extensions.exchange.ServiceConnector;
 import com.common.extensions.exchange.ServiceInterface;
 import com.common.extensions.exchange.ServiceReceiver;
+import com.expertek.tradehouse.MainApplication;
+import com.expertek.tradehouse.R;
 import com.expertek.tradehouse.dictionaries.entity.object;
 import com.expertek.tradehouse.documents.entity.document;
 import com.expertek.tradehouse.documents.entity.line;
