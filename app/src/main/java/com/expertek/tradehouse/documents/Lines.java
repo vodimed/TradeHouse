@@ -20,6 +20,9 @@ public interface Lines {
     //        "last_name LIKE :last LIMIT 1")
     //line findByName(String first, String last);
 
+    @Query("SELECT * FROM MT_lines WHERE DocName = :docName")
+    DataSource.Factory<Integer, line> loadByDocument(String docName);
+
     @Insert
     void insertAll(line... objects);
 

@@ -11,22 +11,25 @@
 
         <TextView
             android:id="@+id/labelNumber"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:labelFor="@+id/editNumber"
             android:text="@string/invoice_number" />
 
         <EditText
             android:id="@+id/editNumber"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:enabled="false"
-            android:inputType="text" />
+            android:maxLength="@integer/invoice_code_length_max"
+            android:inputType="number" />
 
         <TextView
             android:id="@+id/labelDate"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end"
             android:text="@string/zero_value" />
     </LinearLayout>
 

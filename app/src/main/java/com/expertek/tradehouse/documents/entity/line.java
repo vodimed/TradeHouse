@@ -6,23 +6,25 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
+import java.io.Serializable;
+
 @Entity(tableName = "MT_lines", indices = {
-        @Index(name = "lDocNPart",      value = {"DocName", "PartIDTH"}),
-        @Index(name = "lDocName",       value = {"DocName"}), // redundant
-        @Index(name = "lDocNameAlc",    value = {"DocName", "AlcCode"}),
-        @Index(name = "lDocNameBC",     value = {"DocName", "BC"}),
-        @Index(name = "lDocNameGdsUnit",value = {"DocName", "GoodsID", "UnitBC"}),
-        @Index(name = "lLine",          value = {"LineID"}, unique = true)
+        @Index(name = "lDocNPart", value = {"DocName", "PartIDTH"}),
+        @Index(name = "lDocName", value = {"DocName"}), // redundant
+        @Index(name = "lDocNameAlc", value = {"DocName", "AlcCode"}),
+        @Index(name = "lDocNameBC", value = {"DocName", "BC"}),
+        @Index(name = "lDocNameGdsUnit", value = {"DocName", "GoodsID", "UnitBC"}),
+        @Index(name = "lLine", value = {"LineID"}, unique = true)
 })
-public class line {
-    @PrimaryKey
+public class line implements Serializable {
+    @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "LineID")
     @NonNull
     public int LineID; // Уникальный счетчик
 
     @ColumnInfo(name = "DocName")
     @NonNull
-    public String DocName; // Идентификатор-имя документа
+    public String DocName = ""; // Идентификатор-имя документа
 
     @ColumnInfo(name = "Pos")
     public int Pos; // Позиция в документе
@@ -39,7 +41,7 @@ public class line {
 
     @ColumnInfo(name = "BC")
     @NonNull
-    public String BC; // Бар-код товара ТН
+    public String BC = ""; // Бар-код товара ТН
 
     @ColumnInfo(name = "Price")
     public double Price; // Цена по линии

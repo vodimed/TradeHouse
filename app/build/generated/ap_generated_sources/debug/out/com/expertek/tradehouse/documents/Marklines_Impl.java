@@ -34,7 +34,7 @@ public final class Marklines_Impl implements Marklines {
     this.__insertionAdapterOfmarkline = new EntityInsertionAdapter<markline>(__db) {
       @Override
       public String createQuery() {
-        return "INSERT OR ABORT INTO `MT_MarkLines` (`LineID`,`DocName`,`MarkCode`,`PartIDTH`,`Sts`,`MarkParent`,`BoxQnty`) VALUES (?,?,?,?,?,?,?)";
+        return "INSERT OR ABORT INTO `MT_MarkLines` (`LineID`,`DocName`,`MarkCode`,`PartIDTH`,`Sts`,`MarkParent`,`BoxQnty`) VALUES (nullif(?, 0),?,?,?,?,?,?)";
       }
 
       @Override

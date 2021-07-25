@@ -8,6 +8,7 @@ import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
 import androidx.room.paging.LimitOffsetDataSource;
 import androidx.room.util.CursorUtil;
+import androidx.room.util.DBUtil;
 import androidx.room.util.StringUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import com.common.extensions.database.TypeConv;
@@ -320,14 +321,40 @@ public final class Documents_Impl implements Documents {
   }
 
   @Override
-  public DataSource.Factory<Integer, document> loadByDocType(final String doctype) {
+  public String getMaxId() {
+    final String _sql = "SELECT MAX(DocName) FROM MT_documents";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+    __db.assertNotSuspendingTransaction();
+    final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+    try {
+      final String _result;
+      if(_cursor.moveToFirst()) {
+        final String _tmp;
+        if (_cursor.isNull(0)) {
+          _tmp = null;
+        } else {
+          _tmp = _cursor.getString(0);
+        }
+        _result = _tmp;
+      } else {
+        _result = null;
+      }
+      return _result;
+    } finally {
+      _cursor.close();
+      _statement.release();
+    }
+  }
+
+  @Override
+  public DataSource.Factory<Integer, document> loadByDocType(final String docType) {
     final String _sql = "SELECT * FROM MT_documents WHERE DocType = ?";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
-    if (doctype == null) {
+    if (docType == null) {
       _statement.bindNull(_argIndex);
     } else {
-      _statement.bindString(_argIndex, doctype);
+      _statement.bindString(_argIndex, docType);
     }
     return new DataSource.Factory<Integer, document>() {
       @Override

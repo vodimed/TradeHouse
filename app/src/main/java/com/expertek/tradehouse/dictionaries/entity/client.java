@@ -4,8 +4,10 @@ import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 
+import java.io.Serializable;
+
 @Entity(tableName = "TH_clients", primaryKeys = {"cli_code", "cli_type"})
-public class client {
+public class client implements Serializable {
     @ColumnInfo(name = "cli_code")
     @NonNull
     public int cli_code; // код из ТН

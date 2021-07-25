@@ -19,12 +19,14 @@ import com.common.extensions.database.PagingList;
 import com.expertek.tradehouse.documents.Documents;
 import com.expertek.tradehouse.documents.entity.document;
 
+import java.util.Calendar;
 import java.util.List;
 
 public class InvoicesActivity extends Activity {
     private final Documents documents = MainApplication.dbd().documents();
-    private DocTypesAdapter adaptertypes = null;
-    private DocumentsAdapter adapter = null;
+    private DocTypeAdapter adapterType = null;
+    private DocumentAdapter adapterDocument = null;
+    private ListView listInvoices = null;
     protected Button buttonCreate = null;
     private Button buttonEdit = null;
     private Button buttonDelete = null;
@@ -35,17 +37,17 @@ public class InvoicesActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.invoices_activity);
 
-        adaptertypes = new DocTypesAdapter(this, android.R.layout.simple_list_item_single_choice);
+        adapterType = new DocTypeAdapter(this, android.R.layout.simple_list_item_single_choice);
 
         final Spinner spinSelector = findViewById(R.id.spinSelector);
-        adaptertypes.setOnItemSelectionListener(onTypeSelection);
-        spinSelector.setAdapter(adaptertypes);
+        adapterType.setOnItemSelectionListener(onTypeSelection);
+        spinSelector.setAdapter(adapterType);
 
-        adapter = new DocumentsAdapter(this, android.R.layout.simple_list_item_single_choice);
-        adapter.setDataSet(new PagingList<document>(documents.loadByDocType(adaptertypes.getKey(0))));
+        adapterDocument = new DocumentAdapter(this, android.R.layout.simple_list_item_single_choice);
+        adapterDocument.setDataSet(new PagingList<document>(documents.loadByDocType(adapterType.getKey(0))));
 
-        final ListView listInvoices = findViewById(R.id.listInvoices);
-        listInvoices.setAdapter(adapter);
+        listInvoices = findViewById(R.id.listInvoices);
+        listInvoices.setAdapter(adapterDocument);
 
         buttonCreate = findViewById(R.id.buttonCreate);
         buttonEdit = findViewById(R.id.buttonEdit);
@@ -74,21 +76,41 @@ public class InvoicesActivity extends Activity {
     };
 
     protected void actionCreate() {
+        assert (adapterDocument.getDataSet() != null);
+
+        final document document = new document();
+        document.DocName = documents.getMaxId(); //TODO: increment, init may be null
+        document.StartDate = Calendar.getInstance().getTime();
+
         final Intent intent = new Intent(InvoicesActivity.this, InvoiceCreateActivity.class);
+        intent.putExtra(document.class.getName(), document);
         startActivity(intent);
     }
 
     protected void actionEdit() {
-        final Intent intent = new Intent(InvoicesActivity.this, InvoiceEditActivity.class);
-        startActivity(intent);
+        final document document = (document) listInvoices.getSelectedItem();
+
+        if (document != null) {
+            final Intent intent = new Intent(InvoicesActivity.this, InvoiceEditActivity.class);
+            intent.putExtra(document.class.getName(), document);
+            startActivity(intent);
+        }
     }
 
     protected void actionDelete() {
+        final document document = (document) listInvoices.getSelectedItem();
 
+        if (document != null) {
+            //TODO
+        }
     }
 
     protected void actionSend() {
+        final document document = (document) listInvoices.getSelectedItem();
 
+        if (document != null) {
+            //TODO
+        }
     }
 
     private final AdapterInterface.OnItemSelectionListener onTypeSelection =
@@ -96,8 +118,8 @@ public class InvoicesActivity extends Activity {
     {
         @Override
         public void onItemSelected(ViewGroup parent, View view, int position, long id) {
-            final String key = adaptertypes.getKey(position);
-            adapter.setDataSet(new PagingList<document>(documents.loadByDocType(key)));
+            final String key = adapterType.getKey(position);
+            adapterDocument.setDataSet(new PagingList<document>(documents.loadByDocType(key)));
         }
 
         @Override
@@ -109,15 +131,15 @@ public class InvoicesActivity extends Activity {
     /**
      * Spinner data Adapter: list of DocTypes
      */
-    private static class DocTypesAdapter extends AdapterTemplate<String> {
-        public DocTypesAdapter(Context context, @NonNull int... layout) {
+    private static class DocTypeAdapter extends AdapterTemplate<String> {
+        public DocTypeAdapter(Context context, @NonNull int... layout) {
             super(context, layout);
             setDataSet(context.getResources().getStringArray(R.array.doc_types));
             setHasStableIds(true);
         }
 
         @SafeVarargs
-        public DocTypesAdapter(Context context, @NonNull Class<? extends View>... layer) {
+        public DocTypeAdapter(Context context, @NonNull Class<? extends View>... layer) {
             super(context, layer);
             setDataSet(context.getResources().getStringArray(R.array.doc_types));
             setHasStableIds(true);
@@ -159,14 +181,14 @@ public class InvoicesActivity extends Activity {
     /**
      * ListView data Adapter: list of documents by DocType
      */
-    private static class DocumentsAdapter extends AdapterTemplate<document> {
-        public DocumentsAdapter(Context context, @NonNull int... layout) {
+    private static class DocumentAdapter extends AdapterTemplate<document> {
+        public DocumentAdapter(Context context, @NonNull int... layout) {
             super(context, layout);
             setHasStableIds(true);
         }
 
         @SafeVarargs
-        public DocumentsAdapter(Context context, @NonNull Class<? extends View>... layer) {
+        public DocumentAdapter(Context context, @NonNull Class<? extends View>... layer) {
             super(context, layer);
             setHasStableIds(true);
         }

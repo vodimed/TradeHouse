@@ -6,16 +6,17 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Entity(tableName = "MT_documents", indices = {
-        @Index(name = "docNameDoc",     value = {"DocName", "DocType"}, unique = true)
+        @Index(name = "docNameDoc", value = {"DocName", "DocType"}, unique = true)
 })
-public class document {
+public class document implements Serializable {
     @PrimaryKey
     @ColumnInfo(name = "DocName")
     @NonNull
-    public String DocName; // Идентификатор-имя документа
+    public String DocName = ""; // Идентификатор-имя документа
 
     @ColumnInfo(name = "DocType")
     public String DocType; // Тип документа (приход, расход, возврат)

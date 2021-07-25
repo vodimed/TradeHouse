@@ -20,8 +20,11 @@ public interface Documents {
     //        "last_name LIKE :last LIMIT 1")
     //document findByName(String first, String last);
 
-    @Query("SELECT * FROM MT_documents WHERE DocType = :doctype")
-    DataSource.Factory<Integer, document> loadByDocType(String doctype);
+    @Query("SELECT MAX(DocName) FROM MT_documents")
+    String getMaxId();
+
+    @Query("SELECT * FROM MT_documents WHERE DocType = :docType")
+    DataSource.Factory<Integer, document> loadByDocType(String docType);
 
     @Insert
     void insertAll(document... objects);

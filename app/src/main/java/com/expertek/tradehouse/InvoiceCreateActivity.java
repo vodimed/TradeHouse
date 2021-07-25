@@ -2,9 +2,12 @@ package com.expertek.tradehouse;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -15,39 +18,108 @@ import com.common.extensions.database.AdapterTemplate;
 import com.common.extensions.database.PagingList;
 import com.expertek.tradehouse.dictionaries.Clients;
 import com.expertek.tradehouse.dictionaries.entity.client;
+import com.expertek.tradehouse.documents.entity.document;
 
 import java.util.List;
 
 public class InvoiceCreateActivity extends Activity {
     private final Clients clients = MainApplication.dbc().clients();
-    private InvoiceTypesAdapter adaptertypes = null;
-    private ClientsAdapter adapter = null;
-    private String inventorytype = null;
+    private document document = null;
+    private InvoiceTypeAdapter adapterType = null;
+    private ClientAdapter adapterClient = null;
+    private Button buttonCreate = null;
+    private Button buttonCancel = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.invoice_create_activity);
 
-        adaptertypes = new InvoiceTypesAdapter(this, android.R.layout.simple_list_item_single_choice);
+        // Retrieve Activity parameters
+        document = (document) getIntent().getSerializableExtra(document.class.getName());
+
+        adapterType = new InvoiceTypeAdapter(this, android.R.layout.simple_list_item_single_choice);
+        adapterType.setOnItemSelectionListener(onTypeSelection);
 
         final Spinner spinSelector = findViewById(R.id.spinType);
-        adaptertypes.setOnItemSelectionListener(onTypeSelection);
-        spinSelector.setAdapter(adaptertypes);
+        spinSelector.setAdapter(adapterType);
+        onSpinnerInit(spinSelector, onTypeSelection);
 
-        adapter = new ClientsAdapter(this, android.R.layout.simple_list_item_single_choice);
-        adapter.setDataSet(new PagingList<client>(clients.getAll()));
+        adapterClient = new ClientAdapter(this, android.R.layout.simple_list_item_single_choice);
+        adapterClient.setDataSet(new PagingList<client>(clients.getAll()));
+        adapterClient.setOnItemSelectionListener(onClientSelection);
 
         final Spinner spinContragent = findViewById(R.id.spinContragent);
-        spinContragent.setAdapter(adapter);
+        spinContragent.setAdapter(adapterClient);
+        onSpinnerInit(spinContragent, onClientSelection);
+
+        buttonCreate = findViewById(R.id.buttonCreate);
+        buttonCancel = findViewById(R.id.buttonCancel);
+
+        buttonCreate.setOnClickListener(onClickAction);
+        buttonCancel.setOnClickListener(onClickAction);
     }
+
+    private final View.OnClickListener onClickAction = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (buttonCreate.equals(v)) {
+                actionCreate();
+            } else if (buttonCancel.equals(v)) {
+                actionCancel();
+            }
+        }
+    };
+
+    protected void actionCreate() {
+        final EditText number = findViewById(R.id.editNumber);
+        final String text = number.getText().toString();
+        if (text.length() > 0) document.DocName = text;
+
+        final Intent intent = new Intent(InvoiceCreateActivity.this, InvoiceEditActivity.class);
+        intent.putExtra(document.class.getName(), document);
+        startActivity(intent);
+
+        finish();
+    }
+
+    protected void actionCancel() {
+        finish();
+    }
+
+    private void onSpinnerInit(Spinner spinner, AdapterInterface.OnItemSelectionListener listener) {
+        if (listener != null) {
+            final int selected = spinner.getSelectedItemPosition();
+
+            if (selected != AdapterInterface.INVALID_POSITION) {
+                listener.onItemSelected(spinner, spinner.getSelectedView(), selected, spinner.getSelectedItemId());
+            } else {
+                listener.onNothingSelected(spinner);
+            }
+        }
+    }
+
+    private final AdapterInterface.OnItemSelectionListener onClientSelection =
+            new AdapterInterface.OnItemSelectionListener()
+    {
+        @Override
+        public void onItemSelected(ViewGroup parent, View view, int position, long id) {
+            document.ClientID = (int) id;
+            document.ClientType = String.valueOf(adapterClient.getItem(position).cli_type);
+        }
+
+        @Override
+        public void onNothingSelected(ViewGroup parent) {
+            // Never to do
+        }
+    };
 
     private final AdapterInterface.OnItemSelectionListener onTypeSelection =
             new AdapterInterface.OnItemSelectionListener()
     {
         @Override
         public void onItemSelected(ViewGroup parent, View view, int position, long id) {
-            inventorytype = adaptertypes.getKey(position);
+            document.DocType = adapterType.getKey(position);
         }
 
         @Override
@@ -59,15 +131,15 @@ public class InvoiceCreateActivity extends Activity {
     /**
      * Spinner data Adapter: list of Invoice Types
      */
-    private static class InvoiceTypesAdapter extends AdapterTemplate<String> {
-        public InvoiceTypesAdapter(Context context, @NonNull int... layout) {
+    private static class InvoiceTypeAdapter extends AdapterTemplate<String> {
+        public InvoiceTypeAdapter(Context context, @NonNull int... layout) {
             super(context, layout);
             setDataSet(context.getResources().getStringArray(R.array.invoice_types));
             setHasStableIds(true);
         }
 
         @SafeVarargs
-        public InvoiceTypesAdapter(Context context, @NonNull Class<? extends View>... layer) {
+        public InvoiceTypeAdapter(Context context, @NonNull Class<? extends View>... layer) {
             super(context, layer);
             setDataSet(context.getResources().getStringArray(R.array.doc_types));
             setHasStableIds(true);
@@ -109,14 +181,14 @@ public class InvoiceCreateActivity extends Activity {
     /**
      * Spinner data Adapter: list of Contragents
      */
-    private static class ClientsAdapter extends AdapterTemplate<client> {
-        public ClientsAdapter(Context context, @NonNull int... layout) {
+    private static class ClientAdapter extends AdapterTemplate<client> {
+        public ClientAdapter(Context context, @NonNull int... layout) {
             super(context, layout);
             setHasStableIds(true);
         }
 
         @SafeVarargs
-        public ClientsAdapter(Context context, @NonNull Class<? extends View>... layer) {
+        public ClientAdapter(Context context, @NonNull Class<? extends View>... layer) {
             super(context, layer);
             setHasStableIds(true);
         }

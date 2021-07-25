@@ -34,7 +34,7 @@ public final class Lines_Impl implements Lines {
     this.__insertionAdapterOfline = new EntityInsertionAdapter<line>(__db) {
       @Override
       public String createQuery() {
-        return "INSERT OR ABORT INTO `MT_lines` (`LineID`,`DocName`,`Pos`,`GoodsID`,`GoodsName`,`UnitBC`,`BC`,`Price`,`DocQnty`,`FactQnty`,`AlcCode`,`PartIDTH`,`Flags`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR ABORT INTO `MT_lines` (`LineID`,`DocName`,`Pos`,`GoodsID`,`GoodsName`,`UnitBC`,`BC`,`Price`,`DocQnty`,`FactQnty`,`AlcCode`,`PartIDTH`,`Flags`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -264,6 +264,85 @@ public final class Lines_Impl implements Lines {
               }
               _item_1.Flags = cursor.getInt(_cursorIndexOfFlags);
               _res.add(_item_1);
+            }
+            return _res;
+          }
+        };
+      }
+    };
+  }
+
+  @Override
+  public DataSource.Factory<Integer, line> loadByDocument(final String docName) {
+    final String _sql = "SELECT * FROM MT_lines WHERE DocName = ?";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    if (docName == null) {
+      _statement.bindNull(_argIndex);
+    } else {
+      _statement.bindString(_argIndex, docName);
+    }
+    return new DataSource.Factory<Integer, line>() {
+      @Override
+      public LimitOffsetDataSource<line> create() {
+        return new LimitOffsetDataSource<line>(__db, _statement, false, true , "MT_lines") {
+          @Override
+          protected List<line> convertRows(Cursor cursor) {
+            final int _cursorIndexOfLineID = CursorUtil.getColumnIndexOrThrow(cursor, "LineID");
+            final int _cursorIndexOfDocName = CursorUtil.getColumnIndexOrThrow(cursor, "DocName");
+            final int _cursorIndexOfPos = CursorUtil.getColumnIndexOrThrow(cursor, "Pos");
+            final int _cursorIndexOfGoodsID = CursorUtil.getColumnIndexOrThrow(cursor, "GoodsID");
+            final int _cursorIndexOfGoodsName = CursorUtil.getColumnIndexOrThrow(cursor, "GoodsName");
+            final int _cursorIndexOfUnitBC = CursorUtil.getColumnIndexOrThrow(cursor, "UnitBC");
+            final int _cursorIndexOfBC = CursorUtil.getColumnIndexOrThrow(cursor, "BC");
+            final int _cursorIndexOfPrice = CursorUtil.getColumnIndexOrThrow(cursor, "Price");
+            final int _cursorIndexOfDocQnty = CursorUtil.getColumnIndexOrThrow(cursor, "DocQnty");
+            final int _cursorIndexOfFactQnty = CursorUtil.getColumnIndexOrThrow(cursor, "FactQnty");
+            final int _cursorIndexOfAlcCode = CursorUtil.getColumnIndexOrThrow(cursor, "AlcCode");
+            final int _cursorIndexOfPartIDTH = CursorUtil.getColumnIndexOrThrow(cursor, "PartIDTH");
+            final int _cursorIndexOfFlags = CursorUtil.getColumnIndexOrThrow(cursor, "Flags");
+            final List<line> _res = new ArrayList<line>(cursor.getCount());
+            while(cursor.moveToNext()) {
+              final line _item;
+              _item = new line();
+              _item.LineID = cursor.getInt(_cursorIndexOfLineID);
+              if (cursor.isNull(_cursorIndexOfDocName)) {
+                _item.DocName = null;
+              } else {
+                _item.DocName = cursor.getString(_cursorIndexOfDocName);
+              }
+              _item.Pos = cursor.getInt(_cursorIndexOfPos);
+              _item.GoodsID = cursor.getInt(_cursorIndexOfGoodsID);
+              if (cursor.isNull(_cursorIndexOfGoodsName)) {
+                _item.GoodsName = null;
+              } else {
+                _item.GoodsName = cursor.getString(_cursorIndexOfGoodsName);
+              }
+              if (cursor.isNull(_cursorIndexOfUnitBC)) {
+                _item.UnitBC = null;
+              } else {
+                _item.UnitBC = cursor.getString(_cursorIndexOfUnitBC);
+              }
+              if (cursor.isNull(_cursorIndexOfBC)) {
+                _item.BC = null;
+              } else {
+                _item.BC = cursor.getString(_cursorIndexOfBC);
+              }
+              _item.Price = cursor.getDouble(_cursorIndexOfPrice);
+              _item.DocQnty = cursor.getDouble(_cursorIndexOfDocQnty);
+              _item.FactQnty = cursor.getDouble(_cursorIndexOfFactQnty);
+              if (cursor.isNull(_cursorIndexOfAlcCode)) {
+                _item.AlcCode = null;
+              } else {
+                _item.AlcCode = cursor.getString(_cursorIndexOfAlcCode);
+              }
+              if (cursor.isNull(_cursorIndexOfPartIDTH)) {
+                _item.PartIDTH = null;
+              } else {
+                _item.PartIDTH = cursor.getString(_cursorIndexOfPartIDTH);
+              }
+              _item.Flags = cursor.getInt(_cursorIndexOfFlags);
+              _res.add(_item);
             }
             return _res;
           }

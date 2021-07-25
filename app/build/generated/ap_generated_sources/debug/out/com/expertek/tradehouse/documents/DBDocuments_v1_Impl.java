@@ -42,14 +42,14 @@ public final class DBDocuments_v1_Impl extends DBDocuments_v1 {
       public void createAllTables(SupportSQLiteDatabase _db) {
         _db.execSQL("CREATE TABLE IF NOT EXISTS `MT_documents` (`DocName` TEXT NOT NULL, `DocType` TEXT, `Complete` INTEGER NOT NULL, `Status` TEXT, `ClientID` INTEGER NOT NULL, `ClientType` TEXT, `ObjectID` INTEGER NOT NULL, `ObjectType` TEXT, `UserID` TEXT, `UserName` TEXT, `FactSum` REAL NOT NULL, `StartDate` TEXT, `Flags` INTEGER NOT NULL, PRIMARY KEY(`DocName`))");
         _db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `docNameDoc` ON `MT_documents` (`DocName`, `DocType`)");
-        _db.execSQL("CREATE TABLE IF NOT EXISTS `MT_lines` (`LineID` INTEGER NOT NULL, `DocName` TEXT NOT NULL, `Pos` INTEGER NOT NULL, `GoodsID` INTEGER NOT NULL, `GoodsName` TEXT, `UnitBC` TEXT, `BC` TEXT NOT NULL, `Price` REAL NOT NULL, `DocQnty` REAL NOT NULL, `FactQnty` REAL NOT NULL, `AlcCode` TEXT, `PartIDTH` TEXT, `Flags` INTEGER NOT NULL, PRIMARY KEY(`LineID`))");
+        _db.execSQL("CREATE TABLE IF NOT EXISTS `MT_lines` (`LineID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `DocName` TEXT NOT NULL, `Pos` INTEGER NOT NULL, `GoodsID` INTEGER NOT NULL, `GoodsName` TEXT, `UnitBC` TEXT, `BC` TEXT NOT NULL, `Price` REAL NOT NULL, `DocQnty` REAL NOT NULL, `FactQnty` REAL NOT NULL, `AlcCode` TEXT, `PartIDTH` TEXT, `Flags` INTEGER NOT NULL)");
         _db.execSQL("CREATE INDEX IF NOT EXISTS `lDocNPart` ON `MT_lines` (`DocName`, `PartIDTH`)");
         _db.execSQL("CREATE INDEX IF NOT EXISTS `lDocName` ON `MT_lines` (`DocName`)");
         _db.execSQL("CREATE INDEX IF NOT EXISTS `lDocNameAlc` ON `MT_lines` (`DocName`, `AlcCode`)");
         _db.execSQL("CREATE INDEX IF NOT EXISTS `lDocNameBC` ON `MT_lines` (`DocName`, `BC`)");
         _db.execSQL("CREATE INDEX IF NOT EXISTS `lDocNameGdsUnit` ON `MT_lines` (`DocName`, `GoodsID`, `UnitBC`)");
         _db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `lLine` ON `MT_lines` (`LineID`)");
-        _db.execSQL("CREATE TABLE IF NOT EXISTS `MT_MarkLines` (`LineID` INTEGER NOT NULL, `DocName` TEXT NOT NULL, `MarkCode` TEXT NOT NULL, `PartIDTH` TEXT NOT NULL, `Sts` TEXT, `MarkParent` TEXT, `BoxQnty` INTEGER NOT NULL, PRIMARY KEY(`LineID`))");
+        _db.execSQL("CREATE TABLE IF NOT EXISTS `MT_MarkLines` (`LineID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `DocName` TEXT NOT NULL, `MarkCode` TEXT NOT NULL, `PartIDTH` TEXT NOT NULL, `Sts` TEXT, `MarkParent` TEXT, `BoxQnty` INTEGER NOT NULL)");
         _db.execSQL("CREATE INDEX IF NOT EXISTS `DocName` ON `MT_MarkLines` (`DocName`)");
         _db.execSQL("CREATE INDEX IF NOT EXISTS `markCode` ON `MT_MarkLines` (`MarkCode`)");
         _db.execSQL("CREATE INDEX IF NOT EXISTS `mp` ON `MT_MarkLines` (`MarkParent`)");
@@ -58,7 +58,7 @@ public final class DBDocuments_v1_Impl extends DBDocuments_v1 {
         _db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `markline` ON `MT_MarkLines` (`LineID`, `MarkCode`)");
         _db.execSQL("CREATE INDEX IF NOT EXISTS `pi` ON `MT_MarkLines` (`DocName`, `MarkCode`)");
         _db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bc67b639c142760a236c0c9b7f032cd3')");
+        _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '469b8d4a773fa3e7b7ef49026aeee99d')");
       }
 
       @Override
@@ -183,7 +183,7 @@ public final class DBDocuments_v1_Impl extends DBDocuments_v1 {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "bc67b639c142760a236c0c9b7f032cd3", "753c1ae5eaed71955ca9af93529ddc7f");
+    }, "469b8d4a773fa3e7b7ef49026aeee99d", "c8539caf1a057af9f19521ccc111acb6");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(configuration.context)
         .name(configuration.name)
         .callback(_openCallback)

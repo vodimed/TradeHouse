@@ -4,15 +4,17 @@ import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 
+import java.io.Serializable;
+
 @Entity(tableName = "TH_objects", primaryKeys = {"obj_code", "obj_type"})
-public class object {
+public class object implements Serializable {
     @ColumnInfo(name = "obj_code")
     @NonNull
     public int obj_code; // код объекта ТН
 
     @ColumnInfo(name = "obj_type")
     @NonNull
-    public String obj_type; // тип объекта ТН
+    public String obj_type = ""; // тип объекта ТН
 
     @ColumnInfo(name = "Name")
     public String Name; // название
