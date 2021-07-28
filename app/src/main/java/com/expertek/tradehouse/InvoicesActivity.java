@@ -26,7 +26,7 @@ public class InvoicesActivity extends Activity {
     private final Documents documents = MainApplication.dbd().documents();
     private DocTypeAdapter adapterType = null;
     private DocumentAdapter adapterDocument = null;
-    private ListView listInvoices = null;
+    protected ListView listInvoices = null;
     protected Button buttonCreate = null;
     private Button buttonEdit = null;
     private Button buttonDelete = null;

@@ -11,6 +11,10 @@ import com.expertek.tradehouse.documents.entity.line;
 
 public class InvoiceActivity extends Activity {
     private line line = null;
+    private TextView labelName = null;
+    protected EditText editPrice = null;
+    private EditText editAmountDoc = null;
+    private EditText editAmountFact = null;
     private Button buttonOk = null;
     private Button buttonCancel = null;
 
@@ -22,16 +26,16 @@ public class InvoiceActivity extends Activity {
         // Retrieve Activity parameters
         line = (line) getIntent().getSerializableExtra(line.class.getName());
 
-        final TextView labelName = findViewById(R.id.labelName);
+        labelName = findViewById(R.id.labelName);
         labelName.setText(line.GoodsName);
 
-        final EditText editPrice = findViewById(R.id.editPrice);
+        editPrice = findViewById(R.id.editPrice);
         editPrice.setText(String.valueOf(line.Price));
 
-        final EditText editAmountDoc = findViewById(R.id.editAmountDoc);
+        editAmountDoc = findViewById(R.id.editAmountDoc);
         editAmountDoc.setText(String.valueOf(line.DocQnty));
 
-        final EditText editAmountFact = findViewById(R.id.editAmountFact);
+        editAmountFact = findViewById(R.id.editAmountFact);
         editAmountFact.setText(String.valueOf(line.FactQnty));
 
         buttonOk = findViewById(R.id.buttonOk);
@@ -53,15 +57,9 @@ public class InvoiceActivity extends Activity {
     };
 
     protected void actionOk() {
-        final EditText editPrice = findViewById(R.id.editPrice);
         line.Price = Double.parseDouble(editPrice.getText().toString());
-
-        final EditText editAmountDoc = findViewById(R.id.editAmountDoc);
         line.DocQnty = Double.parseDouble(editAmountDoc.getText().toString());
-
-        final EditText editAmountFact = findViewById(R.id.editAmountFact);
         line.FactQnty = Double.parseDouble(editAmountFact.getText().toString());
-
         finish();
     }
 

@@ -25,9 +25,9 @@ import java.util.List;
 public class InvoiceEditActivity extends Activity {
     private static final DateFormat date = SimpleDateFormat.getInstance(); // SimpleDateFormat("dd.MM.yyyy HH:mm")
     private final Lines lines = MainApplication.dbd().lines();
-    private document document = null;
+    protected document document = null;
     private LineAdapter adapterLine = null;
-    private ListView listInvoice = null;
+    protected ListView listInvoice = null;
     private Button buttonAdd = null;
     private Button buttonEdit = null;
     private Button buttonSave = null;

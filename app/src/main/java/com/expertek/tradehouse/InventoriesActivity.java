@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import com.expertek.tradehouse.documents.entity.document;
+
 public class InventoriesActivity extends InvoicesActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,17 +20,12 @@ public class InventoriesActivity extends InvoicesActivity {
 
     @Override
     protected void actionEdit() {
-        final Intent intent = new Intent(InventoriesActivity.this, InventoryEditActivity.class);
-        startActivity(intent);
-    }
+        final document document = (document) listInvoices.getSelectedItem();
 
-    @Override
-    protected void actionDelete() {
-
-    }
-
-    @Override
-    protected void actionSend() {
-
+        if (document != null) {
+            final Intent intent = new Intent(InventoriesActivity.this, InventoryEditActivity.class);
+            intent.putExtra(document.class.getName(), document);
+            startActivity(intent);
+        }
     }
 }
