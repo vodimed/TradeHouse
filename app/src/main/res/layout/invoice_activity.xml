@@ -4,42 +4,76 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/labelNumber"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:labelFor="@+id/editNumber"
-        android:text="@string/invoice_number" />
-
     <EditText
-        android:id="@+id/editNumber"
+        android:id="@+id/labelName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="text" />
+        android:inputType="textImeMultiLine"
+        android:maxLines="3"
+        android:minLines="2" />
 
-    <TextView
-        android:id="@+id/labelType"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:labelFor="@+id/spinType"
-        android:text="@string/invoice_type" />
+        android:layout_height="wrap_content">
 
-    <Spinner
-        android:id="@+id/spinType"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/labelPrice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:labelFor="@+id/editPrice"
+            android:text="@string/invoice_price" />
 
-    <TextView
-        android:id="@+id/labelContragent"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:labelFor="@+id/spinContragent"
-        android:text="@string/invoice_contragent" />
+        <EditText
+            android:id="@+id/editPrice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="numberDecimal" />
+    </LinearLayout>
 
-    <Spinner
-        android:id="@+id/spinContragent"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/labelAmountDoc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:labelFor="@+id/editAmountDoc"
+            android:text="@string/invoice_amount_doc" />
+
+        <EditText
+            android:id="@+id/editAmountDoc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="numberDecimal" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/labelAmountFact"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:labelFor="@+id/editAmountFact"
+            android:text="@string/invoice_amount_fact" />
+
+        <EditText
+            android:id="@+id/editAmountFact"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="numberDecimal" />
+    </LinearLayout>
 
     <FrameLayout
         android:layout_width="match_parent"

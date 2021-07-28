@@ -38,6 +38,9 @@
     <string name="invoice_number">Номер документа</string>
     <string name="invoice_type">Тип накладной</string>
     <string name="invoice_contragent">Контрагент</string>
+    <string name="invoice_price">Цена</string>
+    <string name="invoice_amount_doc">Документарно</string>
+    <string name="invoice_amount_fact">Фактически</string>
 
     <string-array name="invoice_types">
         <item>IntPurchWB|Накладная внутренняя приходная</item>
