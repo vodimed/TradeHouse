@@ -1,9 +1,10 @@
 package com.common.extensions.database;
 
 import android.content.Context;
+import android.database.ContentObserver;
 import android.database.Cursor;
+import android.database.DataSetObservable;
 import android.database.DataSetObserver;
-import android.database.Observable;
 import android.os.Build;
 import android.util.LongSparseArray;
 import android.util.SparseBooleanArray;
@@ -99,28 +100,34 @@ public abstract class AdapterTemplate<Item>
         return result;
     }
 
-    protected void registerParentObserver(@NonNull ViewGroup parent) {
-        notifier.registerParent(parent);
-    }
-
-    protected void unregisterParentObserver(@NonNull ViewGroup parent) {
-        notifier.unregisterParent(parent);
-    }
-
     public @Nullable Object getDataSet() {
         return dataset;
     }
 
     public void setDataSet(@Nullable Object dataset) {
         if (dataset != this.dataset) {
-            if (this.dataset instanceof Cursor)
-                ((Cursor) this.dataset).unregisterDataSetObserver(notifier.observer);
+            if (this.dataset instanceof AdapterInterface.Observable) {
+                @SuppressWarnings("unchecked")
+                final Observable<DataSetObserver> observable = (Observable<DataSetObserver>) this.dataset;
+                observable.unregisterObserver(notifier.acceptor);
+            } else if (this.dataset instanceof Cursor) {
+                final Cursor cursor = (Cursor) this.dataset;
+                cursor.unregisterContentObserver(notifier.content);
+                cursor.unregisterDataSetObserver(notifier.acceptor);
+            }
 
-            if (dataset instanceof Cursor)
-                ((Cursor) dataset).registerDataSetObserver(notifier.observer);
+            if (dataset instanceof AdapterInterface.Observable) {
+                @SuppressWarnings("unchecked")
+                final Observable<DataSetObserver> observable = (Observable<DataSetObserver>) dataset;
+                observable.registerObserver(notifier.acceptor);
+            } else if (dataset instanceof Cursor) {
+                final Cursor cursor = (Cursor) dataset;
+                cursor.registerDataSetObserver(notifier.acceptor);
+                cursor.registerContentObserver(notifier.content);
+            }
 
             this.dataset = dataset;
-            notifier.observer.onChanged();
+            notifier.notifyChanged();
         }
     }
 
@@ -192,6 +199,14 @@ public abstract class AdapterTemplate<Item>
         return true;
     }
 
+    protected void registerParentView(@NonNull ViewGroup parent) {
+        notifier.registerParentView(parent);
+    }
+
+    protected void unregisterParentView(@NonNull ViewGroup parent) {
+        notifier.unregisterParentView(parent);
+    }
+
     @Override
     public void registerDataSetObserver(DataSetObserver observer) {
         notifier.registerObserver(observer);
@@ -207,7 +222,7 @@ public abstract class AdapterTemplate<Item>
         if (dataset instanceof Cursor) {
             return ((Cursor) dataset).getCount();
         } else if (dataset instanceof List) {
-            return ((List) dataset).size();
+            return ((List<?>) dataset).size();
         } else if (dataset instanceof Object[]) {
             return ((Object[]) dataset).length;
         } else {
@@ -311,7 +326,7 @@ public abstract class AdapterTemplate<Item>
 
     protected int getPositionForView(ViewGroup parent, View layout) {
         if (parent instanceof AdapterView) {
-            final AdapterView advlist = (AdapterView) parent;
+            final AdapterView<?> advlist = (AdapterView<?>) parent;
             return advlist.getPositionForView(layout);
         } else {
             return INVALID_POSITION;
@@ -320,7 +335,7 @@ public abstract class AdapterTemplate<Item>
 
     protected long getItemIdForView(ViewGroup parent, View layout) {
         if (parent instanceof AdapterView) {
-            final AdapterView advlist = (AdapterView) parent;
+            final AdapterView<?> advlist = (AdapterView<?>) parent;
             return advlist.getItemIdAtPosition(advlist.getPositionForView(layout));
         } else {
             return INVALID_ROW_ID;
@@ -433,6 +448,36 @@ public abstract class AdapterTemplate<Item>
     }
 
     /**
+     * Feedback events from ViewHolder Views
+     */
+    private static class Listener extends View.AccessibilityDelegate {
+        private final Handler handler;
+
+        private Listener(Handler handler) {
+            this.handler = handler;
+        }
+
+        // Retrieve ListView Layout of this View
+        private View getLayout(View view) {
+            while (!(view.getTag() instanceof Holder))
+                view = (View) view.getParent();
+            return view;
+        }
+
+        @Override
+        public void sendAccessibilityEvent(View host, int eventType) {
+            super.sendAccessibilityEvent(host, eventType);
+            final View layout = getLayout(host);
+
+            switch (eventType) {
+                case AccessibilityEvent.TYPE_VIEW_CLICKED:
+                    handler.onItemClick((ViewGroup) layout.getParent(), layout, host);
+                    break;
+            }
+        }
+    }
+
+    /**
      * Argegator of various events for Adapter
      */
     private class EventHandler implements Handler {
@@ -473,43 +518,14 @@ public abstract class AdapterTemplate<Item>
     }
 
     /**
-     * Feedback events from ViewHolder Views
-     */
-    private static class Listener extends View.AccessibilityDelegate {
-        private final Handler handler;
-
-        private Listener(Handler handler) {
-            this.handler = handler;
-        }
-
-        // Retrieve ListView Layout of this View
-        private View getLayout(View view) {
-            while (!(view.getTag() instanceof Holder))
-                view = (View) view.getParent();
-            return view;
-        }
-
-        @Override
-        public void sendAccessibilityEvent(View host, int eventType) {
-            super.sendAccessibilityEvent(host, eventType);
-            final View layout = getLayout(host);
-
-            switch (eventType) {
-                case AccessibilityEvent.TYPE_VIEW_CLICKED:
-                    handler.onItemClick((ViewGroup) layout.getParent(), layout, host);
-                    break;
-            }
-        }
-    }
-
-    /**
      * Implementation of Dataset notification kernel
      */
-    private static class Notifier extends Observable<DataSetObserver> {
+    private static class Notifier extends DataSetObservable {
         private final ArrayList<ViewGroup> mParents = new ArrayList<ViewGroup>();
         private final Handler handler;
 
         private Notifier(Handler handler) {
+            super();
             this.handler = handler;
         }
 
@@ -517,12 +533,12 @@ public abstract class AdapterTemplate<Item>
             return mParents.isEmpty() && mObservers.isEmpty();
         }
 
-        public void registerParent(@NonNull ViewGroup parent) {
+        public void registerParentView(@NonNull ViewGroup parent) {
             if (mParents.contains(parent)) return;
             mParents.add(parent);
         }
 
-        public void unregisterParent(@NonNull ViewGroup parent) {
+        public void unregisterParentView(@NonNull ViewGroup parent) {
             mParents.remove(parent);
         }
 
@@ -532,14 +548,39 @@ public abstract class AdapterTemplate<Item>
             super.unregisterAll();
         }
 
-        public final DataSetObserver observer = new DataSetObserver() {
+        @Override
+        public void notifyChanged() {
+            synchronized(mParents) {
+                super.notifyChanged();
+                for (ViewGroup parent : mParents) {
+                    handler.onDataSetChanged(parent);
+                }
+            }
+        }
+
+        @Override
+        public void notifyInvalidated() {
+            synchronized(mParents) {
+                super.notifyInvalidated();
+            }
+        }
+
+        public final DataSetObserver acceptor = new DataSetObserver() {
+            @Override
             public void onChanged() {
-                for (DataSetObserver observer : mObservers) observer.onChanged();
-                for (ViewGroup parent : mParents) handler.onDataSetChanged(parent);
+                notifyChanged();
             }
 
+            @Override
             public void onInvalidated() {
-                for (DataSetObserver observer : mObservers) observer.onInvalidated();
+                notifyInvalidated();
+            }
+        };
+
+        public final ContentObserver content = new ContentObserver(null) {
+            @Override
+            public void onChange(boolean selfChange) {
+                notifyChanged();
             }
         };
     }

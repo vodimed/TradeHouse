@@ -76,7 +76,7 @@ public class InvoicesActivity extends Activity {
     };
 
     protected void actionCreate() {
-        assert (adapterDocument.getDataSet() != null);
+        assert adapterDocument.getDataSet() != null;
 
         final document document = new document();
         document.DocName = documents.getMaxId(); //TODO: increment, init may be null

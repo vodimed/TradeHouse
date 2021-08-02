@@ -55,12 +55,12 @@ public abstract class AdapterRecycler<Item>
         final RecyclerView.LayoutManager current = recyclerView.getLayoutManager();
         if (current == null || !LinearLayoutManager.class.equals(current.getClass()))
             recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
-        template.registerParentObserver(recyclerView);
+        template.registerParentView(recyclerView);
     }
 
     @Override
     public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
-        template.unregisterParentObserver(recyclerView);
+        template.unregisterParentView(recyclerView);
     }
 
     @Override

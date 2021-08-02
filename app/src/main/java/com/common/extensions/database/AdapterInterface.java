@@ -37,6 +37,12 @@ public interface AdapterInterface<Item> extends ListAdapter, SpinnerAdapter {
         void setOnItemSelectionListener(@Nullable OnItemSelectionListener listener);
     }
 
+    interface Observable<T> {
+        void registerObserver(T observer);
+        void unregisterObserver(T observer);
+        void unregisterAll();
+    }
+
     // Based on AdapterView.OnItemSelectedListener()
     interface OnItemSelectionListener {
         void onItemSelected(ViewGroup parent, View view, int position, long id);
