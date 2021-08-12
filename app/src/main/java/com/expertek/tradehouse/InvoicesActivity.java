@@ -16,17 +16,17 @@ import androidx.annotation.NonNull;
 import com.common.extensions.database.AdapterInterface;
 import com.common.extensions.database.AdapterTemplate;
 import com.common.extensions.database.PagingList;
-import com.expertek.tradehouse.documents.Documents;
 import com.expertek.tradehouse.documents.entity.document;
 
 import java.util.Calendar;
 import java.util.List;
 
 public class InvoicesActivity extends Activity {
-    private final Documents documents = MainApplication.dbd().documents();
+    private PagingList<document> documents = null;
     private DocTypeAdapter adapterType = null;
-    private DocumentAdapter adapterDocument = null;
-    protected ListView listInvoices = null;
+    protected DocumentAdapter adapterDocument = null;
+    private ListView listDocument = null;
+    private int position = AdapterInterface.INVALID_POSITION;
     protected Button buttonCreate = null;
     private Button buttonEdit = null;
     private Button buttonDelete = null;
@@ -38,16 +38,19 @@ public class InvoicesActivity extends Activity {
         setContentView(R.layout.invoices_activity);
 
         adapterType = new DocTypeAdapter(this, android.R.layout.simple_list_item_single_choice);
+        documents = new PagingList<document>(MainApplication.dbd().documents().loadByDocType(adapterType.getKey(0)));
 
         final Spinner spinSelector = findViewById(R.id.spinSelector);
         adapterType.setOnItemSelectionListener(onTypeSelection);
         spinSelector.setAdapter(adapterType);
 
         adapterDocument = new DocumentAdapter(this, android.R.layout.simple_list_item_single_choice);
-        adapterDocument.setDataSet(new PagingList<document>(documents.loadByDocType(adapterType.getKey(0))));
+        adapterDocument.setDataSet(documents);
 
-        listInvoices = findViewById(R.id.listInvoices);
-        listInvoices.setAdapter(adapterDocument);
+        listDocument = findViewById(R.id.listDocument);
+        listDocument.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        listDocument.setSelector(android.R.drawable.list_selector_background);
+        listDocument.setAdapter(adapterDocument);
 
         buttonCreate = findViewById(R.id.buttonCreate);
         buttonEdit = findViewById(R.id.buttonEdit);
@@ -64,53 +67,72 @@ public class InvoicesActivity extends Activity {
         @Override
         public void onClick(View v) {
             if (buttonCreate.equals(v)) {
-                actionCreate();
+                actionCreate(AdapterInterface.INVALID_POSITION);
+            } else if (position == AdapterInterface.INVALID_POSITION) {
+                // Do Nothing
             } else if (buttonEdit.equals(v)) {
-                actionEdit();
+                actionEdit(position);
             } else if (buttonDelete.equals(v)) {
-                actionDelete();
+                actionDelete(position);
             } else if (buttonSend.equals(v)) {
-                actionSend();
+                actionSend(position);
             }
         }
     };
 
-    protected void actionCreate() {
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode != RESULT_OK) return;
+        final document document = (document) data.getSerializableExtra(document.class.getName());
+
+        switch (requestCode) {
+            case InvoiceEditActivity.REQUEST_ADD_DOCUMENT:
+                documents.add(document);
+                position = listDocument.getCount() - 1;
+                actionEdit(position);
+                break;
+            case InvoiceEditActivity.REQUEST_EDIT_DOCUMENT:
+                documents.set(position, document);
+                break;
+        }
+
+        documents.commit(new PagingList.Commit<document>() {
+            @Override
+            public void replace(document... objects) {
+                MainApplication.dbd().documents().insert(objects);
+            }
+
+            @Override
+            public void delete(document... objects) {
+                MainApplication.dbd().documents().delete(objects);
+            }
+        });
+    }
+
+    protected void actionCreate(int position) {
         assert adapterDocument.getDataSet() != null;
 
         final document document = new document();
-        document.DocName = documents.getMaxId(); //TODO: increment, init may be null
+        document.DocName = MainApplication.dbd().documents().getMaxId();
         document.StartDate = Calendar.getInstance().getTime();
 
         final Intent intent = new Intent(InvoicesActivity.this, InvoiceCreateActivity.class);
         intent.putExtra(document.class.getName(), document);
-        startActivity(intent);
+        startActivityForResult(intent, InvoiceEditActivity.REQUEST_ADD_DOCUMENT);
     }
 
-    protected void actionEdit() {
-        final document document = (document) listInvoices.getSelectedItem();
-
-        if (document != null) {
-            final Intent intent = new Intent(InvoicesActivity.this, InvoiceEditActivity.class);
-            intent.putExtra(document.class.getName(), document);
-            startActivity(intent);
-        }
+    protected void actionEdit(int position) {
+        final Intent intent = new Intent(InvoicesActivity.this, InvoiceEditActivity.class);
+        intent.putExtra(document.class.getName(), adapterDocument.getItem(position));
+        startActivityForResult(intent, InvoiceEditActivity.REQUEST_EDIT_DOCUMENT);
     }
 
-    protected void actionDelete() {
-        final document document = (document) listInvoices.getSelectedItem();
-
-        if (document != null) {
-            //TODO
-        }
+    protected void actionDelete(int position) {
+        final document document = adapterDocument.getItem(position);
     }
 
-    protected void actionSend() {
-        final document document = (document) listInvoices.getSelectedItem();
-
-        if (document != null) {
-            //TODO
-        }
+    protected void actionSend(int position) {
+        final document document = adapterDocument.getItem(position);
     }
 
     private final AdapterInterface.OnItemSelectionListener onTypeSelection =
@@ -119,12 +141,27 @@ public class InvoicesActivity extends Activity {
         @Override
         public void onItemSelected(ViewGroup parent, View view, int position, long id) {
             final String key = adapterType.getKey(position);
-            adapterDocument.setDataSet(new PagingList<document>(documents.loadByDocType(key)));
+            documents = new PagingList<document>(MainApplication.dbd().documents().loadByDocType(key));
+            adapterDocument.setDataSet(documents);
         }
 
         @Override
         public void onNothingSelected(ViewGroup parent) {
             // Never to do
+        }
+    };
+
+    private final AdapterInterface.OnItemSelectionListener onDocumentSelection =
+            new AdapterInterface.OnItemSelectionListener()
+    {
+        @Override
+        public void onItemSelected(ViewGroup parent, View view, int position, long id) {
+            InvoicesActivity.this.position = position;
+        }
+
+        @Override
+        public void onNothingSelected(ViewGroup parent) {
+            InvoicesActivity.this.position = AdapterInterface.INVALID_POSITION;
         }
     };
 
@@ -181,7 +218,7 @@ public class InvoicesActivity extends Activity {
     /**
      * ListView data Adapter: list of documents by DocType
      */
-    private static class DocumentAdapter extends AdapterTemplate<document> {
+    protected static class DocumentAdapter extends AdapterTemplate<document> {
         public DocumentAdapter(Context context, @NonNull int... layout) {
             super(context, layout);
             setHasStableIds(true);
@@ -211,7 +248,7 @@ public class InvoicesActivity extends Activity {
 
         @Override
         public long getItemId(int position) {
-            if (position < 0) return INVALID_ROW_ID;
+            if (position < 0 || position >= getCount()) return INVALID_ROW_ID;
             final document item = getItem(position);
             return item.DocName.hashCode() * 31 + item.DocType.hashCode();
         }

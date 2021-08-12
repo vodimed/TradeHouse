@@ -83,13 +83,13 @@ public class MainActivity_ extends Activity implements BarcodeReader.BarcodeList
             dc.DocName = "aaa";
             dc.DocType = "aaa";
             dc.StartDate = Calendar.getInstance().getTime();
-            MainApplication.dbd().documents().insertAll(dc);
+            MainApplication.dbd().documents().insert(dc);
 
             line ln = new line();
             ln.LineID = 1;
             ln.DocName = "aaa";
             ln.BC = "aaa";
-            MainApplication.dbd().lines().insertAll(ln);
+            MainApplication.dbd().lines().insert(ln);
         } catch (Exception e) {
             e.printStackTrace();
         }

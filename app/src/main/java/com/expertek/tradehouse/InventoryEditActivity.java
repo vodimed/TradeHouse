@@ -6,23 +6,19 @@ import com.expertek.tradehouse.documents.entity.line;
 
 public class InventoryEditActivity extends InvoiceEditActivity {
     @Override
-    protected void actionAdd() {
+    protected void actionAdd(int position) {
         final line line = new line();
         line.DocName = document.DocName;
 
         final Intent intent = new Intent(InventoryEditActivity.this, InventoryActivity.class);
         intent.putExtra(line.class.getName(), line);
-        startActivity(intent);
+        startActivityForResult(intent, InventoryActivity.REQUEST_ADD_POSITION);
     }
 
     @Override
-    protected void actionEdit() {
-        final line line = (line) listInvoice.getSelectedItem();
-
-        if (line != null) {
-            final Intent intent = new Intent(InventoryEditActivity.this, InventoryActivity.class);
-            intent.putExtra(line.class.getName(), line);
-            startActivity(intent);
-        }
+    protected void actionEdit(int position) {
+        final Intent intent = new Intent(InventoryEditActivity.this, InventoryActivity.class);
+        intent.putExtra(line.class.getName(), adapterLine.getItem(position));
+        startActivityForResult(intent, InventoryActivity.REQUEST_EDIT_POSITION);
     }
 }

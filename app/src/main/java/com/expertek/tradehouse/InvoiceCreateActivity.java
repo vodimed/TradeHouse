@@ -76,14 +76,15 @@ public class InvoiceCreateActivity extends Activity {
         final String text = number.getText().toString();
         if (text.length() > 0) document.DocName = text;
 
-        final Intent intent = new Intent(InvoiceCreateActivity.this, InvoiceEditActivity.class);
+        final Intent intent = new Intent();
         intent.putExtra(document.class.getName(), document);
-        startActivity(intent);
 
+        setResult(RESULT_OK, intent);
         finish();
     }
 
     protected void actionCancel() {
+        setResult(RESULT_CANCELED);
         finish();
     }
 
@@ -211,7 +212,7 @@ public class InvoiceCreateActivity extends Activity {
 
         @Override
         public long getItemId(int position) {
-            if (position < 0) return INVALID_ROW_ID;
+            if (position < 0 || position >= getCount()) return INVALID_ROW_ID;
             return getItem(position).cli_code;
         }
     }

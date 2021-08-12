@@ -38,7 +38,7 @@ public final class Documents_Impl implements Documents {
     this.__insertionAdapterOfdocument = new EntityInsertionAdapter<document>(__db) {
       @Override
       public String createQuery() {
-        return "INSERT OR ABORT INTO `MT_documents` (`DocName`,`DocType`,`Complete`,`Status`,`ClientID`,`ClientType`,`ObjectID`,`ObjectType`,`UserID`,`UserName`,`FactSum`,`StartDate`,`Flags`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `MT_documents` (`DocName`,`DocType`,`Complete`,`Status`,`ClientID`,`ClientType`,`ObjectID`,`ObjectType`,`UserID`,`UserName`,`FactSum`,`StartDate`,`Flags`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -112,7 +112,7 @@ public final class Documents_Impl implements Documents {
   }
 
   @Override
-  public void insertAll(final document... objects) {
+  public void insert(final document... objects) {
     __db.assertNotSuspendingTransaction();
     __db.beginTransaction();
     try {
@@ -124,11 +124,11 @@ public final class Documents_Impl implements Documents {
   }
 
   @Override
-  public void delete(final document objects) {
+  public void delete(final document... objects) {
     __db.assertNotSuspendingTransaction();
     __db.beginTransaction();
     try {
-      __deletionAdapterOfdocument.handle(objects);
+      __deletionAdapterOfdocument.handleMultiple(objects);
       __db.setTransactionSuccessful();
     } finally {
       __db.endTransaction();

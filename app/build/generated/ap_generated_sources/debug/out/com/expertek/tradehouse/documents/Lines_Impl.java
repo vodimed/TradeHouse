@@ -34,7 +34,7 @@ public final class Lines_Impl implements Lines {
     this.__insertionAdapterOfline = new EntityInsertionAdapter<line>(__db) {
       @Override
       public String createQuery() {
-        return "INSERT OR ABORT INTO `MT_lines` (`LineID`,`DocName`,`Pos`,`GoodsID`,`GoodsName`,`UnitBC`,`BC`,`Price`,`DocQnty`,`FactQnty`,`AlcCode`,`PartIDTH`,`Flags`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `MT_lines` (`LineID`,`DocName`,`Pos`,`GoodsID`,`GoodsName`,`UnitBC`,`BC`,`Price`,`DocQnty`,`FactQnty`,`AlcCode`,`PartIDTH`,`Flags`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -92,7 +92,7 @@ public final class Lines_Impl implements Lines {
   }
 
   @Override
-  public void insertAll(final line... objects) {
+  public void insert(final line... objects) {
     __db.assertNotSuspendingTransaction();
     __db.beginTransaction();
     try {
@@ -104,11 +104,11 @@ public final class Lines_Impl implements Lines {
   }
 
   @Override
-  public void delete(final line objects) {
+  public void delete(final line... objects) {
     __db.assertNotSuspendingTransaction();
     __db.beginTransaction();
     try {
-      __deletionAdapterOfline.handle(objects);
+      __deletionAdapterOfline.handleMultiple(objects);
       __db.setTransactionSuccessful();
     } finally {
       __db.endTransaction();

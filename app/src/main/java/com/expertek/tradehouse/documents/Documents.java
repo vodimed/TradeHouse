@@ -4,6 +4,7 @@ import androidx.paging.DataSource;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 import com.expertek.tradehouse.documents.entity.document;
@@ -26,9 +27,9 @@ public interface Documents {
     @Query("SELECT * FROM MT_documents WHERE DocType = :docType")
     DataSource.Factory<Integer, document> loadByDocType(String docType);
 
-    @Insert
-    void insertAll(document... objects);
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insert(document... objects);
 
     @Delete
-    void delete(document objects);
+    void delete(document... objects);
 }

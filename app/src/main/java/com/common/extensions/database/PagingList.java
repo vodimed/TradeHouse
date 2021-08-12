@@ -39,14 +39,14 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
                 skip = ~skip;
             }
         }
-        return index - skip;
+        return index + (~skip);
     }
 
     // Retrieve page of data and put it into cache
     protected Value retrieve(int identifier) {
         final int header = PagingCache.header(identifier);
         final int slot = PagingCache.slot(identifier);
-        ArrayList<Value> page = cache[slot].page(header);
+        ArrayList<Value> page = (cache[slot] != null ? cache[slot].page(header) : null);
 
         if (page == null) {
             @SuppressLint("RestrictedApi")
@@ -113,10 +113,12 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
         return size;
     }
 
-    void commit() {
+    public void commit(Commit listener) {
+        //update.clear();
+        //delete.clear();
     }
 
-    void rollback() {
+    public void rollback() {
         update.clear();
         delete.clear();
         size = count;
@@ -136,6 +138,14 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
     @Override
     public void unregisterAll() {
         notifier.unregisterAll();
+    }
+
+    /**
+     * Commit Listener Interface
+     */
+    public interface Commit<DAO> {
+        void replace(DAO... objects);
+        void delete(DAO... objects);
     }
 
     /**

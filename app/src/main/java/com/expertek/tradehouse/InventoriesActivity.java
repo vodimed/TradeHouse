@@ -14,18 +14,14 @@ public class InventoriesActivity extends InvoicesActivity {
     }
 
     @Override
-    protected void actionCreate() {
+    protected void actionCreate(int position) {
         // Inapplicable
     }
 
     @Override
-    protected void actionEdit() {
-        final document document = (document) listInvoices.getSelectedItem();
-
-        if (document != null) {
-            final Intent intent = new Intent(InventoriesActivity.this, InventoryEditActivity.class);
-            intent.putExtra(document.class.getName(), document);
-            startActivity(intent);
-        }
+    protected void actionEdit(int position) {
+        final Intent intent = new Intent(InventoriesActivity.this, InventoryEditActivity.class);
+        intent.putExtra(document.class.getName(), adapterDocument.getItem(position));
+        startActivityForResult(intent, InventoryEditActivity.REQUEST_EDIT_DOCUMENT);
     }
 }
