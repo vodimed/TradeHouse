@@ -54,6 +54,7 @@ public class InvoiceEditActivity extends Activity {
 
         adapterLine = new LineAdapter(this, android.R.layout.simple_list_item_single_choice);
         adapterLine.setDataSet(lines);
+        adapterLine.setOnItemSelectionListener(onLineSelection);
 
         listLine = findViewById(R.id.listLine);
         listLine.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
@@ -76,14 +77,14 @@ public class InvoiceEditActivity extends Activity {
         public void onClick(View v) {
             if (buttonAdd.equals(v)) {
                 actionAdd(AdapterInterface.INVALID_POSITION);
-            } else if (position == AdapterInterface.INVALID_POSITION) {
-                // Do Nothing
-            } else if (buttonEdit.equals(v)) {
-                actionEdit(position);
             } else if (buttonSave.equals(v)) {
                 actionSave(position);
             } else if (buttonSend.equals(v)) {
                 actionSend(position);
+            } else if (position == AdapterInterface.INVALID_POSITION) {
+                // Do Nothing
+            } else if (buttonEdit.equals(v)) {
+                actionEdit(position);
             }
         }
     };
@@ -122,21 +123,27 @@ public class InvoiceEditActivity extends Activity {
     protected void actionSave(int position) {
         lines.commit(new PagingList.Commit<line>() {
             @Override
-            public void replace(line... objects) {
+            public void replace(line objects) {
                 MainApplication.dbd().lines().insert(objects);
             }
 
             @Override
-            public void delete(line... objects) {
+            public void delete(line objects) {
                 MainApplication.dbd().lines().delete(objects);
             }
         });
+
+        final Intent intent = new Intent();
+        intent.putExtra(line.class.getName(), document);
+
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
     protected void actionSend(int position) {
     }
 
-    private final AdapterInterface.OnItemSelectionListener onDocumentSelection =
+    private final AdapterInterface.OnItemSelectionListener onLineSelection =
             new AdapterInterface.OnItemSelectionListener()
     {
         @Override

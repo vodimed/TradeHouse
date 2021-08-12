@@ -38,14 +38,16 @@ public class InvoicesActivity extends Activity {
         setContentView(R.layout.invoices_activity);
 
         adapterType = new DocTypeAdapter(this, android.R.layout.simple_list_item_single_choice);
-        documents = new PagingList<document>(MainApplication.dbd().documents().loadByDocType(adapterType.getKey(0)));
+        adapterType.setOnItemSelectionListener(onTypeSelection);
 
         final Spinner spinSelector = findViewById(R.id.spinSelector);
-        adapterType.setOnItemSelectionListener(onTypeSelection);
         spinSelector.setAdapter(adapterType);
+
+        documents = new PagingList<document>(MainApplication.dbd().documents().loadByDocType(adapterType.getKey(0)));
 
         adapterDocument = new DocumentAdapter(this, android.R.layout.simple_list_item_single_choice);
         adapterDocument.setDataSet(documents);
+        adapterDocument.setOnItemSelectionListener(onDocumentSelection);
 
         listDocument = findViewById(R.id.listDocument);
         listDocument.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
@@ -92,18 +94,18 @@ public class InvoicesActivity extends Activity {
                 actionEdit(position);
                 break;
             case InvoiceEditActivity.REQUEST_EDIT_DOCUMENT:
-                documents.set(position, document);
+                // documents.set(position, document); TODO
                 break;
         }
 
         documents.commit(new PagingList.Commit<document>() {
             @Override
-            public void replace(document... objects) {
+            public void replace(document objects) {
                 MainApplication.dbd().documents().insert(objects);
             }
 
             @Override
-            public void delete(document... objects) {
+            public void delete(document objects) {
                 MainApplication.dbd().documents().delete(objects);
             }
         });

@@ -54,6 +54,7 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
             cache[slot] = new PagingCache<Value>(header, data);
             page = cache[slot].page(header);
         }
+
         return page.get(identifier - header);
     }
 
@@ -113,9 +114,18 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
         return size;
     }
 
-    public void commit(Commit listener) {
-        //update.clear();
+    public void commit(Commit<Value> listener) {
+        for (int i = delete.size() - 1; i >= 0; i--) {
+            listener.delete(retrieve(delete.keyAt(i)));
+        }
+
+        for (int i = update.size() - 1; i >= 0; i--) {
+            listener.replace(update.valueAt(i));
+        }
+
+        //update.clear(); TODO!
         //delete.clear();
+        //notifier.notifyChanged();
     }
 
     public void rollback() {
@@ -144,8 +154,10 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
      * Commit Listener Interface
      */
     public interface Commit<DAO> {
-        void replace(DAO... objects);
-        void delete(DAO... objects);
+//TODO        void replace(DAO... objects);
+//TODO        void delete(DAO... objects);
+        void replace(DAO objects);
+        void delete(DAO objects);
     }
 
     /**
