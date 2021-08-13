@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -16,7 +17,12 @@ import androidx.annotation.NonNull;
 import com.common.extensions.database.AdapterInterface;
 import com.common.extensions.database.AdapterTemplate;
 import com.common.extensions.database.PagingList;
+import com.common.extensions.exchange.ServiceConnector;
+import com.common.extensions.exchange.ServiceInterface;
 import com.expertek.tradehouse.documents.entity.document;
+import com.expertek.tradehouse.documents.entity.line;
+import com.expertek.tradehouse.tradehouse.TradeHouseService;
+import com.expertek.tradehouse.tradehouse.Документы;
 
 import java.util.Calendar;
 import java.util.List;
@@ -36,6 +42,8 @@ public class InvoicesActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.invoices_activity);
+
+        tradehouse.registerService(false);
 
         adapterType = new DocTypeAdapter(this, android.R.layout.simple_list_item_single_choice);
         adapterType.setOnItemSelectionListener(onTypeSelection);
@@ -63,6 +71,12 @@ public class InvoicesActivity extends Activity {
         buttonEdit.setOnClickListener(onClickAction);
         buttonDelete.setOnClickListener(onClickAction);
         buttonSend.setOnClickListener(onClickAction);
+    }
+
+    @Override
+    protected void onDestroy() {
+        tradehouse.unregisterService();
+        super.onDestroy();
     }
 
     private final View.OnClickListener onClickAction = new View.OnClickListener() {
@@ -95,6 +109,9 @@ public class InvoicesActivity extends Activity {
                 break;
             case InvoiceEditActivity.REQUEST_EDIT_DOCUMENT:
                 // documents.set(position, document); TODO
+                break;
+            case InvoiceEditActivity.REQUEST_DELETE_DOCUMENT:
+                documents.remove(position);
                 break;
         }
 
@@ -130,11 +147,14 @@ public class InvoicesActivity extends Activity {
     }
 
     protected void actionDelete(int position) {
-        final document document = adapterDocument.getItem(position);
+        final Intent intent = new Intent();
+        intent.putExtra(line.class.getName(), adapterDocument.getItem(position));
+        onActivityResult(InvoiceEditActivity.REQUEST_DELETE_DOCUMENT, RESULT_OK, intent);
     }
 
     protected void actionSend(int position) {
-        final document document = adapterDocument.getItem(position);
+        //TODO: final document document = adapterDocument.getItem(position);
+        tradehouse.enqueue(new ServiceInterface.JobInfo(1, Документы.class, tradehouse.receiver()), null);
     }
 
     private final AdapterInterface.OnItemSelectionListener onTypeSelection =
@@ -255,4 +275,17 @@ public class InvoicesActivity extends Activity {
             return item.DocName.hashCode() * 31 + item.DocType.hashCode();
         }
     }
+
+    private final ServiceConnector tradehouse = new ServiceConnector(this, TradeHouseService.class) {
+        @Override
+        public void onServiceResult(@NonNull ServiceInterface.JobInfo work, Bundle result) {
+            Log.d("RESULT", result.toString());
+        }
+
+        @Override
+        public void onServiceException(@NonNull ServiceInterface.JobInfo work, @NonNull Throwable e) {
+            Log.d("EXCEPTION", e.toString());
+        }
+    };
+
 }

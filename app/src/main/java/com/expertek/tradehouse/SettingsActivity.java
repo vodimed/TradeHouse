@@ -1,6 +1,7 @@
 package com.expertek.tradehouse;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -188,29 +189,59 @@ public class SettingsActivity extends Activity {
     }
 
     private final View.OnClickListener onCheckClick = new View.OnClickListener() {
+        private boolean success = false;
+
         @Override
         public void onClick(View v) {
-            final TextView connection = findViewById(R.id.editConnect);
-            final SeekBar check = findViewById(R.id.seekCheckDelay);
-            final String[] addr = connection.getText().toString().split(":", 2);
+            final TextView editConnect = findViewById(R.id.editConnect);
+            final Button buttonCheck = findViewById(R.id.buttonCheck);
+            final SeekBar seekCheckDelay = findViewById(R.id.seekCheckDelay);
 
-            if (checkConnection(addr[0], getPort(addr), check.getProgress() * 1000)) {
-                connection.setBackgroundColor(0);
-            } else {
-                connection.setBackgroundColor(-1);
-            }
+            final String[] addr = editConnect.getText().toString().split(":", 2);
+            final Thread process = new Thread(new CheckConnection(
+                    addr[0], getPort(addr), seekCheckDelay.getProgress() * 1000));
+            buttonCheck.setEnabled(false);
+            process.start();
         }
 
-        private boolean checkConnection(String addr, int port, int timeout) {
-            try {
-                final HttpURLConnection connection = (HttpURLConnection) new URL(
-                        "http", addr, port, "").openConnection();
-                connection.setConnectTimeout(timeout);
-                connection.connect();
-                connection.disconnect();
-                return true;
-            } catch (IOException e) {
-                return false;
+        class CheckConnection implements Runnable {
+            private final String addr;
+            private final int port;
+            private final int timeout;
+
+            public CheckConnection(String addr, int port, int timeout) {
+                this.addr = addr;
+                this.port = port;
+                this.timeout = timeout;
+            }
+
+            @Override
+            public void run() {
+                try {
+                    final HttpURLConnection connection = (HttpURLConnection) new URL(
+                            "http", addr, port, "").openConnection();
+                    connection.setConnectTimeout(timeout);
+                    connection.connect();
+                    connection.disconnect();
+                    success = true;
+                } catch (IOException e) {
+                    success = false;
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        final TextView editConnect = findViewById(R.id.editConnect);
+                        final Button buttonCheck = findViewById(R.id.buttonCheck);
+
+                        if (success) {
+                            editConnect.setBackgroundColor(Color.GREEN);
+                        } else {
+                            editConnect.setBackgroundColor(Color.RED);
+                        }
+                        buttonCheck.setEnabled(true);
+                    }
+                });
             }
         }
     };

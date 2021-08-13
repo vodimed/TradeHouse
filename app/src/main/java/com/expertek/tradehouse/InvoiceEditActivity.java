@@ -26,6 +26,7 @@ import java.util.List;
 public class InvoiceEditActivity extends Activity {
     public final static int REQUEST_ADD_DOCUMENT = 1;
     public final static int REQUEST_EDIT_DOCUMENT = 2;
+    public final static int REQUEST_DELETE_DOCUMENT = 3;
     private static final DateFormat date = SimpleDateFormat.getInstance(); // SimpleDateFormat("dd.MM.yyyy HH:mm")
     private PagingList<line> lines = null;
     protected document document = null;
@@ -141,6 +142,8 @@ public class InvoiceEditActivity extends Activity {
     }
 
     protected void actionSend(int position) {
+        document.Complete = true;
+        actionSave(position);
     }
 
     private final AdapterInterface.OnItemSelectionListener onLineSelection =
