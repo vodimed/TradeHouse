@@ -18,12 +18,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".InvoiceActivity"></activity>
+        <activity android:name=".InvoiceActivity" />
         <activity android:name=".InvoiceEditActivity" />
         <activity android:name=".InvoiceCreateActivity" />
         <activity android:name=".InventoryActivity" />
-        <activity android:name=".InventoryEditActivity" />
-        <!-- android:networkSecurityConfig="@xml/network_security_config" -->
+        <activity android:name=".InventoryEditActivity" /> <!-- android:networkSecurityConfig="@xml/network_security_config" -->
         <activity
             android:name="com.common.extensions.exchange.ServiceActivity"
             android:configChanges="orientation|screenSize"

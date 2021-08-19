@@ -106,9 +106,11 @@ public abstract class AdapterTemplate<Item>
 
     public void setDataSet(@Nullable Object dataset) {
         if (dataset != this.dataset) {
-            if (this.dataset instanceof AdapterInterface.Observable) {
-                @SuppressWarnings("unchecked")
-                final Observable<DataSetObserver> observable = (Observable<DataSetObserver>) this.dataset;
+            if (this.dataset instanceof Observable) {
+                @SuppressWarnings("unchecked") final Observable<DataSetObserver> observable = (Observable<DataSetObserver>) this.dataset;
+                observable.unregisterObserver(notifier.acceptor);
+            } else if (this.dataset instanceof DataSetObservable) {
+                final DataSetObservable observable = (DataSetObservable) this.dataset;
                 observable.unregisterObserver(notifier.acceptor);
             } else if (this.dataset instanceof Cursor) {
                 final Cursor cursor = (Cursor) this.dataset;
@@ -116,9 +118,12 @@ public abstract class AdapterTemplate<Item>
                 cursor.unregisterDataSetObserver(notifier.acceptor);
             }
 
-            if (dataset instanceof AdapterInterface.Observable) {
+            if (dataset instanceof Observable) {
                 @SuppressWarnings("unchecked")
                 final Observable<DataSetObserver> observable = (Observable<DataSetObserver>) dataset;
+                observable.registerObserver(notifier.acceptor);
+            } else if (dataset instanceof DataSetObservable) {
+                final DataSetObservable observable = (DataSetObservable) dataset;
                 observable.registerObserver(notifier.acceptor);
             } else if (dataset instanceof Cursor) {
                 final Cursor cursor = (Cursor) dataset;
@@ -226,7 +231,7 @@ public abstract class AdapterTemplate<Item>
         } else if (dataset instanceof Object[]) {
             return ((Object[]) dataset).length;
         } else {
-            return 0;
+            throw new UnsupportedOperationException();
         }
     }
 

@@ -12,6 +12,7 @@
     <string name="delete">Удалить</string>
     <string name="save">Сохранить</string>
     <string name="send">Отправить</string>
+    <string name="close">Закрыть</string>
     <string name="zero_value">0,00</string>
 
     <string-array name="doc_types">

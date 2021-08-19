@@ -287,5 +287,4 @@ public class InvoicesActivity extends Activity {
             Log.d("EXCEPTION", e.toString());
         }
     };
-
 }
