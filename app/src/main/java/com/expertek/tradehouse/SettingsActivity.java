@@ -189,38 +189,40 @@ public class SettingsActivity extends Activity {
     }
 
     private final View.OnClickListener onCheckClick = new View.OnClickListener() {
-        private boolean success = false;
-
         @Override
         public void onClick(View v) {
             final TextView editConnect = findViewById(R.id.editConnect);
-            final Button buttonCheck = findViewById(R.id.buttonCheck);
             final SeekBar seekCheckDelay = findViewById(R.id.seekCheckDelay);
 
             final String[] addr = editConnect.getText().toString().split(":", 2);
-            final Thread process = new Thread(new CheckConnection(
-                    addr[0], getPort(addr), seekCheckDelay.getProgress() * 1000));
-            buttonCheck.setEnabled(false);
+            final Thread process = new Thread(new CheckConnection(addr[0], getPort(addr),
+                    seekCheckDelay.getProgress() * 1000));
             process.start();
         }
 
         class CheckConnection implements Runnable {
-            private final String addr;
-            private final int port;
-            private final int timeout;
+            private final TextView editConnect;
+            private final Button buttonCheck;
+            private HttpURLConnection connection;
+            private boolean success = false;
 
             public CheckConnection(String addr, int port, int timeout) {
-                this.addr = addr;
-                this.port = port;
-                this.timeout = timeout;
+                editConnect = findViewById(R.id.editConnect);
+                buttonCheck = findViewById(R.id.buttonCheck);
+                buttonCheck.setEnabled(false);
+
+                try {
+                    connection = (HttpURLConnection) new URL("http", addr, port, "").openConnection();
+                    connection.setConnectTimeout(timeout);
+                } catch (IOException e) {
+                    connection = null;
+                    e.printStackTrace();
+                }
             }
 
             @Override
             public void run() {
-                try {
-                    final HttpURLConnection connection = (HttpURLConnection) new URL(
-                            "http", addr, port, "").openConnection();
-                    connection.setConnectTimeout(timeout);
+                if (connection != null) try {
                     connection.connect();
                     connection.disconnect();
                     success = true;
@@ -231,14 +233,7 @@ public class SettingsActivity extends Activity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        final TextView editConnect = findViewById(R.id.editConnect);
-                        final Button buttonCheck = findViewById(R.id.buttonCheck);
-
-                        if (success) {
-                            editConnect.setBackgroundColor(Color.GREEN);
-                        } else {
-                            editConnect.setBackgroundColor(Color.RED);
-                        }
+                        editConnect.setBackgroundColor(success ? Color.GREEN : Color.RED);
                         buttonCheck.setEnabled(true);
                     }
                 });

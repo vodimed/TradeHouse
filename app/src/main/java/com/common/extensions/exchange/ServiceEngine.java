@@ -17,11 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
-import com.expertek.tradehouse.tradehouse.Настройки;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class ServiceEngine extends Service implements ServiceInterface, ServiceInterface.Receiver {
     private final ServiceQueue queue = new ServiceQueue();
@@ -30,7 +26,7 @@ public class ServiceEngine extends Service implements ServiceInterface, ServiceI
     public int onStartCommand(Intent intent, int flags, int startId) {
         final int result = super.onStartCommand(intent, flags, startId);
 
-        if (intent.getSourceBounds() == null) {
+        if (intent.getSourceBounds() == null) { // TODO: getPackage mb?
             cancelAll();
         } else {
             enqueue(new JobInfo(intent), intent.getExtras());
@@ -61,20 +57,22 @@ public class ServiceEngine extends Service implements ServiceInterface, ServiceI
     }
 
     @Override
-    public void onServiceResult(@NonNull JobInfo work, @Nullable Bundle result) {
+    public void onJobResult(@NonNull JobInfo work, @Nullable Bundle result) {
         final Intent intent = work.asIntent(this, ServiceReceiver.class);
         intent.replaceExtras(result);
         sendBroadcast(intent);
     }
 
     @Override
-    public void onServiceException(@NonNull JobInfo work, @NonNull Throwable e) {
-        // Nothing: Controller packs all exceptions into the result, see onServiceResult()
+    public void onJobException(@NonNull JobInfo work, @NonNull Throwable e) {
+        final Bundle result = new Bundle();
+        result.putSerializable(ServiceInterface.EXCEPTION, e);
+        onJobResult(work, result);
     }
 
     public int enqueueResult(@NonNull JobInfo work, Bundle params, Receiver receiver) {
         try {
-            queue.enqueue(new ServiceQueue.Controller(work, params, receiver));
+            queue.enqueue(work, params, receiver);
             return RESULT_SUCCESS;
         } catch (ReflectiveOperationException e) {
             return RESULT_FAILURE;
@@ -88,33 +86,24 @@ public class ServiceEngine extends Service implements ServiceInterface, ServiceI
 
     @Override
     public void cancelAll() {
-
+        queue.cancelAll();
     }
 
     @Override
     public void cancel(@NonNull JobInfo work) throws RemoteException {
-
+        queue.cancel(work);
     }
 
     @NonNull
     @Override
     public List<JobInfo> getAllPendingJobs() throws RemoteException {
-        ArrayList<JobInfo> result = new ArrayList<JobInfo>();
-        Random rand = new Random();
-        for (int i = 1, j = 17; i < j; i++) {
-            result.add(new JobInfo(i, Настройки.class, null));
-        }
-        try {
-            result.remove(rand.nextInt(7));
-            result.remove(rand.nextInt(6));
-        } catch (Exception e) {}
-        return result;
+        return queue.listAwaiting();
     }
 
     @NonNull
     @Override
     public List<JobInfo> getStartedJobs() throws RemoteException {
-        return null;
+        return queue.listExecuting();
     }
 
     private static class TransactionBinder extends Binder {
@@ -194,7 +183,7 @@ public class ServiceEngine extends Service implements ServiceInterface, ServiceI
         @Override
         public boolean onStopJob(JobParameters params) {
             try {
-                service.cancel(new JobInfo(params.getJobId(), Task.class, null));
+                service.cancel(new JobInfo(params.getJobId(), ServiceTask.class, null));
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -202,8 +191,8 @@ public class ServiceEngine extends Service implements ServiceInterface, ServiceI
         }
 
         @Override
-        public void onServiceResult(@NonNull JobInfo work, @Nullable Bundle result) {
-            service.onServiceResult(work, result);
+        public void onJobResult(@NonNull JobInfo work, @Nullable Bundle result) {
+            service.onJobResult(work, result);
 
             @SuppressWarnings("unchecked") // packed in onStartJob()
             final JobParameters params = ((Pair<JobParameters, JobWorkItem>) work.extra).first;
@@ -215,8 +204,10 @@ public class ServiceEngine extends Service implements ServiceInterface, ServiceI
         }
 
         @Override
-        public void onServiceException(@NonNull JobInfo work, @NonNull Throwable e) {
-            // Nothing: Controller packs all exceptions into the result, see onServiceResult()
+        public void onJobException(@NonNull JobInfo work, @NonNull Throwable e) {
+            final Bundle result = new Bundle();
+            result.putSerializable(ServiceInterface.EXCEPTION, e);
+            onJobResult(work, result);
         }
     }
 }

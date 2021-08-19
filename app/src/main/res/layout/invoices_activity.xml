@@ -61,7 +61,7 @@
             android:paddingTop="@dimen/invc_pagging"
             android:drawablePadding="@dimen/invc_spacing"
             android:text="@string/create"
-            android:drawableTop="@android:drawable/gallery_thumb" />
+            android:drawableTop="@drawable/wb_new_1_create" />
         <Button
             android:id="@+id/buttonEdit"
             android:layout_width="match_parent"
@@ -71,7 +71,7 @@
             android:paddingTop="@dimen/invc_pagging"
             android:drawablePadding="@dimen/invc_spacing"
             android:text="@string/edit"
-            android:drawableTop="@android:drawable/gallery_thumb" />
+            android:drawableTop="@drawable/saved_1_edit" />
         <Button
             android:id="@+id/buttonDelete"
             android:layout_width="match_parent"
@@ -81,7 +81,7 @@
             android:paddingTop="@dimen/invc_pagging"
             android:drawablePadding="@dimen/invc_spacing"
             android:text="@string/delete"
-            android:drawableTop="@android:drawable/gallery_thumb" />
+            android:drawableTop="@drawable/saved_2_delete" />
         <Button
             android:id="@+id/buttonSend"
             android:layout_width="match_parent"
@@ -91,6 +91,6 @@
             android:paddingTop="@dimen/invc_pagging"
             android:drawablePadding="@dimen/invc_spacing"
             android:text="@string/send"
-            android:drawableTop="@android:drawable/gallery_thumb" />
+            android:drawableTop="@drawable/saved_3_repeat1" />
     </LinearLayout>
 </LinearLayout>

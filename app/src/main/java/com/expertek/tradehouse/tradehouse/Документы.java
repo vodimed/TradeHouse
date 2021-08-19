@@ -1,5 +1,7 @@
 package com.expertek.tradehouse.tradehouse;
 
+import android.os.Bundle;
+
 import com.expertek.tradehouse.MainApplication;
 import com.expertek.tradehouse.MainSettings;
 
@@ -16,26 +18,22 @@ public class Документы extends TradeHouseTask {
     }
 
     @Override
-    public Boolean call() throws Exception {
+    public Bundle call() throws Exception {
+        final Bundle result = new Bundle();
         final File documents = MainApplication.app().getDatabasePath(MainSettings.Documents_db);
 
-        if (!cancelled) {
-            connection.connect();
-            cancelled = !binary_request(connection.getOutputStream(), documents);
+        connection.connect();
+        cancelled = !binary_request(connection.getOutputStream(), documents);
+
+        if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+            throw new IOException(connection.getResponseMessage());
         }
 
-        if (!cancelled) {
-            if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                throw new IOException(connection.getResponseMessage());
-            }
-
-            if ("text/csv".equals(connection.getContentType())) {
-                response(connection.getInputStream(), result);
-            } else if (binary_response(connection.getInputStream(), documents)) {
-                result.putInt(documents.getName(), 1);
-            }
+        if ("text/csv".equals(connection.getContentType())) {
+            response(connection.getInputStream(), result);
+        } else if (binary_response(connection.getInputStream(), documents)) {
+            result.putInt(documents.getName(), 1);
         }
-
-        return (!cancelled);
+        return result;
     }
 }

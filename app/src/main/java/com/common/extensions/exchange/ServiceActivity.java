@@ -443,11 +443,11 @@ public class ServiceActivity extends Activity {
         }
 
         @Override
-        public void onServiceResult(@NonNull ServiceInterface.JobInfo work, @Nullable Bundle result) {
+        public void onJobResult(@NonNull ServiceInterface.JobInfo work, @Nullable Bundle result) {
         }
 
         @Override
-        public void onServiceException(@NonNull ServiceInterface.JobInfo work, @NonNull Throwable e) {
+        public void onJobException(@NonNull ServiceInterface.JobInfo work, @NonNull Throwable e) {
         }
     }
 }

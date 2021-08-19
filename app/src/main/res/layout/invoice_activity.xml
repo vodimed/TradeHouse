@@ -95,7 +95,7 @@
             android:paddingTop="@dimen/invc_pagging"
             android:drawablePadding="@dimen/invc_spacing"
             android:text="@android:string/cancel"
-            android:drawableTop="@android:drawable/gallery_thumb" />
+            android:drawableTop="@drawable/common_2_cancel" />
         <Button
             android:id="@+id/buttonOk"
             android:layout_width="match_parent"
@@ -105,6 +105,6 @@
             android:paddingTop="@dimen/invc_pagging"
             android:drawablePadding="@dimen/invc_spacing"
             android:text="@android:string/ok"
-            android:drawableTop="@android:drawable/gallery_thumb" />
+            android:drawableTop="@drawable/common_1_accept" />
     </LinearLayout>
 </LinearLayout>

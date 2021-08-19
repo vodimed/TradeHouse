@@ -205,24 +205,24 @@ public class MainActivity_ extends Activity implements BarcodeReader.BarcodeList
 
     private final ServiceConnector tradehouse = new ServiceConnector(this, TradeHouseService.class) {
         @Override
-        public void onServiceResult(@NonNull JobInfo work, Bundle result) {
+        public void onJobResult(@NonNull JobInfo work, Bundle result) {
             Log.d("RESULT", result.toString());
         }
 
         @Override
-        public void onServiceException(@NonNull JobInfo work, @NonNull Throwable e) {
+        public void onJobException(@NonNull JobInfo work, @NonNull Throwable e) {
             Log.d("EXCEPTION", e.toString());
         }
     };
 
     private final ServiceReceiver scheduler = new ServiceReceiver(new ServiceInterface.Receiver() {
         @Override
-        public void onServiceResult(@NonNull ServiceInterface.JobInfo work, @Nullable Bundle result) {
+        public void onJobResult(@NonNull ServiceInterface.JobInfo work, @Nullable Bundle result) {
             Log.d("SCHEDULER RESULT", "onReceiveResult");
         }
 
         @Override
-        public void onServiceException(@NonNull ServiceInterface.JobInfo work, @NonNull Throwable e) {
+        public void onJobException(@NonNull ServiceInterface.JobInfo work, @NonNull Throwable e) {
             Log.d("SCHEDULER EXCEPTION", "onReceiveResult");
         }
     });

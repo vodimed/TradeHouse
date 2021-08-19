@@ -77,11 +77,11 @@ public final class ServiceReceiver extends BroadcastReceiver {
             final ServiceInterface.JobInfo jobInfo = new ServiceInterface.JobInfo(intent);
             final Bundle result = intent.getExtras();
 
-            if (result != null && result.containsKey(ServiceInterface.THROWABLE)) {
-                final Throwable e = (Throwable) result.getSerializable(ServiceInterface.THROWABLE);
-                receiver.receiver.onServiceException(jobInfo, e);
+            if (result != null && result.containsKey(ServiceInterface.EXCEPTION)) {
+                final Throwable e = (Throwable) result.getSerializable(ServiceInterface.EXCEPTION);
+                receiver.receiver.onJobException(jobInfo, e);
             } else {
-                receiver.receiver.onServiceResult(jobInfo, result);
+                receiver.receiver.onJobResult(jobInfo, result);
             }
         }
     }

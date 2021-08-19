@@ -15,7 +15,7 @@
         android:textStyle="bold"
         android:textSize="@dimen/main_textsize"
         android:text="@string/mainmenu_invoices"
-        android:drawableLeft="@android:drawable/gallery_thumb" />
+        android:drawableLeft="@drawable/main_1_wb" />
     <Button
         android:id="@+id/buttonInventories"
         android:layout_width="match_parent"
@@ -27,7 +27,7 @@
         android:textStyle="bold"
         android:textSize="@dimen/main_textsize"
         android:text="@string/mainmenu_inventories"
-        android:drawableLeft="@android:drawable/gallery_thumb" />
+        android:drawableLeft="@drawable/main_2_inv" />
     <Button
         android:id="@+id/buttonPricecontrol"
         android:layout_width="match_parent"
@@ -39,7 +39,7 @@
         android:textStyle="bold"
         android:textSize="@dimen/main_textsize"
         android:text="@string/mainmenu_pricecontrol"
-        android:drawableLeft="@android:drawable/gallery_thumb" />
+        android:drawableLeft="@drawable/main_3_price" />
     <Button
         android:id="@+id/buttonDictionaries"
         android:layout_width="match_parent"
@@ -51,7 +51,7 @@
         android:textStyle="bold"
         android:textSize="@dimen/main_textsize"
         android:text="@string/mainmenu_dictionaries"
-        android:drawableLeft="@android:drawable/gallery_thumb" />
+        android:drawableLeft="@drawable/main_4_upd" />
     <Button
         android:id="@+id/buttonSettings"
         android:layout_width="match_parent"
@@ -63,5 +63,5 @@
         android:textStyle="bold"
         android:textSize="@dimen/main_textsize"
         android:text="@string/mainmenu_settings"
-        android:drawableLeft="@android:drawable/gallery_thumb" />
+        android:drawableLeft="@drawable/main_5_settings" />
 </LinearLayout>

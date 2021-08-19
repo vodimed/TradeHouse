@@ -24,16 +24,15 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
 
-public abstract class TradeHouseTask implements ServiceInterface.Task {
+public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
     protected static final String REQ_SETTINGS = "SETTINGS";
     protected static final String REQ_DICTIONARIES = "TH-ALL";
 
     protected static final Charset charset = Charset.forName("windows-1251"); // cp1251
     protected static final XmlPullParserFactory xmlfactory = createXmlFactory();
-    protected String getquery = null;
     protected HttpURLConnection connection;
+    protected String getquery = null;
     protected Bundle params = null;
-    protected Bundle result = null;
     protected volatile boolean cancelled = false;
 
     // Override to change
@@ -43,9 +42,8 @@ public abstract class TradeHouseTask implements ServiceInterface.Task {
     }
 
     @Override
-    public void onCreate(@Nullable Bundle params, @Nullable Bundle result) throws Exception {
+    public void onCreate(@Nullable Bundle params) throws Exception {
         this.params = params;
-        this.result = result;
 
         connection = (HttpURLConnection) new URL(
                 "http", MainSettings.TradeHouseAddress, MainSettings.TradeHousePort,
@@ -55,14 +53,13 @@ public abstract class TradeHouseTask implements ServiceInterface.Task {
     }
 
     @Override
-    public void onDestroy() throws Exception {
-        connection.disconnect();
+    public void onCancel() throws UnsupportedOperationException {
+        cancelled = true;
     }
 
     @Override
-    public boolean onCancel() {
-        cancelled = true;
-        return true;
+    public void onDestroy() throws Exception {
+        connection.disconnect();
     }
 
     private static XmlPullParserFactory createXmlFactory() {
@@ -92,7 +89,7 @@ public abstract class TradeHouseTask implements ServiceInterface.Task {
         }
     }
 
-    protected void request(OutputStream outputStream, String qualifier) throws Exception {
+    protected void request(OutputStream outputStream, String qualifier) throws IOException, XmlPullParserException {
         final OutputStreamWriter writer = new OutputStreamWriter(outputStream, charset);
         final XmlSerializer serializer = xmlfactory.newSerializer();
         serializer.setOutput(writer);

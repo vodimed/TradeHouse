@@ -278,12 +278,12 @@ public class InvoicesActivity extends Activity {
 
     private final ServiceConnector tradehouse = new ServiceConnector(this, TradeHouseService.class) {
         @Override
-        public void onServiceResult(@NonNull ServiceInterface.JobInfo work, Bundle result) {
+        public void onJobResult(@NonNull ServiceInterface.JobInfo work, Bundle result) {
             Log.d("RESULT", result.toString());
         }
 
         @Override
-        public void onServiceException(@NonNull ServiceInterface.JobInfo work, @NonNull Throwable e) {
+        public void onJobException(@NonNull ServiceInterface.JobInfo work, @NonNull Throwable e) {
             Log.d("EXCEPTION", e.toString());
         }
     };

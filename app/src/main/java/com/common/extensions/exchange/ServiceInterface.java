@@ -21,12 +21,7 @@ public interface ServiceInterface {
     int ACTION_LISTRUN = 1;
     int RESULT_FAILURE = 0;
     int RESULT_SUCCESS = 1;
-    String THROWABLE = "#";
-
-    interface Receiver {
-        void onServiceResult(@NonNull ServiceInterface.JobInfo work, @Nullable Bundle result);
-        void onServiceException(@NonNull ServiceInterface.JobInfo work, @NonNull Throwable e);
-    }
+    String EXCEPTION = "#";
 
     int enqueue(@NonNull JobInfo work, Bundle params);
     void cancelAll();
@@ -39,7 +34,6 @@ public interface ServiceInterface {
      * JobScheduler-compatible format. Parcelable code is
      * AUTO-GENERATED ("Add Parcelable Implementation")
      */
-
     class JobInfo implements Parcelable {
         protected final int jobId;
         protected final int resId;
@@ -47,7 +41,7 @@ public interface ServiceInterface {
         protected Object extra = null; // @NonParcelField
 
         // Not auto-generated
-        public JobInfo(int jobId, @NonNull Class<? extends Task> task, @Nullable Receiver result) {
+        public JobInfo(int jobId, @NonNull Class<? extends ServiceTask> task, @Nullable Receiver result) {
             this.jobId = jobId;
             this.resId = (result != null ? result.hashCode() : 0);
             final Package pkg = task.getPackage();
@@ -95,8 +89,8 @@ public interface ServiceInterface {
         }
 
         // Not auto-generated
-        protected Class<? extends Task> getTask() throws ClassNotFoundException {
-            return Class.forName(process.getClassName()).asSubclass(Task.class);
+        protected Class<? extends ServiceTask> getTask() throws ClassNotFoundException {
+            return Class.forName(process.getClassName()).asSubclass(ServiceTask.class);
         }
 
         // Not auto-generated
@@ -116,14 +110,24 @@ public interface ServiceInterface {
     }
 
     /**
-     * Method Call(): true = result, false = no result; exception = error
-     * Method onCancel(): true = cancellable; false = cancel not supported,
-     * if onCancel() = false, working thread might be force terminated anyway.
-     * Usually onCancel sets volatile boolean flag, checking in Call() method
+     * Task prototype (interface) for creation of user-defined classes.
+     * Methods onCreate(), onCancel() and onDestroy() are executed from
+     * the Main thread. Methods Call() is executed from the working thread.
+     * If onCancel() throws exception, it means that the task does not
+     * support cancel operation, but it will be force terminated anyway
+     * by the service system mechanisms.
      */
-    interface Task extends Callable<Boolean> {
-        void onCreate(@Nullable Bundle params, @Nullable Bundle result) throws Exception;
+    interface ServiceTask extends Callable<Bundle> {
+        void onCreate(@Nullable Bundle params) throws Exception;
+        void onCancel() throws Exception; // UnsupportedOperationException()
         void onDestroy() throws Exception;
-        boolean onCancel();
+    }
+
+    /**
+     * Service interface to receive results of Job execution
+     */
+    interface Receiver {
+        void onJobResult(@NonNull ServiceInterface.JobInfo work, @Nullable Bundle result);
+        void onJobException(@NonNull ServiceInterface.JobInfo work, @NonNull Throwable e);
     }
 }
