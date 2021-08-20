@@ -45,7 +45,7 @@ public class InvoiceEditActivity extends Activity {
 
         // Retrieve Activity parameters
         document = (document) getIntent().getSerializableExtra(document.class.getName());
-        lines = new PagingList<line>(MainApplication.dbd().lines().loadByDocument(document.DocName));
+        lines = new PagingList<line>(MainApplication.documents.db().lines().loadByDocument(document.DocName));
 
         final EditText editNumber = findViewById(R.id.editNumber);
         editNumber.setText(document.DocName);
@@ -125,12 +125,12 @@ public class InvoiceEditActivity extends Activity {
         lines.commit(new PagingList.Commit<line>() {
             @Override
             public void replace(line objects) {
-                MainApplication.dbd().lines().insert(objects);
+                MainApplication.documents.db().lines().insert(objects);
             }
 
             @Override
             public void delete(line objects) {
-                MainApplication.dbd().lines().delete(objects);
+                MainApplication.documents.db().lines().delete(objects);
             }
         });
 

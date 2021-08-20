@@ -8,6 +8,7 @@ public class TradeHouseService extends ServiceEngine {
     @Override
     public void onCreate() {
         super.onCreate();
+        // android.os.Debug.waitForDebugger();
 
         try {
             // <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />

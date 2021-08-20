@@ -77,19 +77,19 @@ public class MainActivity_ extends Activity implements BarcodeReader.BarcodeList
             ob.Name = "aaa";
             ob.obj_code = 1;
             ob.obj_type = "1";
-            MainApplication.dbc().objects().insertAll(ob);
+            MainApplication.dictionaries.db().objects().insertAll(ob);
 
             document dc = new document();
             dc.DocName = "aaa";
             dc.DocType = "aaa";
             dc.StartDate = Calendar.getInstance().getTime();
-            MainApplication.dbd().documents().insert(dc);
+            MainApplication.documents.db().documents().insert(dc);
 
             line ln = new line();
             ln.LineID = 1;
             ln.DocName = "aaa";
             ln.BC = "aaa";
-            MainApplication.dbd().lines().insert(ln);
+            MainApplication.documents.db().lines().insert(ln);
         } catch (Exception e) {
             e.printStackTrace();
         }

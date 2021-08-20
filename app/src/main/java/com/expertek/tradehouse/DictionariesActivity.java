@@ -15,10 +15,10 @@ import com.common.extensions.database.AdapterTemplate;
 import com.common.extensions.exchange.ServiceConnector;
 import com.common.extensions.exchange.ServiceInterface;
 import com.expertek.tradehouse.tradehouse.TradeHouseService;
-import com.expertek.tradehouse.tradehouse.Документы;
 import com.expertek.tradehouse.tradehouse.Настройки;
 import com.expertek.tradehouse.tradehouse.Словари;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +35,7 @@ public class DictionariesActivity extends Activity {
 
         tradehouse.registerService(false);
 
-        adapterResponse = new ResponseAdapter(this, android.R.layout.simple_list_item_single_choice);
+        adapterResponse = new ResponseAdapter(this, TextView.class);
         adapterResponse.setDataSet(datasetResponse);
 
         final ListView listResponse = findViewById(R.id.listResponse);
@@ -73,8 +73,17 @@ public class DictionariesActivity extends Activity {
     protected void actionSend() {
         tradehouse.enqueue(new ServiceInterface.JobInfo(1, Настройки.class, tradehouse.receiver()), null);
         tradehouse.enqueue(new ServiceInterface.JobInfo(2, Словари.class, tradehouse.receiver()), null);
-        tradehouse.enqueue(new ServiceInterface.JobInfo(3, Документы.class, tradehouse.receiver()), null);
+        //tradehouse.enqueue(new ServiceInterface.JobInfo(3, Документы.class, tradehouse.receiver()), null);
         buttonSend.setEnabled(false);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void actionReceive(@NonNull ServiceInterface.JobInfo work, Bundle result) {
+        if (work.getJobId() == 2) {
+            final File dictionaries = MainApplication.app().getDatabasePath(MainSettings.Dictionaries_db);
+            MainApplication.replace_dictionaries_db_file((Class) result.getSerializable(dictionaries.getName()),
+                    new File(dictionaries.getAbsolutePath() + "_"));
+        }
     }
 
     protected void actionClose() {
@@ -98,7 +107,7 @@ public class DictionariesActivity extends Activity {
 
         @Override
         public void onBindViewHolder(@NonNull Holder holder, int position) {
-            final TextView text1 = holder.getView().findViewById(android.R.id.text1);
+            final TextView text1 = (TextView) holder.getView();
             text1.setText(getItem(position));
         }
 
@@ -162,6 +171,7 @@ public class DictionariesActivity extends Activity {
         @Override
         public void onJobResult(@NonNull ServiceInterface.JobInfo work, Bundle result) {
             datasetResponse.append(result.toString());
+            actionReceive(work, result);
         }
 
         @Override

@@ -27,14 +27,23 @@ import java.lang.ref.WeakReference;
  *     }
  */
 public class DataBase<DbInterface> {
-    private final WeakReference<Context> context;
+    private static WeakReference<Context> context = null;
     private final DataEngine.DataMigration[] migrations;
+    private Class<? extends DbInterface> version;
     private DbInterface instance = null;
     private String filename = null;
 
-    public DataBase(Context context, @NonNull DataEngine.DataMigration... migrations) {
-        this.context = new WeakReference<Context>(context);
+    public DataBase(@NonNull Class<? extends DbInterface> version, @NonNull DataEngine.DataMigration... migrations) {
+        this.version = version;
         this.migrations = migrations;
+    }
+
+    public static void setContext(Context context) {
+        DataBase.context = new WeakReference<Context>(context);
+    }
+
+    public Class<? extends DbInterface> getVersion() {
+        return version;
     }
 
     @Override
@@ -48,7 +57,7 @@ public class DataBase<DbInterface> {
     }
 
     @SuppressWarnings("unchecked") // because "<E extends RoomDatabase & DbInterface>" does not allowed in java
-    public boolean create(@NonNull Class<? extends DbInterface> version, @NonNull String name) {
+    public boolean create(@NonNull String name) {
         try {
             close();
             instance = (DbInterface) DataEngine.databaseBuilder(
@@ -81,6 +90,7 @@ public class DataBase<DbInterface> {
             close();
             checkoper(current.renameTo(obsolete));
             checkoper(source.renameTo(current));
+            this.version = version;
         } catch (SecurityException e) {
             e.printStackTrace();
             if (obsolete.exists()) try {
@@ -90,7 +100,7 @@ public class DataBase<DbInterface> {
                 return false;
             }
         } finally {
-            result = create(version, filename);
+            result = create(filename);
         }
         return result;
     }

@@ -230,6 +230,8 @@ public abstract class AdapterTemplate<Item>
             return ((List<?>) dataset).size();
         } else if (dataset instanceof Object[]) {
             return ((Object[]) dataset).length;
+        } else if (dataset == null) {
+            return 0;
         } else {
             throw new UnsupportedOperationException();
         }

@@ -26,8 +26,8 @@ public class ServiceEngine extends Service implements ServiceInterface, ServiceI
     public int onStartCommand(Intent intent, int flags, int startId) {
         final int result = super.onStartCommand(intent, flags, startId);
 
-        if (intent.getSourceBounds() == null) { // TODO: getPackage mb?
-            cancelAll();
+        if (intent.getSourceBounds() == null) {
+            cancelAll(); // if no jobId, i.e. getSourceBounds()
         } else {
             enqueue(new JobInfo(intent), intent.getExtras());
         }

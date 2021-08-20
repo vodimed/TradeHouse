@@ -16,8 +16,8 @@ import java.io.File;
 
 public class MainApplication extends Application {
     private static Application app;
-    private static DataBase<DbDictionaries> dictionaries;
-    private static DataBase<DBDocuments> documents;
+    public static final DataBase<DbDictionaries> dictionaries = new DataBase<DbDictionaries>(DbDictionaries_v1.class);
+    public static final DataBase<DBDocuments> documents = new DataBase<DBDocuments>(DBDocuments_v1.class);
 
     // Return Application instance on static method manner
     public static Application app() {
@@ -27,16 +27,15 @@ public class MainApplication extends Application {
     public MainApplication() {
         super();
         app = this;
+        DataBase.setContext(this);
         Thread.setDefaultUncaughtExceptionHandler(allerrors);
-        dictionaries = new DataBase<DbDictionaries>(this);
-        documents = new DataBase<DBDocuments>(this);
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        dictionaries.create(DbDictionaries_v1.class, MainSettings.Dictionaries_db);
-        documents.create(DBDocuments_v1.class, MainSettings.Documents_db);
+        dictionaries.create(MainSettings.Dictionaries_db);
+        documents.create(MainSettings.Documents_db);
 
         //TODO: database
         try {
@@ -48,7 +47,7 @@ public class MainApplication extends Application {
             cl2.cli_code = 2;
             cl2.cli_type = 2;
             cl2.Name = "BBB";
-            MainApplication.dbc().clients().insertAll(cl1, cl2);
+            MainApplication.dictionaries.db().clients().insertAll(cl1, cl2);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -59,16 +58,6 @@ public class MainApplication extends Application {
 
         //AccessibilityManager -- logging
         //ActivityManager.killBackgroundProcesses(Service); ActivityManager.AppTask
-    }
-
-    // Return DbDictionaries instance
-    public static DbDictionaries dbc() {
-        return dictionaries.db();
-    }
-
-    // Return DBDocuments instance
-    public static DBDocuments dbd() {
-        return documents.db();
     }
 
     // Replace DbDictionaries database file with new one (as a whole)

@@ -13,7 +13,6 @@ public class Словари extends TradeHouseTask {
     @Override
     public Bundle call() throws Exception {
         final Bundle result = new Bundle();
-        final File dictionaries = MainApplication.app().getDatabasePath(MainSettings.Dictionaries_db);
 
         connection.connect();
         request(connection.getOutputStream(), REQ_DICTIONARIES);
@@ -22,10 +21,12 @@ public class Словари extends TradeHouseTask {
             throw new IOException(connection.getResponseMessage());
         }
 
+        final File dictionaries = MainApplication.app().getDatabasePath(MainSettings.Dictionaries_db);
+
         if ("text/csv".equals(connection.getContentType())) {
             response(connection.getInputStream(), result);
         } else if (binary_response(connection.getInputStream(), dictionaries)) {
-            result.putInt(dictionaries.getName(), 1);
+            result.putSerializable(dictionaries.getName(), MainApplication.dictionaries.getVersion());
         }
         return result;
     }

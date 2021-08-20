@@ -26,7 +26,7 @@ import java.nio.charset.Charset;
 
 public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
     protected static final String REQ_SETTINGS = "SETTINGS";
-    protected static final String REQ_DICTIONARIES = "TH-ALL";
+    protected static final String REQ_DICTIONARIES = "TH_ALL";
 
     protected static final Charset charset = Charset.forName("windows-1251"); // cp1251
     protected static final XmlPullParserFactory xmlfactory = createXmlFactory();

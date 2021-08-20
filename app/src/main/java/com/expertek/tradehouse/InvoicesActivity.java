@@ -51,7 +51,7 @@ public class InvoicesActivity extends Activity {
         final Spinner spinSelector = findViewById(R.id.spinSelector);
         spinSelector.setAdapter(adapterType);
 
-        documents = new PagingList<document>(MainApplication.dbd().documents().loadByDocType(adapterType.getKey(0)));
+        documents = new PagingList<document>(MainApplication.documents.db().documents().loadByDocType(adapterType.getKey(0)));
 
         adapterDocument = new DocumentAdapter(this, android.R.layout.simple_list_item_single_choice);
         adapterDocument.setDataSet(documents);
@@ -108,7 +108,7 @@ public class InvoicesActivity extends Activity {
                 actionEdit(position);
                 break;
             case InvoiceEditActivity.REQUEST_EDIT_DOCUMENT:
-                // documents.set(position, document); TODO
+                documents.set(position, document);
                 break;
             case InvoiceEditActivity.REQUEST_DELETE_DOCUMENT:
                 documents.remove(position);
@@ -118,12 +118,12 @@ public class InvoicesActivity extends Activity {
         documents.commit(new PagingList.Commit<document>() {
             @Override
             public void replace(document objects) {
-                MainApplication.dbd().documents().insert(objects);
+                MainApplication.documents.db().documents().insert(objects);
             }
 
             @Override
             public void delete(document objects) {
-                MainApplication.dbd().documents().delete(objects);
+                MainApplication.documents.db().documents().delete(objects);
             }
         });
     }
@@ -132,7 +132,7 @@ public class InvoicesActivity extends Activity {
         assert adapterDocument.getDataSet() != null;
 
         final document document = new document();
-        document.DocName = MainApplication.dbd().documents().getMaxId();
+        document.DocName = MainApplication.documents.db().documents().getMaxId();
         document.StartDate = Calendar.getInstance().getTime();
 
         final Intent intent = new Intent(InvoicesActivity.this, InvoiceCreateActivity.class);
@@ -163,7 +163,7 @@ public class InvoicesActivity extends Activity {
         @Override
         public void onItemSelected(ViewGroup parent, View view, int position, long id) {
             final String key = adapterType.getKey(position);
-            documents = new PagingList<document>(MainApplication.dbd().documents().loadByDocType(key));
+            documents = new PagingList<document>(MainApplication.documents.db().documents().loadByDocType(key));
             adapterDocument.setDataSet(documents);
         }
 

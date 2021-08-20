@@ -23,7 +23,7 @@ import com.expertek.tradehouse.documents.entity.document;
 import java.util.List;
 
 public class InvoiceCreateActivity extends Activity {
-    private final Clients clients = MainApplication.dbc().clients();
+    private final Clients clients = MainApplication.dictionaries.db().clients();
     private document document = null;
     private InvoiceTypeAdapter adapterType = null;
     private ClientAdapter adapterClient = null;
