@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 @SuppressWarnings({"unchecked", "deprecation"})
-public final class DBDocuments_v1_Impl extends DBDocuments_v1 {
+public final class Documents_v1Room_Impl extends Documents_v1Room {
   private volatile Documents _documents;
 
   private volatile Lines _lines;
@@ -37,10 +37,10 @@ public final class DBDocuments_v1_Impl extends DBDocuments_v1 {
 
   @Override
   protected SupportSQLiteOpenHelper createOpenHelper(DatabaseConfiguration configuration) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(configuration, new RoomOpenHelper.Delegate(1) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(configuration, new RoomOpenHelper.Delegate(2) {
       @Override
       public void createAllTables(SupportSQLiteDatabase _db) {
-        _db.execSQL("CREATE TABLE IF NOT EXISTS `MT_documents` (`DocName` TEXT NOT NULL, `DocType` TEXT, `Complete` INTEGER NOT NULL, `Status` TEXT, `ClientID` INTEGER NOT NULL, `ClientType` TEXT, `ObjectID` INTEGER NOT NULL, `ObjectType` TEXT, `UserID` TEXT, `UserName` TEXT, `FactSum` REAL NOT NULL, `StartDate` TEXT, `Flags` INTEGER NOT NULL, PRIMARY KEY(`DocName`))");
+        _db.execSQL("CREATE TABLE IF NOT EXISTS `MT_documents` (`DocName` TEXT NOT NULL, `DocType` TEXT, `Complete` INTEGER NOT NULL, `Status` TEXT, `ClientID` INTEGER NOT NULL, `ClientType` TEXT, `ObjectID` INTEGER NOT NULL, `UserID` TEXT, `UserName` TEXT, `FactSum` REAL NOT NULL, `StartDate` TEXT, `Flags` INTEGER NOT NULL, PRIMARY KEY(`DocName`))");
         _db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `docNameDoc` ON `MT_documents` (`DocName`, `DocType`)");
         _db.execSQL("CREATE TABLE IF NOT EXISTS `MT_lines` (`LineID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `DocName` TEXT NOT NULL, `Pos` INTEGER NOT NULL, `GoodsID` INTEGER NOT NULL, `GoodsName` TEXT, `UnitBC` TEXT, `BC` TEXT NOT NULL, `Price` REAL NOT NULL, `DocQnty` REAL NOT NULL, `FactQnty` REAL NOT NULL, `AlcCode` TEXT, `PartIDTH` TEXT, `Flags` INTEGER NOT NULL)");
         _db.execSQL("CREATE INDEX IF NOT EXISTS `lDocNPart` ON `MT_lines` (`DocName`, `PartIDTH`)");
@@ -58,7 +58,7 @@ public final class DBDocuments_v1_Impl extends DBDocuments_v1 {
         _db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `markline` ON `MT_MarkLines` (`LineID`, `MarkCode`)");
         _db.execSQL("CREATE INDEX IF NOT EXISTS `pi` ON `MT_MarkLines` (`DocName`, `MarkCode`)");
         _db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '469b8d4a773fa3e7b7ef49026aeee99d')");
+        _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd2579a879fc994c7d3a04cb93de5d64f')");
       }
 
       @Override
@@ -104,7 +104,7 @@ public final class DBDocuments_v1_Impl extends DBDocuments_v1 {
 
       @Override
       protected RoomOpenHelper.ValidationResult onValidateSchema(SupportSQLiteDatabase _db) {
-        final HashMap<String, TableInfo.Column> _columnsMTDocuments = new HashMap<String, TableInfo.Column>(13);
+        final HashMap<String, TableInfo.Column> _columnsMTDocuments = new HashMap<String, TableInfo.Column>(12);
         _columnsMTDocuments.put("DocName", new TableInfo.Column("DocName", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMTDocuments.put("DocType", new TableInfo.Column("DocType", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMTDocuments.put("Complete", new TableInfo.Column("Complete", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -112,7 +112,6 @@ public final class DBDocuments_v1_Impl extends DBDocuments_v1 {
         _columnsMTDocuments.put("ClientID", new TableInfo.Column("ClientID", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMTDocuments.put("ClientType", new TableInfo.Column("ClientType", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMTDocuments.put("ObjectID", new TableInfo.Column("ObjectID", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsMTDocuments.put("ObjectType", new TableInfo.Column("ObjectType", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMTDocuments.put("UserID", new TableInfo.Column("UserID", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMTDocuments.put("UserName", new TableInfo.Column("UserName", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMTDocuments.put("FactSum", new TableInfo.Column("FactSum", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -183,7 +182,7 @@ public final class DBDocuments_v1_Impl extends DBDocuments_v1 {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "469b8d4a773fa3e7b7ef49026aeee99d", "c8539caf1a057af9f19521ccc111acb6");
+    }, "d2579a879fc994c7d3a04cb93de5d64f", "04aeb2d4bac3bbe1d3d79276d91af2aa");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(configuration.context)
         .name(configuration.name)
         .callback(_openCallback)

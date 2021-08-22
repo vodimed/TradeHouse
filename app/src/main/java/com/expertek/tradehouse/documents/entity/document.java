@@ -36,8 +36,8 @@ public class document implements Serializable {
     @ColumnInfo(name = "ObjectID")
     public int ObjectID; // Код объекта (obj-code из таблицы спр. объектов)
 
-    @ColumnInfo(name = "ObjectType")
-    public String ObjectType; // Тип объекта (obj-type из таблицы спр. объектов)
+    //@ColumnInfo(name = "ObjectType")
+    //public String ObjectType; // Тип объекта (obj-type из таблицы спр. объектов)
 
     @ColumnInfo(name = "UserID")
     public String UserID; // Ид пользователя из TH

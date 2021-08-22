@@ -81,8 +81,9 @@ public class DictionariesActivity extends Activity {
     protected void actionReceive(@NonNull ServiceInterface.JobInfo work, Bundle result) {
         if (work.getJobId() == 2) {
             final File dictionaries = MainApplication.app().getDatabasePath(MainSettings.Dictionaries_db);
-            MainApplication.replace_dictionaries_db_file((Class) result.getSerializable(dictionaries.getName()),
-                    new File(dictionaries.getAbsolutePath() + "_"));
+            // TODO
+            //MainApplication.replace_dictionaries_db_file((Class) result.getSerializable(dictionaries.getName()),
+            //        new File(dictionaries.getAbsolutePath() + "_"));
         }
     }
 

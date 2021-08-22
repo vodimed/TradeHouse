@@ -135,7 +135,7 @@ public class InvoiceEditActivity extends Activity {
         });
 
         final Intent intent = new Intent();
-        intent.putExtra(line.class.getName(), document);
+        intent.putExtra(document.class.getName(), document);
 
         setResult(RESULT_OK, intent);
         finish();

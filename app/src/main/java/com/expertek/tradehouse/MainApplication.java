@@ -4,20 +4,17 @@ import android.app.Application;
 
 import androidx.annotation.NonNull;
 
-import com.common.extensions.database.DataBase;
-import com.common.extensions.database.DataEngine;
+import com.common.extensions.database.DBaseRoom;
 import com.common.extensions.exchange.ServiceActivity;
 import com.expertek.tradehouse.dictionaries.DbDictionaries;
-import com.expertek.tradehouse.dictionaries.DbDictionaries_v1;
+import com.expertek.tradehouse.dictionaries.Dictionaries_v1Room;
 import com.expertek.tradehouse.documents.DBDocuments;
-import com.expertek.tradehouse.documents.DBDocuments_v1;
-
-import java.io.File;
+import com.expertek.tradehouse.documents.Documents_v1Room;
 
 public class MainApplication extends Application {
     private static Application app;
-    public static final DataBase<DbDictionaries> dictionaries = new DataBase<DbDictionaries>(DbDictionaries_v1.class);
-    public static final DataBase<DBDocuments> documents = new DataBase<DBDocuments>(DBDocuments_v1.class);
+    public static final DBaseRoom<DbDictionaries> dictionaries = new DBaseRoom<DbDictionaries>(Dictionaries_v1Room.class);
+    public static final DBaseRoom<DBDocuments> documents = new DBaseRoom<DBDocuments>(Documents_v1Room.class);
 
     // Return Application instance on static method manner
     public static Application app() {
@@ -27,15 +24,14 @@ public class MainApplication extends Application {
     public MainApplication() {
         super();
         app = this;
-        DataBase.setContext(this);
         Thread.setDefaultUncaughtExceptionHandler(allerrors);
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        dictionaries.create(MainSettings.Dictionaries_db);
-        documents.create(MainSettings.Documents_db);
+        dictionaries.open(this, MainSettings.Dictionaries_db);
+        documents.open(this, MainSettings.Documents_db);
 
         //TODO: database
         try {
@@ -61,17 +57,13 @@ public class MainApplication extends Application {
     }
 
     // Replace DbDictionaries database file with new one (as a whole)
-    public static <E extends DataEngine & DbDictionaries> boolean replace_dictionaries_db_file(
-            @NonNull Class<E> version, @NonNull File source)
-    {
-        return dictionaries.replace(version, source);
+    public static <E extends DbDictionaries> boolean replace_dictionaries_db_file(@NonNull String name, @NonNull Class<E> version) {
+        return dictionaries.replace(name, version);
     }
 
     // Replace DBDocuments database file with new one (as a whole)
-    public static <E extends DataEngine & DBDocuments> boolean replace_documents_db_file(
-            @NonNull Class<E> version, @NonNull File source)
-    {
-        return documents.replace(version, source);
+    public static <E extends DBDocuments> boolean replace_documents_db_file(@NonNull String name, @NonNull Class<E> version) {
+        return documents.replace(name, version);
     }
 
     /**

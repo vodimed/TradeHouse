@@ -38,7 +38,7 @@ public final class Documents_Impl implements Documents {
     this.__insertionAdapterOfdocument = new EntityInsertionAdapter<document>(__db) {
       @Override
       public String createQuery() {
-        return "INSERT OR REPLACE INTO `MT_documents` (`DocName`,`DocType`,`Complete`,`Status`,`ClientID`,`ClientType`,`ObjectID`,`ObjectType`,`UserID`,`UserName`,`FactSum`,`StartDate`,`Flags`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `MT_documents` (`DocName`,`DocType`,`Complete`,`Status`,`ClientID`,`ClientType`,`ObjectID`,`UserID`,`UserName`,`FactSum`,`StartDate`,`Flags`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -68,30 +68,25 @@ public final class Documents_Impl implements Documents {
           stmt.bindString(6, value.ClientType);
         }
         stmt.bindLong(7, value.ObjectID);
-        if (value.ObjectType == null) {
+        if (value.UserID == null) {
           stmt.bindNull(8);
         } else {
-          stmt.bindString(8, value.ObjectType);
-        }
-        if (value.UserID == null) {
-          stmt.bindNull(9);
-        } else {
-          stmt.bindString(9, value.UserID);
+          stmt.bindString(8, value.UserID);
         }
         if (value.UserName == null) {
-          stmt.bindNull(10);
+          stmt.bindNull(9);
         } else {
-          stmt.bindString(10, value.UserName);
+          stmt.bindString(9, value.UserName);
         }
-        stmt.bindDouble(11, value.FactSum);
+        stmt.bindDouble(10, value.FactSum);
         final String _tmp_1;
         _tmp_1 = __typeConv.save(value.StartDate);
         if (_tmp_1 == null) {
-          stmt.bindNull(12);
+          stmt.bindNull(11);
         } else {
-          stmt.bindString(12, _tmp_1);
+          stmt.bindString(11, _tmp_1);
         }
-        stmt.bindLong(13, value.Flags);
+        stmt.bindLong(12, value.Flags);
       }
     };
     this.__deletionAdapterOfdocument = new EntityDeletionOrUpdateAdapter<document>(__db) {
@@ -137,7 +132,7 @@ public final class Documents_Impl implements Documents {
 
   @Override
   public DataSource.Factory<Integer, document> getAll() {
-    final String _sql = "SELECT `MT_documents`.`DocName` AS `DocName`, `MT_documents`.`DocType` AS `DocType`, `MT_documents`.`Complete` AS `Complete`, `MT_documents`.`Status` AS `Status`, `MT_documents`.`ClientID` AS `ClientID`, `MT_documents`.`ClientType` AS `ClientType`, `MT_documents`.`ObjectID` AS `ObjectID`, `MT_documents`.`ObjectType` AS `ObjectType`, `MT_documents`.`UserID` AS `UserID`, `MT_documents`.`UserName` AS `UserName`, `MT_documents`.`FactSum` AS `FactSum`, `MT_documents`.`StartDate` AS `StartDate`, `MT_documents`.`Flags` AS `Flags` FROM MT_documents";
+    final String _sql = "SELECT `MT_documents`.`DocName` AS `DocName`, `MT_documents`.`DocType` AS `DocType`, `MT_documents`.`Complete` AS `Complete`, `MT_documents`.`Status` AS `Status`, `MT_documents`.`ClientID` AS `ClientID`, `MT_documents`.`ClientType` AS `ClientType`, `MT_documents`.`ObjectID` AS `ObjectID`, `MT_documents`.`UserID` AS `UserID`, `MT_documents`.`UserName` AS `UserName`, `MT_documents`.`FactSum` AS `FactSum`, `MT_documents`.`StartDate` AS `StartDate`, `MT_documents`.`Flags` AS `Flags` FROM MT_documents";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
     return new DataSource.Factory<Integer, document>() {
       @Override
@@ -152,7 +147,6 @@ public final class Documents_Impl implements Documents {
             final int _cursorIndexOfClientID = CursorUtil.getColumnIndexOrThrow(cursor, "ClientID");
             final int _cursorIndexOfClientType = CursorUtil.getColumnIndexOrThrow(cursor, "ClientType");
             final int _cursorIndexOfObjectID = CursorUtil.getColumnIndexOrThrow(cursor, "ObjectID");
-            final int _cursorIndexOfObjectType = CursorUtil.getColumnIndexOrThrow(cursor, "ObjectType");
             final int _cursorIndexOfUserID = CursorUtil.getColumnIndexOrThrow(cursor, "UserID");
             final int _cursorIndexOfUserName = CursorUtil.getColumnIndexOrThrow(cursor, "UserName");
             final int _cursorIndexOfFactSum = CursorUtil.getColumnIndexOrThrow(cursor, "FactSum");
@@ -187,11 +181,6 @@ public final class Documents_Impl implements Documents {
                 _item.ClientType = cursor.getString(_cursorIndexOfClientType);
               }
               _item.ObjectID = cursor.getInt(_cursorIndexOfObjectID);
-              if (cursor.isNull(_cursorIndexOfObjectType)) {
-                _item.ObjectType = null;
-              } else {
-                _item.ObjectType = cursor.getString(_cursorIndexOfObjectType);
-              }
               if (cursor.isNull(_cursorIndexOfUserID)) {
                 _item.UserID = null;
               } else {
@@ -252,7 +241,6 @@ public final class Documents_Impl implements Documents {
             final int _cursorIndexOfClientID = CursorUtil.getColumnIndexOrThrow(cursor, "ClientID");
             final int _cursorIndexOfClientType = CursorUtil.getColumnIndexOrThrow(cursor, "ClientType");
             final int _cursorIndexOfObjectID = CursorUtil.getColumnIndexOrThrow(cursor, "ObjectID");
-            final int _cursorIndexOfObjectType = CursorUtil.getColumnIndexOrThrow(cursor, "ObjectType");
             final int _cursorIndexOfUserID = CursorUtil.getColumnIndexOrThrow(cursor, "UserID");
             final int _cursorIndexOfUserName = CursorUtil.getColumnIndexOrThrow(cursor, "UserName");
             final int _cursorIndexOfFactSum = CursorUtil.getColumnIndexOrThrow(cursor, "FactSum");
@@ -287,11 +275,6 @@ public final class Documents_Impl implements Documents {
                 _item_1.ClientType = cursor.getString(_cursorIndexOfClientType);
               }
               _item_1.ObjectID = cursor.getInt(_cursorIndexOfObjectID);
-              if (cursor.isNull(_cursorIndexOfObjectType)) {
-                _item_1.ObjectType = null;
-              } else {
-                _item_1.ObjectType = cursor.getString(_cursorIndexOfObjectType);
-              }
               if (cursor.isNull(_cursorIndexOfUserID)) {
                 _item_1.UserID = null;
               } else {
@@ -369,7 +352,6 @@ public final class Documents_Impl implements Documents {
             final int _cursorIndexOfClientID = CursorUtil.getColumnIndexOrThrow(cursor, "ClientID");
             final int _cursorIndexOfClientType = CursorUtil.getColumnIndexOrThrow(cursor, "ClientType");
             final int _cursorIndexOfObjectID = CursorUtil.getColumnIndexOrThrow(cursor, "ObjectID");
-            final int _cursorIndexOfObjectType = CursorUtil.getColumnIndexOrThrow(cursor, "ObjectType");
             final int _cursorIndexOfUserID = CursorUtil.getColumnIndexOrThrow(cursor, "UserID");
             final int _cursorIndexOfUserName = CursorUtil.getColumnIndexOrThrow(cursor, "UserName");
             final int _cursorIndexOfFactSum = CursorUtil.getColumnIndexOrThrow(cursor, "FactSum");
@@ -404,11 +386,6 @@ public final class Documents_Impl implements Documents {
                 _item.ClientType = cursor.getString(_cursorIndexOfClientType);
               }
               _item.ObjectID = cursor.getInt(_cursorIndexOfObjectID);
-              if (cursor.isNull(_cursorIndexOfObjectType)) {
-                _item.ObjectType = null;
-              } else {
-                _item.ObjectType = cursor.getString(_cursorIndexOfObjectType);
-              }
               if (cursor.isNull(_cursorIndexOfUserID)) {
                 _item.UserID = null;
               } else {

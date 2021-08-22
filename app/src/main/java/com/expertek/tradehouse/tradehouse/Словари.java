@@ -26,7 +26,7 @@ public class Словари extends TradeHouseTask {
         if ("text/csv".equals(connection.getContentType())) {
             response(connection.getInputStream(), result);
         } else if (binary_response(connection.getInputStream(), dictionaries)) {
-            result.putSerializable(dictionaries.getName(), MainApplication.dictionaries.getVersion());
+            result.putSerializable(dictionaries.getName(), MainApplication.dictionaries.version());
         }
         return result;
     }

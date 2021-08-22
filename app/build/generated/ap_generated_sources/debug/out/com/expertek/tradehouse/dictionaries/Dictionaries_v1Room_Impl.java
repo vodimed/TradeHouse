@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 @SuppressWarnings({"unchecked", "deprecation"})
-public final class DbDictionaries_v1_Impl extends DbDictionaries_v1 {
+public final class Dictionaries_v1Room_Impl extends Dictionaries_v1Room {
   private volatile Barcodes _barcodes;
 
   private volatile Clients _clients;
