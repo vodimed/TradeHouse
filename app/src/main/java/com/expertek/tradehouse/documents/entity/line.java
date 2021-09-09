@@ -1,13 +1,10 @@
 package com.expertek.tradehouse.documents.entity;
 
 import androidx.annotation.NonNull;
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.Index;
-import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
 
+/*TODO ROOM:
 @Entity(tableName = "MT_lines", indices = {
         @Index(name = "lDocNPart", value = {"DocName", "PartIDTH"}),
         @Index(name = "lDocName", value = {"DocName"}), // redundant
@@ -16,48 +13,20 @@ import java.io.Serializable;
         @Index(name = "lDocNameGdsUnit", value = {"DocName", "GoodsID", "UnitBC"}),
         @Index(name = "lLine", value = {"LineID"}, unique = true)
 })
+*/
 public class line implements Serializable {
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "LineID")
-    @NonNull
-    public int LineID; // Уникальный счетчик
-
-    @ColumnInfo(name = "DocName")
-    @NonNull
-    public String DocName = ""; // Идентификатор-имя документа
-
-    @ColumnInfo(name = "Pos")
+    //TODO ROOM: @PrimaryKey(autoGenerate = true)
+    public @NonNull int LineID; // Уникальный счетчик
+    public @NonNull String DocName = ""; // Идентификатор-имя документа
     public int Pos; // Позиция в документе
-
-    @ColumnInfo(name = "GoodsID")
-    @NonNull
-    public int GoodsID; // Код товара ТН
-
-    @ColumnInfo(name = "GoodsName")
+    public @NonNull int GoodsID; // Код товара ТН
     public String GoodsName; // Имя товара ТН
-
-    @ColumnInfo(name = "UnitBC")
     public String UnitBC; // Ед. изм. товара ТН
-
-    @ColumnInfo(name = "BC")
-    @NonNull
-    public String BC = ""; // Бар-код товара ТН
-
-    @ColumnInfo(name = "Price")
+    public @NonNull String BC = ""; // Бар-код товара ТН
     public double Price; // Цена по линии
-
-    @ColumnInfo(name = "DocQnty")
     public double DocQnty; // Документарное кол-во
-
-    @ColumnInfo(name = "FactQnty")
     public double FactQnty; // Фактическое кол-во
-
-    @ColumnInfo(name = "AlcCode")
     public String AlcCode; // Дополнительный код
-
-    @ColumnInfo(name = "PartIDTH")
     public String PartIDTH; // ИД партии
-
-    @ColumnInfo(name = "Flags")
     public int Flags; // Битовый флаги означающие различные свойства документа в формате int
 }

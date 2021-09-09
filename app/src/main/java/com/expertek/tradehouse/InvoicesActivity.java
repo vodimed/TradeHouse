@@ -51,7 +51,7 @@ public class InvoicesActivity extends Activity {
         final Spinner spinSelector = findViewById(R.id.spinSelector);
         spinSelector.setAdapter(adapterType);
 
-        documents = new PagingList<document>(MainApplication.documents.db().documents().loadByDocType(adapterType.getKey(0)));
+        documents = new PagingList<document>(MainApplication.documents.db().documents().getDocType(adapterType.getKey(0)));
 
         adapterDocument = new DocumentAdapter(this, android.R.layout.simple_list_item_single_choice);
         adapterDocument.setDataSet(documents);
@@ -163,7 +163,7 @@ public class InvoicesActivity extends Activity {
         @Override
         public void onItemSelected(ViewGroup parent, View view, int position, long id) {
             final String key = adapterType.getKey(position);
-            documents = new PagingList<document>(MainApplication.documents.db().documents().loadByDocType(key));
+            documents = new PagingList<document>(MainApplication.documents.db().documents().getDocType(key));
             adapterDocument.setDataSet(documents);
         }
 

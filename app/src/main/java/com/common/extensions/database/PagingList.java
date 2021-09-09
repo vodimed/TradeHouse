@@ -7,16 +7,16 @@ import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
 import androidx.paging.DataSource;
-import androidx.room.paging.LimitOffsetDataSource;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
 import java.util.AbstractList;
 import java.util.ArrayList;
 
 public class PagingList<Value> extends AbstractList<Value> implements AdapterInterface.Observable<DataSetObserver> {
     private final static int pagesize = 20;
     private final DataSetObservable notifier = new DataSetObservable();
-    private final LimitOffsetDataSource<Value> source;
+    private final DataSource<Integer, Value> source;
     private final int count;
     private int size;
     @SuppressWarnings("unchecked") // Java generic restrictions
@@ -26,8 +26,8 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
 
     @SuppressLint("RestrictedApi")
     public PagingList(DataSource.Factory<Integer, Value> factory) {
-        source = (LimitOffsetDataSource<Value>) factory.create();
-        size = count = source.countItems();
+        source = factory.create();
+        size = count = countItems(source);
     }
 
     // Restore original index in the DataSet
@@ -50,7 +50,7 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
 
         if (page == null) {
             @SuppressLint("RestrictedApi")
-            final ArrayList<Value> data = (ArrayList<Value>) source.loadRange(header, pagesize);
+            final ArrayList<Value> data = loadRange(source, header, pagesize);
             cache[slot] = new PagingCache<Value>(header, data);
             page = cache[slot].page(header);
         }
@@ -187,6 +187,29 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
 
         public static int slot(int index) {
             return (index / pagesize) % base;
+        }
+    }
+
+    private int countItems(DataSource<Integer, Value> source) {
+        try {
+            final Method countItems = source.getClass().getMethod("countItems"); // LimitOffsetDataSource
+            if (countItems != null) return (Integer) countItems.invoke(source);
+            return 0;
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private ArrayList<Value> loadRange(DataSource<Integer, Value> source, int header, int pagesize) {
+        try {
+            final Method loadRange = source.getClass().getMethod("loadRange", Integer.class, Integer.class); // LimitOffsetDataSource
+            if (loadRange != null) return (ArrayList<Value>) loadRange.invoke(source, header, pagesize);
+            return null;
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

@@ -77,7 +77,7 @@ public class MainActivity_ extends Activity implements BarcodeReader.BarcodeList
             ob.Name = "aaa";
             ob.obj_code = 1;
             ob.obj_type = "1";
-            MainApplication.dictionaries.db().objects().insertAll(ob);
+            MainApplication.dictionaries.db().objects().insert(ob);
 
             document dc = new document();
             dc.DocName = "aaa";

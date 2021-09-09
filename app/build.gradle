@@ -52,12 +52,30 @@ android {
         }
     }
 
-    // Requires: implementation 'androidx.recyclerview:recyclerview:1.2.0'
+    // RecyclerView support interface
     if (!project.findProperty('recycler').asBoolean()) {
         sourceSets.main.java.exclude '**/AdapterRecycler.java'
     } else dependencies {
-        implementation 'androidx.recyclerview:recyclerview:1.2.0'
+        implementation 'androidx.recyclerview:recyclerview:1.2.1'
         implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
+    }
+
+    // Android interface layer to database accesss
+    if (!project.findProperty('room').asBoolean()) {
+        sourceSets.main.java.exclude '**/DateRoomConverter.java'
+        sourceSets.main.java.exclude '**/DBaseRoom.java'
+        sourceSets.main.java.exclude '**/Dictionaries_v1Room.java'
+        sourceSets.main.java.exclude '**/Documents_v1Room.java'
+        sourceSets.main.java.exclude '**/dictionaries/room/**'
+        sourceSets.main.java.exclude '**/documents/room/**'
+    } else dependencies {
+        annotationProcessor 'androidx.room:room-compiler:2.4.0-alpha04'
+        implementation 'androidx.room:room-runtime:2.4.0-alpha04'
+
+        sourceSets.main.java.exclude '**/Dictionaries_v1Sqlite.java'
+        sourceSets.main.java.exclude '**/Documents_v1Sqlite.java'
+        sourceSets.main.java.exclude '**/dictionaries/sqlite/**'
+        sourceSets.main.java.exclude '**/documents/sqlite/**'
     }
 
     dependencies {
@@ -67,12 +85,8 @@ android {
         // Scan barcode with ML Kit on Android. Bundle the model with the app
         //implementation 'com.google.mlkit:barcode-scanning:16.1.1'
 
-        // Android interface layer to database accesss
-        annotationProcessor 'androidx.room:room-compiler:2.4.0-alpha02'
-        implementation 'androidx.room:room-runtime:2.4.0-alpha02'
-
         // PagingSource (paging-common - without Android dependencies for testing)
-        implementation 'androidx.paging:paging-common:3.0.0'
+        implementation 'androidx.paging:paging-common:3.0.1'
         //implementation 'androidx.paging:paging-runtime:3.0.0'
 
         // Android junior JobIntentService
@@ -89,10 +103,5 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-}
-
-dependencies {
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 }
 

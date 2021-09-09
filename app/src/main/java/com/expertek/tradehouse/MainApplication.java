@@ -4,17 +4,19 @@ import android.app.Application;
 
 import androidx.annotation.NonNull;
 
-import com.common.extensions.database.DBaseRoom;
+import com.common.extensions.database.DBaseSQLite;
 import com.common.extensions.exchange.ServiceActivity;
 import com.expertek.tradehouse.dictionaries.DbDictionaries;
-import com.expertek.tradehouse.dictionaries.Dictionaries_v1Room;
+import com.expertek.tradehouse.dictionaries.Dictionaries_v1Sqlite;
 import com.expertek.tradehouse.documents.DBDocuments;
-import com.expertek.tradehouse.documents.Documents_v1Room;
+import com.expertek.tradehouse.documents.Documents_v1Sqlite;
 
 public class MainApplication extends Application {
     private static Application app;
-    public static final DBaseRoom<DbDictionaries> dictionaries = new DBaseRoom<DbDictionaries>(Dictionaries_v1Room.class);
-    public static final DBaseRoom<DBDocuments> documents = new DBaseRoom<DBDocuments>(Documents_v1Room.class);
+    public static final DBaseSQLite<DbDictionaries> dictionaries = new DBaseSQLite<DbDictionaries>(Dictionaries_v1Sqlite.class);
+    public static final DBaseSQLite<DBDocuments> documents = new DBaseSQLite<DBDocuments>(Documents_v1Sqlite.class);
+    //public static final DBaseRoom<DbDictionaries> dictionaries = new DBaseRoom<DbDictionaries>(Dictionaries_v1Room.class);
+    //public static final DBaseRoom<DBDocuments> documents = new DBaseRoom<DBDocuments>(Documents_v1Room.class);
 
     // Return Application instance on static method manner
     public static Application app() {
@@ -43,7 +45,7 @@ public class MainApplication extends Application {
             cl2.cli_code = 2;
             cl2.cli_type = 2;
             cl2.Name = "BBB";
-            MainApplication.dictionaries.db().clients().insertAll(cl1, cl2);
+            MainApplication.dictionaries.db().clients().insert(cl1, cl2);
         } catch (Exception e) {
             e.printStackTrace();
         }

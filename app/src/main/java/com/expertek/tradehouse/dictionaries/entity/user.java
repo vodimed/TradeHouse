@@ -1,19 +1,11 @@
 package com.expertek.tradehouse.dictionaries.entity;
 
 import androidx.annotation.NonNull;
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
 
-@Entity(tableName = "TH_users")
+//TODO ROOM: @Entity(tableName = "TH_users", primaryKeys = {"userID"})
 public class user implements Serializable {
-    @PrimaryKey
-    @ColumnInfo(name = "userID")
-    @NonNull
-    public String userID = ""; // Ид пользователя из TH
-
-    @ColumnInfo(name = "userName")
+    public @NonNull String userID = ""; // Ид пользователя из TH
     public String userName; // Имя пользователя в ТН
 }
