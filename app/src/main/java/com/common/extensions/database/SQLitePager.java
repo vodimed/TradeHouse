@@ -35,7 +35,7 @@ public abstract class SQLitePager<Value extends Serializable> extends Positional
         this.db = db;
         this.pager = "SELECT * FROM ( " + query + " ) LIMIT ? OFFSET ?";
         this.counter = db.compileStatement("SELECT COUNT(*) FROM ( " + query + " )");
-        this.counter.bindAllArgsAsStrings((String[]) args);
+        bindArgs(this.counter, args);
         this.args = Arrays.copyOf(args, args.length + 2);
     }
 
@@ -86,13 +86,24 @@ public abstract class SQLitePager<Value extends Serializable> extends Positional
         return (int) counter.simpleQueryForLong();
     }
 
-    @NonNull
-    public List<Value> loadRange(int startPosition, int loadCount) {
+    @NonNull //TODO: Integer > int (reflection in method search problem)
+    public List<Value> loadRange(Integer startPosition, Integer loadCount) {
         final ArrayList<Value> result = new ArrayList<Value>();
         args[args.length - 2] = loadCount;
         args[args.length - 1] = startPosition;
 
-        final Cursor cursor = db.rawQuery(pager, (String[]) args);
+        final String[] sagrs = new String[args.length];
+        for (int i = 0; i < args.length; i++) {
+            if (args[i] instanceof String) {
+                sagrs[i] = (String) args[i];
+            } else if (args[i] instanceof Long) {
+                sagrs[i] = String.valueOf((Long) args[i]);
+            } else if (args[i] instanceof Integer) {
+                sagrs[i] = String.valueOf((Integer) args[i]);
+            }
+        }
+
+        final Cursor cursor = db.rawQuery(pager, sagrs);
         try {
             while (cursor.moveToNext()) {
                 result.add(convertRow(cursor));
@@ -101,6 +112,28 @@ public abstract class SQLitePager<Value extends Serializable> extends Positional
             cursor.close();
         }
         return result;
+    }
+
+    private static void bindArgs(SQLiteStatement stmt, Object[] args) {
+        for (int i = 1; i <= args.length; i++) {
+            final Object arg = args[i - 1];
+
+            if (arg == null) {
+                stmt.bindNull(i);
+            } else if (arg instanceof String) {
+                stmt.bindString(i, (String) arg);
+            } else if (arg instanceof Double) {
+                stmt.bindDouble(i, (Double) arg);
+            } else if (arg instanceof Integer) {
+                stmt.bindLong(i, (Integer) arg);
+            } else if (arg instanceof Long) {
+                stmt.bindLong(i, (Long) arg);
+            } else if (arg instanceof Boolean) {
+                stmt.bindLong(i, ((Boolean) arg ? 1 : 0));
+            } else {
+                stmt.bindBlob(i, (byte[]) arg);
+            }
+        }
     }
 
     public static class Factory<Value extends Serializable> extends DataSource.Factory<Integer, Value> {
@@ -128,6 +161,7 @@ public abstract class SQLitePager<Value extends Serializable> extends Positional
                 @SuppressWarnings("unchecked")
                 protected Value convertRow(@NonNull Cursor cursor) {
                     Value value = (Value) deepCopy(object);
+                    assert value != null;
                     value = super.convertRow(value, cursor);
                     return convertRow(value, cursor);
                 }

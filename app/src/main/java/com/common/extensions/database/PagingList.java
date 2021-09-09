@@ -193,8 +193,7 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
     private int countItems(DataSource<Integer, Value> source) {
         try {
             final Method countItems = source.getClass().getMethod("countItems"); // LimitOffsetDataSource
-            if (countItems != null) return (Integer) countItems.invoke(source);
-            return 0;
+            return (Integer) countItems.invoke(source);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
             return 0;
@@ -205,8 +204,7 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
     private ArrayList<Value> loadRange(DataSource<Integer, Value> source, int header, int pagesize) {
         try {
             final Method loadRange = source.getClass().getMethod("loadRange", Integer.class, Integer.class); // LimitOffsetDataSource
-            if (loadRange != null) return (ArrayList<Value>) loadRange.invoke(source, header, pagesize);
-            return null;
+            return (ArrayList<Value>) loadRange.invoke(source, header, pagesize);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
             return null;

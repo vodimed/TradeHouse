@@ -32,7 +32,14 @@ public class DBaseSQLite<SchemaDAO> implements DBaseInterface<SchemaDAO> {
     public boolean open(Context context, @NonNull String name) {
         this.context = new WeakReference<Context>(context);
         this.filename = name;
-        return false;
+        try {
+            final File current = context.getDatabasePath(filename);
+            instance = schema.getConstructor(String.class).newInstance(current.toString());
+            return true;
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override
