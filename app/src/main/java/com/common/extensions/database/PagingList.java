@@ -203,7 +203,7 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
     @SuppressWarnings("unchecked")
     private ArrayList<Value> loadRange(DataSource<Integer, Value> source, int header, int pagesize) {
         try {
-            final Method loadRange = source.getClass().getMethod("loadRange", Integer.class, Integer.class); // LimitOffsetDataSource
+            final Method loadRange = source.getClass().getMethod("loadRange", Integer.TYPE, Integer.TYPE); // LimitOffsetDataSource
             return (ArrayList<Value>) loadRange.invoke(source, header, pagesize);
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();

@@ -18,7 +18,7 @@ public class MainSettings {
     public static String Documents_db = "documents.s3db";
     public static String Dictionaries_db = "dictionaries.s3db";
 
-    public static String TradeHouseAddress = mSettings.getString("TradeHouseAddress", "172.23.16.87"); // "Rubanda.expertek.local" // "localhost"
+    public static String TradeHouseAddress = mSettings.getString("TradeHouseAddress", "Rubanda.expertek.local"); // "Rubanda.expertek.local" // "localhost"
     public static int TradeHousePort = mSettings.getInt("TradeHousePort", 8080);
 
     public static String TradeHouseObject = mSettings.getString("TradeHouseObject", "маг1");

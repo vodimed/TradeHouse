@@ -10,7 +10,7 @@ import com.expertek.tradehouse.documents.entity.line;
 import com.expertek.tradehouse.documents.entity.markline;
 
 @TypeConverters({DateRoomConverter.class})
-@Database(version = 2,
+@Database(version = 1,
         entities = {document.class, line.class, markline.class},
         autoMigrations = {
         //@AutoMigration(from = -0, to = 0, spec = Documents_v1Room.AutoMigration.class)

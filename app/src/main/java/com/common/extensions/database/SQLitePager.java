@@ -1,7 +1,6 @@
 package com.common.extensions.database;
 
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 
 import androidx.annotation.NonNull;
@@ -10,11 +9,6 @@ import androidx.paging.PositionalDataSource;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -86,8 +80,8 @@ public abstract class SQLitePager<Value extends Serializable> extends Positional
         return (int) counter.simpleQueryForLong();
     }
 
-    @NonNull //TODO: Integer > int (reflection in method search problem)
-    public List<Value> loadRange(Integer startPosition, Integer loadCount) {
+    @NonNull
+    public List<Value> loadRange(int startPosition, int loadCount) {
         final ArrayList<Value> result = new ArrayList<Value>();
         args[args.length - 2] = loadCount;
         args[args.length - 1] = startPosition;
@@ -138,15 +132,15 @@ public abstract class SQLitePager<Value extends Serializable> extends Positional
 
     public static class Factory<Value extends Serializable> extends DataSource.Factory<Integer, Value> {
         private final SQLiteDatabase db;
+        private final Class<Value> cls;
         private final String query;
         private final Object[] args;
-        private final Value object;
 
-        public Factory(@NonNull Value object, @NonNull SQLiteDatabase db, @NonNull String query, Object... args) {
+        public Factory(@NonNull SQLiteDatabase db, @NonNull Class<Value> cls, @NonNull String query, Object... args) {
             this.db = db;
+            this.cls = cls;
             this.query = query;
             this.args = args;
-            this.object = object;
         }
 
         protected Value convertRow(@NonNull Value object, @NonNull Cursor cursor) {
@@ -158,41 +152,18 @@ public abstract class SQLitePager<Value extends Serializable> extends Positional
         public DataSource<Integer, Value> create() {
             return new SQLitePager<Value>(db, query, args) {
                 @Override
-                @SuppressWarnings("unchecked")
                 protected Value convertRow(@NonNull Cursor cursor) {
-                    Value value = (Value) deepCopy(object);
-                    assert value != null;
-                    value = super.convertRow(value, cursor);
-                    return convertRow(value, cursor);
+                    Value value = null;
+                    try {
+                        value = cls.newInstance();
+                        value = super.convertRow(value, cursor);
+                        return convertRow(value, cursor);
+                    } catch (ReflectiveOperationException e) {
+                        e.printStackTrace();
+                        return null;
+                    }
                 }
             };
-        }
-
-        private static Object deepCopy(Object original) {
-            try {
-                ObjectOutputStream oos = null;
-                ObjectInputStream ois = null;
-
-                try {
-                    final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    oos = new ObjectOutputStream(bos);
-                    oos.writeObject(original);
-                    oos.flush();
-
-                    final ByteArrayInputStream bin = new ByteArrayInputStream(bos.toByteArray());
-                    ois = new ObjectInputStream(bin);
-                    return ois.readObject();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return null;
-                } finally {
-                    if (oos != null) oos.close();
-                    if (ois != null) ois.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
         }
     }
 }

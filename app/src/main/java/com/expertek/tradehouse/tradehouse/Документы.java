@@ -13,7 +13,8 @@ public class Документы extends TradeHouseTask {
     @Override
     protected void setRequestHeaders() {
         connection.setRequestProperty("Content-Type", "raw");
-        connection.setRequestProperty("user-Agent", "маг?202?True?.");
+        //connection.setRequestProperty("user-Agent", "маг?202?True?."); //TODO: encoding
+        connection.setRequestProperty("user-Agent", "shop?202?True?.");
         connection.setDoOutput(true);
     }
 
@@ -29,10 +30,11 @@ public class Документы extends TradeHouseTask {
             throw new IOException(connection.getResponseMessage());
         }
 
-        if ("text/csv".equals(connection.getContentType())) {
+        //TODO: remove false
+        if (false && "text/csv".equals(connection.getContentType())) {
             response(connection.getInputStream(), result);
         } else if (binary_response(connection.getInputStream(), documents)) {
-            result.putInt(documents.getName(), 1);
+            result.putSerializable(documents.getName(), MainApplication.documents.version());
         }
         return result;
     }

@@ -13,12 +13,9 @@ import java.lang.ref.WeakReference;
  * Room Database engine
  * @param <SchemaDAO>
  */
-public class DBaseRoom<SchemaDAO> extends DBaseSQLite<SchemaDAO> {
-    private final Migration[] migrations;
-
-    public <VersionDAO extends SchemaDAO> DBaseRoom(Class<VersionDAO> schema, Migration... migrations) {
-        super(schema);
-        this.migrations = migrations;
+public class RoomSchema<SchemaDAO> extends SQLiteSchema<SchemaDAO> {
+    public <VersionDAO extends SchemaDAO> RoomSchema(Class<VersionDAO> schema, Migration... migrations) {
+        super(schema, (SQLiteMigration[]) migrations);
     }
 
     @Override
@@ -29,7 +26,7 @@ public class DBaseRoom<SchemaDAO> extends DBaseSQLite<SchemaDAO> {
             close();
             instance = (SchemaDAO) Room.databaseBuilder(context, schema.asSubclass(RoomDatabase.class), name)
                     .allowMainThreadQueries().enableMultiInstanceInvalidation()
-                    .addMigrations(migrations)
+                    .addMigrations((Migration[]) migrations)
                     .build();
             filename = name;
             return true;
@@ -44,5 +41,10 @@ public class DBaseRoom<SchemaDAO> extends DBaseSQLite<SchemaDAO> {
         if (instance == null) return;
         ((RoomDatabase) instance).close();
         instance = null;
+    }
+
+    @Override
+    public boolean isOpen() {
+        return ((RoomDatabase) instance).isOpen();
     }
 }

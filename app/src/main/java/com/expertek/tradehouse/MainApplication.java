@@ -1,22 +1,31 @@
 package com.expertek.tradehouse;
 
 import android.app.Application;
+import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
-import com.common.extensions.database.DBaseSQLite;
+import com.common.extensions.database.SQLiteSchema;
 import com.common.extensions.exchange.ServiceActivity;
+import com.common.extensions.exchange.ServiceConnector;
+import com.common.extensions.exchange.ServiceInterface;
 import com.expertek.tradehouse.dictionaries.DbDictionaries;
 import com.expertek.tradehouse.dictionaries.Dictionaries_v1Sqlite;
 import com.expertek.tradehouse.documents.DBDocuments;
 import com.expertek.tradehouse.documents.Documents_v1Sqlite;
+import com.expertek.tradehouse.tradehouse.TradeHouseService;
+import com.expertek.tradehouse.tradehouse.TradeHouseTask;
+import com.expertek.tradehouse.tradehouse.Документы;
+import com.expertek.tradehouse.tradehouse.Словари;
+
+import java.io.File;
 
 public class MainApplication extends Application {
     private static Application app;
-    public static final DBaseSQLite<DbDictionaries> dictionaries = new DBaseSQLite<DbDictionaries>(Dictionaries_v1Sqlite.class);
-    public static final DBaseSQLite<DBDocuments> documents = new DBaseSQLite<DBDocuments>(Documents_v1Sqlite.class);
-    //public static final DBaseRoom<DbDictionaries> dictionaries = new DBaseRoom<DbDictionaries>(Dictionaries_v1Room.class);
-    //public static final DBaseRoom<DBDocuments> documents = new DBaseRoom<DBDocuments>(Documents_v1Room.class);
+    public static final SQLiteSchema<DbDictionaries> dictionaries = new SQLiteSchema<DbDictionaries>(Dictionaries_v1Sqlite.class);
+    public static final SQLiteSchema<DBDocuments> documents = new SQLiteSchema<DBDocuments>(Documents_v1Sqlite.class);
+    //public static final RoomSchema<DbDictionaries> dictionaries = new RoomSchema<DbDictionaries>(Dictionaries_v1Room.class);
+    //public static final RoomSchema<DBDocuments> documents = new RoomSchema<DBDocuments>(Documents_v1Room.class);
 
     // Return Application instance on static method manner
     public static Application app() {
@@ -32,8 +41,13 @@ public class MainApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        dictionaries.open(this, MainSettings.Dictionaries_db);
-        documents.open(this, MainSettings.Documents_db);
+        if (!dictionaries.open(this, MainSettings.Dictionaries_db)) {
+            tradehouse.enqueue(new ServiceInterface.JobInfo(1, Словари.class, tradehouse.receiver()), null);
+        }
+
+        if (!documents.open(this, MainSettings.Documents_db)) {
+            tradehouse.enqueue(new ServiceInterface.JobInfo(2, Документы.class, tradehouse.receiver()), null);
+        }
 
         //TODO: database
         try {
@@ -67,6 +81,30 @@ public class MainApplication extends Application {
     public static <E extends DBDocuments> boolean replace_documents_db_file(@NonNull String name, @NonNull Class<E> version) {
         return documents.replace(name, version);
     }
+
+    private final ServiceConnector tradehouse = new ServiceConnector(this, TradeHouseService.class) {
+        @Override
+        public void onJobResult(@NonNull ServiceInterface.JobInfo work, Bundle result) {
+            switch (work.getJobId()) {
+                case 1:
+                    final File dictionaries = MainApplication.app().getDatabasePath(MainSettings.Dictionaries_db);
+                    MainApplication.replace_dictionaries_db_file(TradeHouseTask.temporary(dictionaries).getName(),
+                            (Class<? extends DbDictionaries>) result.getSerializable(dictionaries.getName()));
+                    break;
+                case 2:
+                    final File documents = MainApplication.app().getDatabasePath(MainSettings.Documents_db);
+                    MainApplication.replace_documents_db_file(TradeHouseTask.temporary(documents).getName(),
+                            (Class<? extends DBDocuments>) result.getSerializable(documents.getName()));
+                    break;
+            }
+        }
+
+        @Override
+        public void onJobException(@NonNull ServiceInterface.JobInfo work, @NonNull Throwable e) {
+            e.printStackTrace();
+            //System.exit(-1);
+        }
+    };
 
     /**
      * Handle all uncaught Exceptions and Errors of the project

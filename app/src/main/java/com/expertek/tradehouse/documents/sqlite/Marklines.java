@@ -1,9 +1,9 @@
 package com.expertek.tradehouse.documents.sqlite;
 
-import android.database.sqlite.SQLiteDatabase;
-
 import androidx.paging.DataSource;
 
+import com.common.extensions.database.SQLiteDatabase;
+import com.common.extensions.database.SQLitePager;
 import com.expertek.tradehouse.documents.entity.markline;
 
 public class Marklines {
@@ -14,11 +14,11 @@ public class Marklines {
     }
 
     public DataSource.Factory<Integer, markline> load() {
-        return null;
+        return new SQLitePager.Factory<>(db, markline.class, "SELECT * FROM MT_MarkLines");
     }
 
     public DataSource.Factory<Integer, markline> get(int... ident) {
-        return null;
+        return new SQLitePager.Factory<>(db, markline.class, "SELECT * FROM MT_MarkLines WHERE LineID IN (:ident)", ident);
     }
 
     //@Query("SELECT * FROM MT_MarkLines WHERE first_name LIKE :first AND " +

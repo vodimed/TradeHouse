@@ -184,8 +184,8 @@ public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
     }
 
     protected boolean binary_response(InputStream inputStream, File resource) throws IOException {
-        final File temporary = new File(resource.getAbsolutePath() + "_");
-        final FileOutputStream outputStream = new FileOutputStream(temporary, false);
+        final File temporaryFile = temporary(resource);
+        final FileOutputStream outputStream = new FileOutputStream(temporaryFile, false);
 
         final byte[] buffer = new byte[1024];
         for (int bytesRead; !cancelled && ((bytesRead = inputStream.read(buffer)) != -1);) {
@@ -197,5 +197,9 @@ public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
         outputStream.close();
 
         return (!cancelled);
+    }
+
+    public static File temporary(File original) {
+        return new File(original.getPath() + "_");
     }
 }

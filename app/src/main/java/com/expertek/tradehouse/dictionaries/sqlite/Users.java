@@ -1,9 +1,8 @@
 package com.expertek.tradehouse.dictionaries.sqlite;
 
-import android.database.sqlite.SQLiteDatabase;
-
 import androidx.paging.DataSource;
 
+import com.common.extensions.database.SQLiteDatabase;
 import com.common.extensions.database.SQLitePager;
 import com.expertek.tradehouse.dictionaries.entity.user;
 
@@ -15,11 +14,11 @@ public class Users {
     }
 
     public DataSource.Factory<Integer, user> load() {
-        return new SQLitePager.Factory<user>(new user(), db, "SELECT * FROM TH_users");
+        return new SQLitePager.Factory<>(db, user.class, "SELECT * FROM TH_users");
     }
 
     public DataSource.Factory<Integer, user> get(String... ident) {
-        return new SQLitePager.Factory<user>(new user(), db, "SELECT * FROM TH_users WHERE userID IN (:ident)", (Object) ident);
+        return new SQLitePager.Factory<>(db, user.class, "SELECT * FROM TH_users WHERE userID IN (:ident)", (Object) ident);
     }
 
     //@Query("SELECT * FROM TH_users WHERE first_name LIKE :first AND " +

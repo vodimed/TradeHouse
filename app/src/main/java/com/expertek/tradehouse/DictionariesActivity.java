@@ -14,7 +14,11 @@ import androidx.annotation.NonNull;
 import com.common.extensions.database.AdapterTemplate;
 import com.common.extensions.exchange.ServiceConnector;
 import com.common.extensions.exchange.ServiceInterface;
+import com.expertek.tradehouse.dictionaries.DbDictionaries;
+import com.expertek.tradehouse.documents.DBDocuments;
 import com.expertek.tradehouse.tradehouse.TradeHouseService;
+import com.expertek.tradehouse.tradehouse.TradeHouseTask;
+import com.expertek.tradehouse.tradehouse.Документы;
 import com.expertek.tradehouse.tradehouse.Настройки;
 import com.expertek.tradehouse.tradehouse.Словари;
 
@@ -73,17 +77,23 @@ public class DictionariesActivity extends Activity {
     protected void actionSend() {
         tradehouse.enqueue(new ServiceInterface.JobInfo(1, Настройки.class, tradehouse.receiver()), null);
         tradehouse.enqueue(new ServiceInterface.JobInfo(2, Словари.class, tradehouse.receiver()), null);
-        //tradehouse.enqueue(new ServiceInterface.JobInfo(3, Документы.class, tradehouse.receiver()), null);
+        tradehouse.enqueue(new ServiceInterface.JobInfo(3, Документы.class, tradehouse.receiver()), null);
         buttonSend.setEnabled(false);
     }
 
     @SuppressWarnings("unchecked")
     protected void actionReceive(@NonNull ServiceInterface.JobInfo work, Bundle result) {
-        if (work.getJobId() == 2) {
-            final File dictionaries = MainApplication.app().getDatabasePath(MainSettings.Dictionaries_db);
-            // TODO
-            //MainApplication.replace_dictionaries_db_file((Class) result.getSerializable(dictionaries.getName()),
-            //        new File(dictionaries.getAbsolutePath() + "_"));
+        switch (work.getJobId()) {
+            case 2:
+                final File dictionaries = MainApplication.app().getDatabasePath(MainSettings.Dictionaries_db);
+                MainApplication.replace_dictionaries_db_file(TradeHouseTask.temporary(dictionaries).getName(),
+                        (Class<? extends DbDictionaries>) result.getSerializable(dictionaries.getName()));
+                break;
+            case 3:
+                final File documents = MainApplication.app().getDatabasePath(MainSettings.Documents_db);
+                MainApplication.replace_documents_db_file(TradeHouseTask.temporary(documents).getName(),
+                        (Class<? extends DBDocuments>) result.getSerializable(documents.getName()));
+                break;
         }
     }
 
@@ -177,7 +187,7 @@ public class DictionariesActivity extends Activity {
 
         @Override
         public void onJobException(@NonNull ServiceInterface.JobInfo work, @NonNull Throwable e) {
-            datasetResponse.append(e.toString());
+            datasetResponse.append(String.valueOf(work.getJobId()) + ": " + e.toString());
         }
     };
 }

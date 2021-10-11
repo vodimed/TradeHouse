@@ -1,7 +1,7 @@
 package com.common.extensions.database;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteCantOpenDatabaseException;
 
 import androidx.annotation.NonNull;
 
@@ -12,14 +12,16 @@ import java.lang.ref.WeakReference;
  * SQLite Database engine
  * @param <SchemaDAO>
  */
-public class DBaseSQLite<SchemaDAO> implements DBaseInterface<SchemaDAO> {
+public class SQLiteSchema<SchemaDAO> {
     protected WeakReference<Context> context = null;
     protected Class<? extends SchemaDAO> schema;
     protected SchemaDAO instance = null;
     protected String filename = null;
+    protected final SQLiteMigration[] migrations;
 
-    public <VersionDAO extends SchemaDAO> DBaseSQLite(Class<VersionDAO> schema) {
+    public <VersionDAO extends SchemaDAO> SQLiteSchema(Class<VersionDAO> schema, SQLiteMigration... migrations) {
         this.schema = schema;
+        this.migrations = migrations;
     }
 
     @Override
@@ -28,28 +30,42 @@ public class DBaseSQLite<SchemaDAO> implements DBaseInterface<SchemaDAO> {
         super.finalize();
     }
 
-    @Override
     public boolean open(Context context, @NonNull String name) {
         this.context = new WeakReference<Context>(context);
         this.filename = name;
+        final SQLiteDatabase db;
+
         try {
-            final File current = context.getDatabasePath(filename);
-            instance = schema.getConstructor(String.class).newInstance(current.toString());
-            return true;
+            final String path = context.getDatabasePath(filename).getPath();
+            instance = schema.getConstructor(String.class).newInstance(path);
         } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        final int actualVersion = ((SQLiteDatabase) instance).getVersion();
+        final int requiredVersion = ((SQLiteDatabase) instance).getSchemaVersion();
+
+        try {
+            migrate(actualVersion, requiredVersion);
+            ((SQLiteDatabase) instance).setVersion(requiredVersion);
+            return true;
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    @Override
     public void close() {
         if (instance == null) return;
         ((SQLiteDatabase) instance).close();
         instance = null;
     }
 
-    @Override
+    public boolean isOpen() {
+        return false;
+    }
+
     @SuppressWarnings("unchecked")
     public <VersionDAO extends SchemaDAO> Class<VersionDAO> version() {
         return (Class<VersionDAO>) schema;
@@ -59,7 +75,6 @@ public class DBaseSQLite<SchemaDAO> implements DBaseInterface<SchemaDAO> {
         if (!result) throw new SecurityException();
     }
 
-    @Override
     public <VersionDAO extends SchemaDAO> boolean replace(@NonNull String name, Class<VersionDAO> schema) {
         final Context local = context.get();
         final File current = local.getDatabasePath(filename);
@@ -94,8 +109,22 @@ public class DBaseSQLite<SchemaDAO> implements DBaseInterface<SchemaDAO> {
         return result;
     }
 
-    @Override
+    private void migrate(int startVersion, int endVersion) throws SQLiteCantOpenDatabaseException {
+        if (startVersion == endVersion) return;
+        // TODO: find the best SQLiteMigration path and execute SQLiteMigration's
+        //throw new SQLiteCantOpenDatabaseException();
+    }
+
     public SchemaDAO db() {
         return instance;
+    }
+
+    /**
+     * Migration interface
+     */
+    public interface SQLiteMigration {
+        void migrate (SQLiteDatabase database);
+        int startVersion();
+        int endVersion();
     }
 }

@@ -1,9 +1,8 @@
 package com.expertek.tradehouse.dictionaries.sqlite;
 
-import android.database.sqlite.SQLiteDatabase;
-
 import androidx.paging.DataSource;
 
+import com.common.extensions.database.SQLiteDatabase;
 import com.common.extensions.database.SQLitePager;
 import com.expertek.tradehouse.dictionaries.entity.barcode;
 
@@ -15,11 +14,11 @@ public class Barcodes {
     }
 
     public DataSource.Factory<Integer, barcode> load() {
-        return new SQLitePager.Factory<barcode>(new barcode(), db, "SELECT * FROM TH_barcodes");
+        return new SQLitePager.Factory<>(db, barcode.class, "SELECT * FROM TH_barcodes");
     }
 
     public DataSource.Factory<Integer, barcode> get(String... ident) {
-        return new SQLitePager.Factory<barcode>(new barcode(), db, "SELECT * FROM TH_barcodes WHERE BC IN (:ident)", (Object) ident);
+        return new SQLitePager.Factory<>(db, barcode.class, "SELECT * FROM TH_barcodes WHERE BC IN (:ident)", (Object) ident);
     }
 
     //@Query("SELECT * FROM TH_barcodes WHERE first_name LIKE :first AND " +

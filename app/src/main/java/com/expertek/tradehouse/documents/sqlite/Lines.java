@@ -1,9 +1,8 @@
 package com.expertek.tradehouse.documents.sqlite;
 
-import android.database.sqlite.SQLiteDatabase;
-
 import androidx.paging.DataSource;
 
+import com.common.extensions.database.SQLiteDatabase;
 import com.common.extensions.database.SQLitePager;
 import com.expertek.tradehouse.documents.entity.line;
 
@@ -15,11 +14,11 @@ public class Lines {
     }
 
     public DataSource.Factory<Integer, line> load() {
-        return new SQLitePager.Factory<line>(new line(), db, "SELECT * FROM MT_lines");
+        return new SQLitePager.Factory<>(db, line.class, "SELECT * FROM MT_lines");
     }
 
     public DataSource.Factory<Integer, line> get(int... ident) {
-        return new SQLitePager.Factory<line>(new line(), db, "SELECT * FROM MT_lines WHERE LineID IN (:ident)", ident);
+        return new SQLitePager.Factory<>(db, line.class, "SELECT * FROM MT_lines WHERE LineID IN (:ident)", ident);
     }
 
     //@Query("SELECT * FROM MT_lines WHERE first_name LIKE :first AND " +
@@ -27,7 +26,7 @@ public class Lines {
     //line findByName(String first, String last);
 
     public DataSource.Factory<Integer, line> loadByDocument(String docName) {
-        return new SQLitePager.Factory<line>(new line(), db, "SELECT * FROM MT_lines WHERE DocName = :docName", docName);
+        return new SQLitePager.Factory<>(db, line.class, "SELECT * FROM MT_lines WHERE DocName = :docName", docName);
     }
 
     public void insert(line... objects) {
