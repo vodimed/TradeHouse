@@ -20,9 +20,10 @@
             android:id="@+id/editNumber"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:enabled="false"
             android:maxLength="@integer/invoice_code_length_max"
-            android:inputType="number" />
+            android:inputType="number"
+            android:focusable="false"
+            android:enabled="false" />
 
         <TextView
             android:id="@+id/labelDate"

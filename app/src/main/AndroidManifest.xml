@@ -18,11 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".InvoiceActivity" />
-        <activity android:name=".InvoiceEditActivity" />
-        <activity android:name=".InvoiceCreateActivity" />
-        <activity android:name=".InventoryActivity" />
-        <activity android:name=".InventoryEditActivity" /> <!-- android:networkSecurityConfig="@xml/network_security_config" -->
+        <!-- android:networkSecurityConfig="@xml/network_security_config" -->
         <activity
             android:name="com.common.extensions.exchange.ServiceActivity"
             android:configChanges="orientation|screenSize"
@@ -56,9 +52,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".InvoiceActivity" />
+        <activity android:name=".InvoiceEditActivity" />
+        <activity android:name=".InvoiceCreateActivity" />
+        <activity android:name=".InventoryActivity" />
+        <activity android:name=".InventoryEditActivity" />
         <activity android:name=".InvoicesActivity" />
         <activity android:name=".InventoriesActivity" />
-        <activity android:name=".PricecontrolActivity" />
+        <activity android:name=".BarcodeActivity" />
         <activity android:name=".DictionariesActivity" />
         <activity android:name=".SettingsActivity" />
     </application>

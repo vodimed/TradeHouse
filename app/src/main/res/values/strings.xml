@@ -4,8 +4,7 @@
     <string name="app_name">Терминал сбора данных</string>
     <string name="service_tradehouse">Сервис обмена с TradeHouse</string>
     <string name="CHANNEL_ID">tradehouse.notification.service</string>
-    <string name="msgTradeHouseServiceNotification">Открыть менеджер обмена с TradeHouse</string>
-    <string name="errTradeHouseServiceConnection">Не доступен сервис обмена с TradeHouse</string>
+    <string name="msgServiceNotification">Открыть менеджер обмена с TradeHouse</string>
     <string name="create">Создать</string>
     <string name="add">Добавить</string>
     <string name="edit">Изменить</string>
@@ -49,6 +48,10 @@
         <item>ExtPurchWB|Накладная внешняя приходная</item>
         <item>ExtSaleWB|Накладная внешняя расходная</item>
     </string-array>
+
+    <!--BarcodeActivity-->
+    <string name="barcode_prompt">Сканируйте штрих-код или введите его вручную</string>
+    <string name="barcode_name">Наименование товара</string>
 
     <!--SettingsActivity-->
     <string name="setting_general">Основные</string>

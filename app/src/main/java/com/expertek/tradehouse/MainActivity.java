@@ -44,7 +44,7 @@ public class MainActivity extends Activity {
             } else if (buttonInventories.equals(v)) {
                 intent = new Intent(MainActivity.this, InventoriesActivity.class);
             } else if (buttonPricecontrol.equals(v)) {
-                intent = new Intent(MainActivity.this, PricecontrolActivity.class);
+                intent = new Intent(MainActivity.this, BarcodeActivity.class);
             } else if (buttonDictionaries.equals(v)) {
                 intent = new Intent(MainActivity.this, DictionariesActivity.class);
             } else if (buttonSettings.equals(v)) {

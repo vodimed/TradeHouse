@@ -1,5 +1,8 @@
 <resources>
     <style name="AppTheme">
+        <!--https://developer.android.com/guide/topics/manifest/activity-element-->
+        <item name="android:windowSoftInputMode">adjustResize|stateHidden</item>
+
         <item name="android:buttonStyle">@style/Widget</item>
     </style>
 

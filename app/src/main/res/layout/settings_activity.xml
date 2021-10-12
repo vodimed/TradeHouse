@@ -4,243 +4,249 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <FrameLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1">
 
-        <LinearLayout
-            android:id="@+id/tabGeneral"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:visibility="visible">
+            android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/labelSerial"
+            <LinearLayout
+                android:id="@+id/tabGeneral"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:labelFor="@+id/editSerial"
-                android:text="@string/setting_serial" />
-
-            <EditText
-                android:id="@+id/editSerial"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text" />
-
-            <TextView
-                android:id="@+id/labelObject"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:labelFor="@+id/editObject"
-                android:text="@string/setting_object" />
-
-            <EditText
-                android:id="@+id/editObject"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text" />
-
-            <TextView
-                android:id="@+id/labelConnect"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:labelFor="@+id/editConnect"
-                android:text="@string/setting_connect" />
-
-            <EditText
-                android:id="@+id/editConnect"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text" />
-
-            <Button
-                android:id="@+id/buttonCheck"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/setting_check" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/tabOptions"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <Switch
-                android:id="@+id/checkOffline"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/option_offline" />
-
-            <Switch
-                android:id="@+id/checkLoadInvents"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/option_loadinv" />
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="visible">
 
                 <TextView
-                    android:id="@+id/labelLines"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/labelObject"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:labelFor="@+id/seekLines"
-                    android:text="@string/option_lines" />
+                    android:labelFor="@+id/editObject"
+                    android:text="@string/setting_object" />
+
+                <EditText
+                    android:id="@+id/editObject"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text" />
 
                 <TextView
-                    android:id="@+id/textLines"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/labelConnect"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="end" />
-            </FrameLayout>
+                    android:labelFor="@+id/editConnect"
+                    android:text="@string/setting_connect" />
 
-            <SeekBar
-                android:id="@+id/seekLines"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:min="1"
-                android:max="100" />
+                <EditText
+                    android:id="@+id/editConnect"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text" />
 
-            <Switch
-                android:id="@+id/checkMarks"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/option_marks" />
-
-            <TextView
-                android:id="@+id/labelPrefixes"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:labelFor="@+id/editPrefixes"
-                android:text="@string/option_prefixes" />
-
-            <EditText
-                android:id="@+id/editPrefixes"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textMultiLine"
-                android:maxLines="10"
-                android:minLines="1" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/tabTimeouts"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                <Button
+                    android:id="@+id/buttonCheck"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/setting_check" />
 
                 <TextView
-                    android:id="@+id/labelConnectDelay"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/labelSerial"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:labelFor="@+id/seekConnectDelay"
-                    android:text="@string/delay_connect" />
+                    android:labelFor="@+id/editSerial"
+                    android:text="@string/setting_serial" />
+
+                <EditText
+                    android:id="@+id/editSerial"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:enabled="false" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/tabOptions"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <Switch
+                    android:id="@+id/checkOffline"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/option_offline" />
+
+                <Switch
+                    android:id="@+id/checkLoadInvents"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/option_loadinv" />
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/labelLines"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:labelFor="@+id/seekLines"
+                        android:text="@string/option_lines" />
+
+                    <TextView
+                        android:id="@+id/textLines"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end" />
+                </FrameLayout>
+
+                <SeekBar
+                    android:id="@+id/seekLines"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:min="1"
+                    android:max="100" />
+
+                <Switch
+                    android:id="@+id/checkMarks"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/option_marks" />
 
                 <TextView
-                    android:id="@+id/textConnectDelay"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/labelPrefixes"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="end" />
-            </FrameLayout>
+                    android:labelFor="@+id/editPrefixes"
+                    android:text="@string/option_prefixes" />
 
-            <SeekBar
-                android:id="@+id/seekConnectDelay"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:min="1"
-                android:max="300" />
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/labelCheckDelay"
-                    android:layout_width="wrap_content"
+                <EditText
+                    android:id="@+id/editPrefixes"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:labelFor="@+id/seekCheckDelay"
-                    android:text="@string/delay_check" />
+                    android:inputType="textMultiLine"
+                    android:maxLines="10"
+                    android:minLines="1" />
+            </LinearLayout>
 
-                <TextView
-                    android:id="@+id/textCheckDelay"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end" />
-            </FrameLayout>
-
-            <SeekBar
-                android:id="@+id/seekCheckDelay"
+            <LinearLayout
+                android:id="@+id/tabTimeouts"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:min="1"
-                android:max="300" />
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone">
 
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-                <TextView
-                    android:id="@+id/labelLoadDelay"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/labelConnectDelay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:labelFor="@+id/seekConnectDelay"
+                        android:text="@string/delay_connect" />
+
+                    <TextView
+                        android:id="@+id/textConnectDelay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end" />
+                </FrameLayout>
+
+                <SeekBar
+                    android:id="@+id/seekConnectDelay"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:labelFor="@+id/seekLoadDelay"
-                    android:text="@string/delay_load" />
+                    android:min="1"
+                    android:max="300" />
 
-                <TextView
-                    android:id="@+id/textLoadDelay"
-                    android:layout_width="wrap_content"
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/labelCheckDelay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:labelFor="@+id/seekCheckDelay"
+                        android:text="@string/delay_check" />
+
+                    <TextView
+                        android:id="@+id/textCheckDelay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end" />
+                </FrameLayout>
+
+                <SeekBar
+                    android:id="@+id/seekCheckDelay"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="end" />
-            </FrameLayout>
+                    android:min="1"
+                    android:max="300" />
 
-            <SeekBar
-                android:id="@+id/seekLoadDelay"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:min="1"
-                android:max="300" />
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/labelLoadDelay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:labelFor="@+id/seekLoadDelay"
+                        android:text="@string/delay_load" />
 
-                <TextView
-                    android:id="@+id/labelSendDelay"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/textLoadDelay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end" />
+                </FrameLayout>
+
+                <SeekBar
+                    android:id="@+id/seekLoadDelay"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:labelFor="@+id/seekSendDelay"
-                    android:text="@string/delay_send" />
+                    android:min="1"
+                    android:max="300" />
 
-                <TextView
-                    android:id="@+id/textSendDelay"
-                    android:layout_width="wrap_content"
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/labelSendDelay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:labelFor="@+id/seekSendDelay"
+                        android:text="@string/delay_send" />
+
+                    <TextView
+                        android:id="@+id/textSendDelay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end" />
+                </FrameLayout>
+
+                <SeekBar
+                    android:id="@+id/seekSendDelay"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="end" />
-            </FrameLayout>
-
-            <SeekBar
-                android:id="@+id/seekSendDelay"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:min="1"
-                android:max="300" />
-        </LinearLayout>
-    </FrameLayout>
+                    android:min="1"
+                    android:max="300" />
+            </LinearLayout>
+        </FrameLayout>
+    </ScrollView>
 
     <LinearLayout
         android:orientation="horizontal"
