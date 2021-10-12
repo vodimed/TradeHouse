@@ -1,4 +1,10 @@
 <resources>
     <style name="AppTheme">
+        <item name="android:buttonStyle">@style/Widget</item>
     </style>
+
+    <style name="Widget">
+        <item name="android:textAppearance">?android:textAppearance</item>
+    </style>
+
 </resources>

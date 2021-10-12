@@ -306,13 +306,13 @@ public class ServiceActivity extends Activity {
             buttonClear = new Button(context);
             buttonClear.setLayoutParams(new LinearLayout.LayoutParams(
                     LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 1.0f));
-            buttonClear.setText(russian ? "Очистить" : "Clear");
+            buttonClear.setText(android.R.string.cancel);
             layoutButtons.addView(buttonClear);
 
             buttonCancel = new Button(context);
             buttonCancel.setLayoutParams(new LinearLayout.LayoutParams(
                     LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 1.0f));
-            buttonCancel.setText(android.R.string.cancel);
+            buttonCancel.setText(android.R.string.cut); // (russian ? "Снять" : "Remove")
             layoutButtons.addView(buttonCancel);
 
             final Button buttonClose = new Button(context);
