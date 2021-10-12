@@ -63,7 +63,7 @@ public class ServiceActivity extends Activity {
     //private final TaskAdapter adapter = new TaskAdapter(this, android.R.layout.simple_list_item_single_choice);
     private final TaskAdapter adapter = new TaskAdapter(this, AdapterLayout.class);
     private Timer autorefresh = null;
-    private ActivityLayout activity = null;
+    private ActivityLayout layout = null;
     private ServiceConnector service = null;
     private boolean bound = false;
 
@@ -74,10 +74,10 @@ public class ServiceActivity extends Activity {
         //setContentView(R.layout.service_activity);
 
         adapter.setOnItemSelectionListener(onItemSelection);
-        activity = (ActivityLayout) this.getActivityLayout();
-        activity.listActions.setAdapter(adapter);
-        activity.buttonClear.setOnClickListener(onClickClear);
-        activity.buttonCancel.setOnClickListener(onClickCancel);
+        layout = (ActivityLayout) this.getActivityLayout();
+        layout.listActions.setAdapter(adapter);
+        layout.buttonClear.setOnClickListener(onClickClear);
+        layout.buttonCancel.setOnClickListener(onClickCancel);
 
         final Class<? extends ServiceEngine> sender = getService(
                 new ComponentName(getIntent().getPackage(), getIntent().getAction()));
@@ -93,7 +93,7 @@ public class ServiceActivity extends Activity {
         super.onResume();
         if (bound) {
             autorefresh = new Timer();
-            autorefresh.schedule(refresh, 7000, 5000);
+            autorefresh.schedule(new RefreshTask(this), 7000, 5000);
         }
     }
 
@@ -112,25 +112,28 @@ public class ServiceActivity extends Activity {
         super.onDestroy();
     }
 
-    private final TimerTask refresh = new TimerTask() {
-        private List<ServiceInterface.JobInfo> dataset = null;
+    private static class RefreshTask extends TimerTask {
+        private static ServiceActivity activity = null;
 
-        private final Runnable refreshUI = new Runnable() {
+        public RefreshTask(ServiceActivity activity) {
+            RefreshTask.activity = activity;
+        }
+
+        public static final Runnable update = new Runnable() {
             @Override
             public void run() {
-                adapter.setDataSet(dataset);
-                activity.onDataReceived(true);
+                if (activity.service.isConnected()) try {
+                    activity.adapter.setDataSet(activity.service.getAllPendingJobs());
+                    activity.layout.onDataReceived(true);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
             }
         };
 
         @Override
         public void run() {
-            if (service.isConnected()) try {
-                dataset = service.getAllPendingJobs();
-                runOnUiThread(refreshUI);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
+            activity.runOnUiThread(update);
         }
     };
 
@@ -144,10 +147,10 @@ public class ServiceActivity extends Activity {
     private final View.OnClickListener onClickCancel = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            final int position = activity.getSelectedPosition();
+            final int position = layout.getSelectedPosition();
             if (position != AdapterInterface.INVALID_POSITION) try {
                 final AdapterInterface<ServiceInterface.JobInfo> adapter =
-                        (TaskAdapter) activity.listActions.getAdapter();
+                        (TaskAdapter) layout.listActions.getAdapter();
                 service.cancel(adapter.getItem(position));
             } catch (RemoteException e) {
                 e.printStackTrace();
@@ -160,12 +163,12 @@ public class ServiceActivity extends Activity {
     {
         @Override
         public void onItemSelected(ViewGroup parent, View view, int position, long id) {
-            activity.onItemSelection(position);
+            layout.onItemSelection(position);
         }
 
         @Override
         public void onNothingSelected(ViewGroup parent) {
-            activity.onItemSelection(AdapterInterface.INVALID_POSITION);
+            layout.onItemSelection(AdapterInterface.INVALID_POSITION);
         }
     };
 
@@ -439,7 +442,7 @@ public class ServiceActivity extends Activity {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             super.onServiceConnected(name, service);
-            refresh.run();
+            RefreshTask.update.run();
         }
 
         @Override

@@ -49,21 +49,6 @@ public class MainApplication extends Application {
             tradehouse.enqueue(new ServiceInterface.JobInfo(2, Документы.class, tradehouse.receiver()), null);
         }
 
-        //TODO: database
-        try {
-            com.expertek.tradehouse.dictionaries.entity.client cl1 = new com.expertek.tradehouse.dictionaries.entity.client();
-            cl1.cli_code = 1;
-            cl1.cli_type = "1";
-            cl1.Name = "aaa";
-            com.expertek.tradehouse.dictionaries.entity.client cl2 = new com.expertek.tradehouse.dictionaries.entity.client();
-            cl2.cli_code = 2;
-            cl2.cli_type = "2";
-            cl2.Name = "BBB";
-            MainApplication.dictionaries.db().clients().insert(cl1, cl2);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         ServiceActivity.createNotificationChannel(app,
                 R.string.CHANNEL_ID,
                 R.string.service_tradehouse);

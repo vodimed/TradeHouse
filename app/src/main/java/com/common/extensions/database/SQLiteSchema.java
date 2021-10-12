@@ -65,7 +65,7 @@ public class SQLiteSchema<SchemaDAO> {
     }
 
     public boolean isOpen() {
-        return false;
+        return ((SQLiteDatabase) instance).isOpen();
     }
 
     @SuppressWarnings("unchecked")
