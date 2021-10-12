@@ -1,12 +1,15 @@
 package com.common.extensions.database;
 
 import android.content.Context;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteCantOpenDatabaseException;
 
 import androidx.annotation.NonNull;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * SQLite Database engine
@@ -48,7 +51,6 @@ public class SQLiteSchema<SchemaDAO> {
 
         try {
             migrate(actualVersion, requiredVersion);
-            ((SQLiteDatabase) instance).setVersion(requiredVersion);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -111,20 +113,56 @@ public class SQLiteSchema<SchemaDAO> {
 
     private void migrate(int startVersion, int endVersion) throws SQLiteCantOpenDatabaseException {
         if (startVersion == endVersion) return;
-        // TODO: find the best SQLiteMigration path and execute SQLiteMigration's
-        //throw new SQLiteCantOpenDatabaseException();
+        final SQLiteDatabase database = (SQLiteDatabase) instance;
+
+        final List<SQLiteMigration> path = migrationPath(startVersion, endVersion);
+        if (path == null) throw new SQLiteCantOpenDatabaseException();
+
+        for (SQLiteMigration migration : path) {
+            database.beginTransaction();
+            try {
+                migration.migrate(database);
+                database.setVersion(migration.endVersion);
+                database.setTransactionSuccessful();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw new SQLiteCantOpenDatabaseException();
+            } finally {
+                database.endTransaction();
+            }
+        }
+    }
+
+    protected List<SQLiteMigration> migrationPath(int startVersion, int endVersion) {
+        if (startVersion == endVersion) return null;
+
+        final int sgn = (startVersion < endVersion ? 1 : -1);
+        List<SQLiteMigration> result = null;
+
+        // Decrease distance of possible transformation
+        for (int limitVersion = startVersion; result == null; limitVersion += sgn) {
+            SQLiteMigration migration = null;
+
+            // Look for the longest possible transformation
+            for (SQLiteMigration m : migrations) {
+                if ((m.endVersion != endVersion) || (sgn * m.startVersion < sgn * limitVersion)) continue;
+                if ((migration == null) || (sgn * m.startVersion < sgn * migration.startVersion)) migration = m;
+            }
+
+            if (migration == null) {
+                return null;
+            } else if (migration.startVersion == startVersion) {
+                result = new ArrayList<SQLiteMigration>();
+                result.add(migration);
+            } else {
+                result = migrationPath(startVersion, migration.startVersion);
+                if (result != null) result.add(migration);
+            }
+        }
+        return result;
     }
 
     public SchemaDAO db() {
         return instance;
-    }
-
-    /**
-     * Migration interface
-     */
-    public interface SQLiteMigration {
-        void migrate (SQLiteDatabase database);
-        int startVersion();
-        int endVersion();
     }
 }

@@ -14,8 +14,11 @@ import java.lang.ref.WeakReference;
  * @param <SchemaDAO>
  */
 public class RoomSchema<SchemaDAO> extends SQLiteSchema<SchemaDAO> {
+    private final Migration[] migrations;
+
     public <VersionDAO extends SchemaDAO> RoomSchema(Class<VersionDAO> schema, Migration... migrations) {
-        super(schema, (SQLiteMigration[]) migrations);
+        super(schema);
+        this.migrations = migrations;
     }
 
     @Override

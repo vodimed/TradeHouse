@@ -23,7 +23,8 @@ public class Словари extends TradeHouseTask {
 
         final File dictionaries = MainApplication.app().getDatabasePath(MainSettings.Dictionaries_db);
 
-        if ("text/csv".equals(connection.getContentType())) {
+        // By 12.10.2021 Server sends incorrect ContentType="text/csv" for "raw" data
+        if ("text/csv".equals(connection.getContentType()) && connection.getContentLength() < 8192) {
             response(connection.getInputStream(), result);
         } else if (binary_response(connection.getInputStream(), dictionaries)) {
             result.putSerializable(dictionaries.getName(), MainApplication.dictionaries.version());

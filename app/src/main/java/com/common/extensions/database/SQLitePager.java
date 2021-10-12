@@ -40,20 +40,35 @@ public abstract class SQLitePager<Value extends Serializable> extends Positional
 
         for (Field field : fields) {
             final int index = cursor.getColumnIndex(field.getName());
+            final Class<?> type = field.getType();
 
-            if (index > 0) try {
+            if (index >= 0) try {
                 switch (cursor.getType(index)) {
                     case Cursor.FIELD_TYPE_NULL:
                         field.set(object, null);
                         break;
                     case Cursor.FIELD_TYPE_INTEGER:
-                        field.set(object, cursor.getLong(index));
+                        if (type.equals(Boolean.TYPE)) {
+                            field.setBoolean(object, cursor.getShort(index) != 0);
+                        } else if (type.equals(Short.TYPE)) {
+                            field.setShort(object, cursor.getShort(index));
+                        } else if (type.equals(Integer.TYPE)) {
+                            field.setInt(object, cursor.getInt(index));
+                        } else {
+                            field.setLong(object, cursor.getLong(index));
+                        }
                         break;
                     case Cursor.FIELD_TYPE_FLOAT:
-                        field.set(object, cursor.getDouble(index));
+                        if (type.equals(Float.TYPE)) {
+                            field.setFloat(object, cursor.getFloat(index));
+                        } else if (type.equals(Double.TYPE)) {
+                            field.setDouble(object, cursor.getDouble(index));
+                        }
                         break;
                     case Cursor.FIELD_TYPE_STRING:
-                        field.set(object, cursor.getString(index));
+                        if (type.equals(String.class)) {
+                            field.set(object, cursor.getString(index));
+                        }
                         break;
                     case Cursor.FIELD_TYPE_BLOB:
                         field.set(object, cursor.getBlob(index));
@@ -153,9 +168,8 @@ public abstract class SQLitePager<Value extends Serializable> extends Positional
             return new SQLitePager<Value>(db, query, args) {
                 @Override
                 protected Value convertRow(@NonNull Cursor cursor) {
-                    Value value = null;
                     try {
-                        value = cls.newInstance();
+                        Value value = cls.newInstance();
                         value = super.convertRow(value, cursor);
                         return convertRow(value, cursor);
                     } catch (ReflectiveOperationException e) {

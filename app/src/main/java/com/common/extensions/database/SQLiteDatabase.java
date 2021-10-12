@@ -2,7 +2,9 @@ package com.common.extensions.database;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteClosable;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteStatement;
 import android.database.sqlite.SQLiteTransactionListener;
 import android.os.Build;
@@ -80,7 +82,7 @@ public class SQLiteDatabase extends SQLiteClosable {
         }
     }
 
-    public SQLiteStatement compileStatement(String sql) {
+    public SQLiteStatement compileStatement(String sql) throws SQLException {
         return db.compileStatement(sql);
     }
 
@@ -118,11 +120,11 @@ public class SQLiteDatabase extends SQLiteClosable {
         db.execPerConnectionSQL(sql, bindArgs);
     }
 
-    public void execSQL(String sql) {
+    public void execSQL(String sql) throws SQLException {
         db.execSQL(sql);
     }
 
-    public void execSQL(String sql, Object[] bindArgs) {
+    public void execSQL(String sql, Object[] bindArgs) throws SQLException {
         db.execSQL(sql, bindArgs);
     }
 
@@ -290,11 +292,11 @@ public class SQLiteDatabase extends SQLiteClosable {
         return db.replace(table, nullColumnHack, initialValues);
     }
 
-    public long replaceOrThrow(String table, String nullColumnHack, ContentValues initialValues) {
+    public long replaceOrThrow(String table, String nullColumnHack, ContentValues initialValues) throws SQLException {
         return db.replaceOrThrow(table, nullColumnHack, initialValues);
     }
 
-    public void setCustomAggregateFunction(String functionName, BinaryOperator<String> aggregateFunction) {
+    public void setCustomAggregateFunction(String functionName, BinaryOperator<String> aggregateFunction) throws SQLiteException {
         db.setCustomAggregateFunction(functionName, aggregateFunction);
     }
 

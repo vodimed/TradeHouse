@@ -22,8 +22,8 @@ import java.io.File;
 
 public class MainApplication extends Application {
     private static Application app;
-    public static final SQLiteSchema<DbDictionaries> dictionaries = new SQLiteSchema<DbDictionaries>(Dictionaries_v1Sqlite.class);
-    public static final SQLiteSchema<DBDocuments> documents = new SQLiteSchema<DBDocuments>(Documents_v1Sqlite.class);
+    public static final SQLiteSchema<DbDictionaries> dictionaries = new SQLiteSchema<DbDictionaries>(Dictionaries_v1Sqlite.class, new Dictionaries_v1Sqlite.M_0_1());
+    public static final SQLiteSchema<DBDocuments> documents = new SQLiteSchema<DBDocuments>(Documents_v1Sqlite.class, new Documents_v1Sqlite.M_0_1());
     //public static final RoomSchema<DbDictionaries> dictionaries = new RoomSchema<DbDictionaries>(Dictionaries_v1Room.class);
     //public static final RoomSchema<DBDocuments> documents = new RoomSchema<DBDocuments>(Documents_v1Room.class);
 
@@ -53,11 +53,11 @@ public class MainApplication extends Application {
         try {
             com.expertek.tradehouse.dictionaries.entity.client cl1 = new com.expertek.tradehouse.dictionaries.entity.client();
             cl1.cli_code = 1;
-            cl1.cli_type = 1;
+            cl1.cli_type = "1";
             cl1.Name = "aaa";
             com.expertek.tradehouse.dictionaries.entity.client cl2 = new com.expertek.tradehouse.dictionaries.entity.client();
             cl2.cli_code = 2;
-            cl2.cli_type = 2;
+            cl2.cli_type = "2";
             cl2.Name = "BBB";
             MainApplication.dictionaries.db().clients().insert(cl1, cl2);
         } catch (Exception e) {
@@ -84,6 +84,7 @@ public class MainApplication extends Application {
 
     private final ServiceConnector tradehouse = new ServiceConnector(this, TradeHouseService.class) {
         @Override
+        @SuppressWarnings("unchecked")
         public void onJobResult(@NonNull ServiceInterface.JobInfo work, Bundle result) {
             switch (work.getJobId()) {
                 case 1:

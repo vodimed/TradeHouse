@@ -30,8 +30,8 @@ public class Документы extends TradeHouseTask {
             throw new IOException(connection.getResponseMessage());
         }
 
-        //TODO: remove false
-        if (false && "text/csv".equals(connection.getContentType())) {
+        // By 12.10.2021 Server sends incorrect ContentType="text/csv" for "raw" data
+        if ("text/csv".equals(connection.getContentType()) && connection.getContentLength() < 8192) {
             response(connection.getInputStream(), result);
         } else if (binary_response(connection.getInputStream(), documents)) {
             result.putSerializable(documents.getName(), MainApplication.documents.version());
