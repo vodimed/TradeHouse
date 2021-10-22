@@ -4,6 +4,7 @@
         <item name="android:windowSoftInputMode">adjustResize|stateHidden</item>
 
         <item name="android:buttonStyle">@style/Widget</item>
+        <item name="android:buttonStyleToggle">@style/Widget</item>
     </style>
 
     <style name="Widget">

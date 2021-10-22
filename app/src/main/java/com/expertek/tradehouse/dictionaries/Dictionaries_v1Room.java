@@ -4,14 +4,14 @@ import androidx.room.Database;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
-import com.common.extensions.database.DateRoomConverter;
+import com.common.extensions.database.RoomDateConverter;
 import com.expertek.tradehouse.dictionaries.entity.barcode;
 import com.expertek.tradehouse.dictionaries.entity.client;
 import com.expertek.tradehouse.dictionaries.entity.good;
 import com.expertek.tradehouse.dictionaries.entity.object;
 import com.expertek.tradehouse.dictionaries.entity.user;
 
-@TypeConverters({DateRoomConverter.class})
+@TypeConverters({RoomDateConverter.class})
 @Database(version = 1,
         entities = {barcode.class, client.class, good.class, object.class, user.class},
         autoMigrations = {

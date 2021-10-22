@@ -4,7 +4,7 @@ import androidx.room.TypeConverter;
 
 import java.util.Date;
 
-public class DateRoomConverter extends DateConverter {
+public class RoomDateConverter extends DateConverter {
     @TypeConverter
     @Override
     public String save(Date value) {

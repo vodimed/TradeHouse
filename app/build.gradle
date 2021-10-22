@@ -62,7 +62,7 @@ android {
 
     // Android interface layer to database accesss
     if (!project.findProperty('room').asBoolean()) {
-        sourceSets.main.java.exclude '**/DateRoomConverter.java'
+        sourceSets.main.java.exclude '**/RoomDateConverter.java'
         sourceSets.main.java.exclude '**/RoomSchema.java'
         sourceSets.main.java.exclude '**/Dictionaries_v1Room.java'
         sourceSets.main.java.exclude '**/Documents_v1Room.java'
