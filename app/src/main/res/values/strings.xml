@@ -61,7 +61,8 @@
     <string name="setting_serial">Серийный номер</string>
     <string name="setting_object">Объект</string>
     <string name="setting_connect">Параметры подключения</string>
-    <string name="setting_check">Тест соединения</string>
+    <string name="setting_tethering">USB соединение</string>
+    <string name="setting_check">Проверка</string>
 
     <string name="option_offline">Оффлайн-режим</string>
     <string name="option_loadinv">Загружать накладные</string>

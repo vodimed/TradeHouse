@@ -22,8 +22,9 @@ public class MainSettings {
     public static int TradeHousePort = mSettings.getInt("TradeHousePort", 8080);
 
     public static String TradeHouseObject = mSettings.getString("TradeHouseObject", "маг1");
-    public static final String SerialNumber = getSerialNumber();
     public static Set<String> BarcodePrefixes = mSettings.getStringSet("BarcodePrefixes", mStringSet);
+    public static boolean Tethering = mSettings.getBoolean("Tethering", true);
+    public static final String SerialNumber = getSerialNumber();
 
     public static boolean WorkOffline = mSettings.getBoolean("WorkOffline", false);
     public static boolean LoadInvents = mSettings.getBoolean("LoadInvents", true);
@@ -49,13 +50,13 @@ public class MainSettings {
             if (!Modifier.isFinal(field.getModifiers())) try {
                 if (datatype.equals(String.class)) {
                     preferences.putString(name, (String) field.get(null));
-                } else if (datatype.equals(Integer.class)) {
+                } else if (datatype.equals(Integer.class) || datatype.equals(Integer.TYPE)) {
                     preferences.putInt(name, field.getInt(null));
-                } else if (datatype.equals(Boolean.class)) {
+                } else if (datatype.equals(Boolean.class) || datatype.equals(Boolean.TYPE)) {
                     preferences.putBoolean(name, field.getBoolean(null));
-                } else if (datatype.equals(Long.class)) {
+                } else if (datatype.equals(Long.class) || datatype.equals(Long.TYPE)) {
                     preferences.putLong(name, field.getLong(null));
-                } else if (datatype.equals(Float.class)) {
+                } else if (datatype.equals(Float.class) || datatype.equals(Float.TYPE)) {
                     preferences.putFloat(name, field.getFloat(null));
                 } else if (datatype.equals(Set.class)) {
                     preferences.putStringSet(name, toStringSet((Set<?>) field.get(null)));

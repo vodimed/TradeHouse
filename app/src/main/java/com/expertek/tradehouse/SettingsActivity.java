@@ -3,8 +3,12 @@ package com.expertek.tradehouse;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Switch;
@@ -24,6 +28,7 @@ import java.util.stream.Collectors;
 public class SettingsActivity extends Activity {
     private final TabController tabcontrol = new TabController(3);
     private final SeekController seekcontrol = new SeekController();
+    private final ConnectionHandler conhandler = new ConnectionHandler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +51,15 @@ public class SettingsActivity extends Activity {
         final TextView object = findViewById(R.id.editObject);
         object.setText(MainSettings.TradeHouseObject);
 
-        final TextView connection = findViewById(R.id.editConnect);
-        connection.setText(String.format(Locale.getDefault(), "%s:%d",
+        conhandler.editConnect = findViewById(R.id.editConnect);
+        conhandler.editConnect.setText(String.format(Locale.getDefault(), "%s:%d",
                 MainSettings.TradeHouseAddress, MainSettings.TradeHousePort));
+        conhandler.editConnect.addTextChangedListener(conhandler.onConnectTextChanged);
+
+        final CheckBox checkTethering = findViewById(R.id.checkTethering);
+        checkTethering.setChecked(MainSettings.Tethering);
+        checkTethering.setOnCheckedChangeListener(conhandler.onTetheringCheckedChange);
+        conhandler.onTetheringCheckedChange.onCheckedChanged(checkTethering, checkTethering.isChecked());
 
         final Switch offline = findViewById(R.id.checkOffline);
         offline.setChecked(MainSettings.WorkOffline);
@@ -63,7 +74,7 @@ public class SettingsActivity extends Activity {
         prefixes.setText(setToString(MainSettings.BarcodePrefixes));
 
         final Button buttonCheck = findViewById(R.id.buttonCheck);
-        buttonCheck.setOnClickListener(onCheckClick);
+        buttonCheck.setOnClickListener(conhandler.onCheckClick);
     }
 
     @Override
@@ -86,10 +97,12 @@ public class SettingsActivity extends Activity {
         final TextView object = findViewById(R.id.editObject);
         MainSettings.TradeHouseObject = object.getText().toString();
 
-        final TextView connection = findViewById(R.id.editConnect);
-        final String[] addr = connection.getText().toString().split(":", 2);
+        final String[] addr = conhandler.editConnect.getText().toString().split(":", 2);
         MainSettings.TradeHouseAddress = addr[0];
         MainSettings.TradeHousePort = getPort(addr);
+
+        final CheckBox checkTethering = findViewById(R.id.checkTethering);
+        MainSettings.Tethering = checkTethering.isChecked();
 
         final Switch offline = findViewById(R.id.checkOffline);
         MainSettings.WorkOffline = offline.isChecked();
@@ -188,56 +201,83 @@ public class SettingsActivity extends Activity {
         }
     }
 
-    private final View.OnClickListener onCheckClick = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            final TextView editConnect = findViewById(R.id.editConnect);
-            final SeekBar seekCheckDelay = findViewById(R.id.seekCheckDelay);
+    private class ConnectionHandler {
+        private int defaultTextColor = Color.TRANSPARENT;
+        private TextView editConnect = null;
 
-            final String[] addr = editConnect.getText().toString().split(":", 2);
-            final Thread process = new Thread(new CheckConnection(addr[0], getPort(addr),
-                    seekCheckDelay.getProgress() * 1000));
-            process.start();
-        }
+        private final CompoundButton.OnCheckedChangeListener onTetheringCheckedChange =
+                new CompoundButton.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                editConnect.setEnabled(!isChecked);
+            }
+        };
 
-        class CheckConnection implements Runnable {
-            private final TextView editConnect;
-            private final Button buttonCheck;
-            private HttpURLConnection connection;
-            private boolean success = false;
-
-            public CheckConnection(String addr, int port, int timeout) {
-                editConnect = findViewById(R.id.editConnect);
-                buttonCheck = findViewById(R.id.buttonCheck);
-                buttonCheck.setEnabled(false);
-
-                try {
-                    connection = (HttpURLConnection) new URL("http", addr, port, "").openConnection();
-                    connection.setConnectTimeout(timeout);
-                } catch (IOException e) {
-                    connection = null;
-                    e.printStackTrace();
-                }
+        private final TextWatcher onConnectTextChanged = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                if (defaultTextColor != Color.TRANSPARENT) editConnect.setTextColor(defaultTextColor);
             }
 
             @Override
-            public void run() {
-                if (connection != null) try {
-                    connection.connect();
-                    connection.disconnect();
-                    success = true;
-                } catch (IOException e) {
-                    success = false;
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        };
+
+        private final View.OnClickListener onCheckClick = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final SeekBar seekCheckDelay = findViewById(R.id.seekCheckDelay);
+                final String[] addr = editConnect.getText().toString().split(":", 2);
+                final Thread process = new Thread(new CheckConnection(addr[0], getPort(addr),
+                        seekCheckDelay.getProgress() * 1000));
+                process.start();
+            }
+
+            class CheckConnection implements Runnable {
+                private final Button buttonCheck;
+                private HttpURLConnection connection;
+                private boolean success = false;
+
+                public CheckConnection(String addr, int port, int timeout) {
+                    buttonCheck = findViewById(R.id.buttonCheck);
+                    buttonCheck.setEnabled(false);
+
+                    try {
+                        connection = (HttpURLConnection) new URL("http", addr, port, "").openConnection();
+                        connection.setConnectTimeout(timeout);
+                    } catch (IOException e) {
+                        connection = null;
+                        e.printStackTrace();
+                    }
                 }
 
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        editConnect.setBackgroundColor(success ? Color.GREEN : Color.RED);
-                        buttonCheck.setEnabled(true);
+                @Override
+                public void run() {
+                    if (connection != null) try {
+                        connection.connect();
+                        connection.disconnect();
+                        success = true;
+                    } catch (IOException e) {
+                        success = false;
                     }
-                });
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (defaultTextColor != Color.TRANSPARENT)
+                                defaultTextColor = editConnect.getCurrentTextColor();
+                            editConnect.setTextColor(success ? Color.GREEN : Color.RED);
+                            buttonCheck.setEnabled(true);
+                        }
+                    });
+                }
             }
-        }
-    };
+        };
+    }
 }

@@ -13,8 +13,10 @@ import com.expertek.tradehouse.dictionaries.DbDictionaries;
 import com.expertek.tradehouse.dictionaries.Dictionaries_v1Sqlite;
 import com.expertek.tradehouse.documents.DBDocuments;
 import com.expertek.tradehouse.documents.Documents_v1Sqlite;
+import com.expertek.tradehouse.tradehouse.ModemManager;
 import com.expertek.tradehouse.tradehouse.TradeHouseService;
 import com.expertek.tradehouse.tradehouse.TradeHouseTask;
+import com.expertek.tradehouse.tradehouse.USBConnectReceiver;
 import com.expertek.tradehouse.tradehouse.Документы;
 import com.expertek.tradehouse.tradehouse.Словари;
 
@@ -22,6 +24,7 @@ import java.io.File;
 
 public class MainApplication extends Application {
     private static Application app;
+    private static ModemManager mmr;
     public static final SQLiteSchema<DbDictionaries> dictionaries = new SQLiteSchema<DbDictionaries>(Dictionaries_v1Sqlite.class, new Dictionaries_v1Sqlite.M_0_1());
     public static final SQLiteSchema<DBDocuments> documents = new SQLiteSchema<DBDocuments>(Documents_v1Sqlite.class, new Documents_v1Sqlite.M_0_1());
     //public static final RoomSchema<DbDictionaries> dictionaries = new RoomSchema<DbDictionaries>(Dictionaries_v1Room.class);
@@ -41,6 +44,12 @@ public class MainApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        if (MainSettings.Tethering) {
+            MainSettings.TradeHouseAddress = USBConnectReceiver.getConnectedIp();
+            MainSettings.savePreferences();
+        }
+
         if (!dictionaries.open(this, MainSettings.Dictionaries_db)) {
             tradehouse.enqueue(new ServiceInterface.JobInfo(1, Словари.class, tradehouse.receiver()), null);
         }

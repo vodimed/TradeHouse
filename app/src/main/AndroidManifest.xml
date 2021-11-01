@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.expertek.tradehouse"
     android:versionCode="197000026"
     android:versionName="1.97.00.0026">
 
     <uses-permission android:name="com.honeywell.decode.permission.DECODE" /> <!-- HoneyWell -->
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" /> <!-- Serial -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- USB -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" /> <!-- Serial No. -->
     <uses-permission android:name="android.permission.INTERNET" /> <!-- Network -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
@@ -42,6 +44,16 @@
             android:name="com.common.extensions.exchange.ServiceReceiver"
             android:enabled="true"
             android:exported="false" />
+
+        <receiver
+            android:name="com.expertek.tradehouse.tradehouse.USBConnectReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED"/>
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED"/>
+            </intent-filter>
+        </receiver>
 
         <activity
             android:name=".MainActivity"
