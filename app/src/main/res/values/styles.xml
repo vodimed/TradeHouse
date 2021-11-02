@@ -1,14 +1,34 @@
 <resources>
-    <style name="AppTheme">
+    <style name="AppTheme"> <!--parent="android:Theme"-->
         <!--https://developer.android.com/guide/topics/manifest/activity-element-->
         <item name="android:windowSoftInputMode">adjustResize|stateHidden</item>
 
-        <item name="android:buttonStyle">@style/Widget</item>
-        <item name="android:buttonStyleToggle">@style/Widget</item>
+        <item name="android:buttonStyle">@style/Widget.Button</item>
+        <item name="android:buttonStyleToggle">@style/Widget.Button.Toggle</item>
+        <item name="android:spinnerStyle">@style/Widget.Spinner</item>
     </style>
 
     <style name="Widget">
         <item name="android:textAppearance">?android:textAppearance</item>
+    </style>
+
+    <style name="Widget.Button" parent="android:Widget.DeviceDefault.ImageButton">
+        <item name="android:background">@android:drawable/btn_default_small</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
+    <style name="Widget.Button.Toggle" parent="android:Widget.DeviceDefault.Button.Toggle">
+    </style>
+
+    <style name="Widget.Spinner" parent="android:Widget.DeviceDefault.Spinner">
+    </style>
+
+    <style name="Widget.Button.MainMenu">
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingLeft">@dimen/main_pagging</item>
+        <item name="android:drawablePadding">@dimen/main_spacing</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/main_textsize</item>
     </style>
 
 </resources>

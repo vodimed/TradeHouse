@@ -17,6 +17,8 @@ import android.widget.ToggleButton;
 
 import androidx.annotation.IdRes;
 
+import com.expertek.tradehouse.tradehouse.USBConnectReceiver;
+
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -50,6 +52,9 @@ public class SettingsActivity extends Activity {
 
         final TextView object = findViewById(R.id.editObject);
         object.setText(MainSettings.TradeHouseObject);
+
+        if (MainSettings.Tethering)
+            MainSettings.TradeHouseAddress = USBConnectReceiver.getConnectedIp();
 
         conhandler.editConnect = findViewById(R.id.editConnect);
         conhandler.editConnect.setText(String.format(Locale.getDefault(), "%s:%d",

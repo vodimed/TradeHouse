@@ -3,6 +3,8 @@ package com.expertek.tradehouse.tradehouse;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.BatteryManager;
 
 import com.expertek.tradehouse.MainSettings;
 
@@ -26,6 +28,17 @@ public class USBConnectReceiver extends BroadcastReceiver {
         } else if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)) {
             onUSBDisconnected(context);
         }
+    }
+
+    // https://developer.android.com/training/monitoring-device-state/battery-monitoring.html
+    public static void checkUSBConnection(Context context) {
+        final IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        final Intent batteryStatus = context.registerReceiver(null, ifilter);
+        final int chargePlug = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+        final boolean usbChargeOn = (chargePlug == BatteryManager.BATTERY_PLUGGED_USB);
+
+        if (usbChargeOn && (getConnectedIp() == null))
+            new USBConnectReceiver().onUSBConnected(context);
     }
 
     protected void onUSBConnected(Context context) {

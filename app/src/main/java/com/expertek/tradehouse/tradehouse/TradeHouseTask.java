@@ -45,6 +45,9 @@ public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
     public void onCreate(@Nullable Bundle params) throws Exception {
         this.params = params;
 
+        if (MainSettings.Tethering)
+            MainSettings.TradeHouseAddress = USBConnectReceiver.getConnectedIp();
+
         connection = (HttpURLConnection) new URL(
                 "http", MainSettings.TradeHouseAddress, MainSettings.TradeHousePort,
                 (getquery != null ? "?" + getquery : "")).openConnection();

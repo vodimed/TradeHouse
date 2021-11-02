@@ -60,7 +60,7 @@ android {
         implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
     }
 
-    // Android interface layer to database accesss
+    // Android interface layer to database access
     if (!project.findProperty('room').asBoolean()) {
         sourceSets.main.java.exclude '**/RoomDateConverter.java'
         sourceSets.main.java.exclude '**/RoomSchema.java'
@@ -77,6 +77,10 @@ android {
         sourceSets.main.java.exclude '**/dictionaries/sqlite/**'
         sourceSets.main.java.exclude '**/documents/sqlite/**'
     }
+
+    // TODO: maybe automatic reconnect
+    sourceSets.main.java.exclude '**/ModemManager.java'
+    sourceSets.main.java.exclude '**/TetheringManager.java'
 
     dependencies {
         // Honeywell SDK
