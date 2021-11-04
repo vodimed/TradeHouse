@@ -45,7 +45,7 @@ public class InvoiceEditActivity extends Activity {
 
         // Retrieve Activity parameters
         document = (document) getIntent().getSerializableExtra(document.class.getName());
-        lines = new PagingList<line>(MainApplication.documents.db().lines().loadByDocument(document.DocName));
+        lines = new PagingList<line>(Application.documents.db().lines().loadByDocument(document.DocName));
 
         final EditText editNumber = findViewById(R.id.editNumber);
         editNumber.setText(document.DocName);
@@ -53,7 +53,7 @@ public class InvoiceEditActivity extends Activity {
         final TextView labelDate = findViewById(R.id.labelDate);
         labelDate.setText(date.format(document.StartDate));
 
-        adapterLine = new LineAdapter(this, android.R.layout.simple_list_item_single_choice);
+        adapterLine = new LineAdapter(this, R.layout.invoice_position);
         adapterLine.setDataSet(lines);
         adapterLine.setOnItemSelectionListener(onLineSelection);
 
@@ -124,13 +124,13 @@ public class InvoiceEditActivity extends Activity {
     protected void actionSave(int position) {
         lines.commit(new PagingList.Commit<line>() {
             @Override
-            public void replace(line objects) {
-                MainApplication.documents.db().lines().insert(objects);
+            public void renew(line objects) {
+                Application.documents.db().lines().insert(objects);
             }
 
             @Override
             public void delete(line objects) {
-                MainApplication.documents.db().lines().delete(objects);
+                Application.documents.db().lines().delete(objects);
             }
         });
 
@@ -177,8 +177,22 @@ public class InvoiceEditActivity extends Activity {
 
         @Override
         public void onBindViewHolder(@NonNull Holder holder, int position) {
-            final TextView text1 = holder.getView().findViewById(android.R.id.text1);
-            text1.setText(getItem(position).GoodsName);
+            final View owner = holder.getView();
+            final line line = getItem(position);
+
+            final TextView textLineID = owner.findViewById(R.id.textLineID);
+            final TextView textGoodsName = owner.findViewById(R.id.textGoodsName);
+            final TextView textUnitBC = owner.findViewById(R.id.textUnitBC);
+            final TextView textPrice = owner.findViewById(R.id.textPrice);
+            final TextView textFactQnty = owner.findViewById(R.id.textFactQnty);
+            final TextView textDocQnty = owner.findViewById(R.id.textDocQnty);
+
+            textLineID.setText(String.valueOf(line.LineID));
+            textGoodsName.setText(line.GoodsName);
+            textUnitBC.setText(line.UnitBC);
+            textPrice.setText(String.valueOf(line.Price));
+            textFactQnty.setText(String.valueOf(line.FactQnty));
+            textDocQnty.setText(String.valueOf(line.DocQnty));
         }
 
         @Override
@@ -194,6 +208,8 @@ public class InvoiceEditActivity extends Activity {
         @Override
         public long getItemId(int position) {
             if (position < 0 || position >= getCount()) return INVALID_ROW_ID;
+            final line item = getItem(position);
+            if (item == null) return INVALID_ROW_ID;
             return getItem(position).LineID;
         }
     }

@@ -12,12 +12,14 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class PagingList<Value> extends AbstractList<Value> implements AdapterInterface.Observable<DataSetObserver> {
     private final static int pagesize = 20;
     private final DataSetObservable notifier = new DataSetObservable();
-    private final DataSource<Integer, Value> source;
-    private final int count;
+    private final DataSource.Factory<Integer, Value> factory;
+    private DataSource<Integer, Value> source;
+    private int count;
     private int size;
     @SuppressWarnings("unchecked") // Java generic restrictions
     private final PagingCache<Value>[] cache = new PagingCache[PagingCache.base];
@@ -26,6 +28,11 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
 
     @SuppressLint("RestrictedApi")
     public PagingList(DataSource.Factory<Integer, Value> factory) {
+        this.factory = factory;
+        reloadList();
+    }
+
+    private void reloadList() {
         source = factory.create();
         size = count = countItems(source);
     }
@@ -120,12 +127,13 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
         }
 
         for (int i = update.size() - 1; i >= 0; i--) {
-            listener.replace(update.valueAt(i));
+            listener.renew(update.valueAt(i));
         }
 
-        //update.clear(); TODO!
-        //delete.clear();
-        //notifier.notifyChanged();
+        Arrays.fill(cache, null);
+        update.clear();
+        delete.clear();
+        reloadList();
     }
 
     public void rollback() {
@@ -153,11 +161,9 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
     /**
      * Commit Listener Interface
      */
-    public interface Commit<DAO> {
-//TODO        void replace(DAO... objects);
-//TODO        void delete(DAO... objects);
-        void replace(DAO objects);
-        void delete(DAO objects);
+    public interface Commit<Value> {
+        void renew(Value objects);
+        void delete(Value objects);
     }
 
     /**

@@ -12,7 +12,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
-        android:name=".MainApplication"
+        android:name=".Application"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
@@ -46,7 +46,7 @@
             android:exported="false" />
 
         <receiver
-            android:name="com.expertek.tradehouse.tradehouse.USBConnectReceiver"
+            android:name="com.expertek.tradehouse.tradehouse.ConnectionReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>

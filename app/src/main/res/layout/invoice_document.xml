@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/textDocName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="3" />
+
+    <TextView
+        android:id="@+id/textDocType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="6" />
+
+    <TextView
+        android:id="@+id/textStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="6" />
+
+    <TextView
+        android:id="@+id/textFactSum"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="6" />
+
+    <TextView
+        android:id="@+id/textStartDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="6" />
+</LinearLayout>

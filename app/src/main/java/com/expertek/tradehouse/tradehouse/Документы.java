@@ -2,7 +2,7 @@ package com.expertek.tradehouse.tradehouse;
 
 import android.os.Bundle;
 
-import com.expertek.tradehouse.MainApplication;
+import com.expertek.tradehouse.Application;
 import com.expertek.tradehouse.MainSettings;
 
 import java.io.File;
@@ -21,7 +21,7 @@ public class Документы extends TradeHouseTask {
     @Override
     public Bundle call() throws Exception {
         final Bundle result = new Bundle();
-        final File documents = MainApplication.app().getDatabasePath(MainSettings.Documents_db);
+        final File documents = Application.app().getDatabasePath(MainSettings.Documents_db);
 
         connection.connect();
         cancelled = !binary_request(connection.getOutputStream(), documents);
@@ -34,7 +34,7 @@ public class Документы extends TradeHouseTask {
         if ("text/csv".equals(connection.getContentType()) && connection.getContentLength() < 8192) {
             response(connection.getInputStream(), result);
         } else if (binary_response(connection.getInputStream(), documents)) {
-            result.putSerializable(documents.getName(), MainApplication.documents.version());
+            result.putSerializable(documents.getName(), Application.documents.version());
         }
         return result;
     }

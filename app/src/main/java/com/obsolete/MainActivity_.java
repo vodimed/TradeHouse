@@ -20,7 +20,7 @@ import androidx.annotation.Nullable;
 import com.common.extensions.exchange.ServiceConnector;
 import com.common.extensions.exchange.ServiceInterface;
 import com.common.extensions.exchange.ServiceReceiver;
-import com.expertek.tradehouse.MainApplication;
+import com.expertek.tradehouse.Application;
 import com.expertek.tradehouse.R;
 import com.expertek.tradehouse.dictionaries.entity.object;
 import com.expertek.tradehouse.documents.entity.document;
@@ -77,19 +77,19 @@ public class MainActivity_ extends Activity implements BarcodeReader.BarcodeList
             ob.Name = "aaa";
             ob.obj_code = 1;
             ob.obj_type = "1";
-            MainApplication.dictionaries.db().objects().insert(ob);
+            Application.dictionaries.db().objects().insert(ob);
 
             document dc = new document();
             dc.DocName = "aaa";
             dc.DocType = "aaa";
             dc.StartDate = Calendar.getInstance().getTime();
-            MainApplication.documents.db().documents().insert(dc);
+            Application.documents.db().documents().insert(dc);
 
             line ln = new line();
             ln.LineID = 1;
             ln.DocName = "aaa";
             ln.BC = "aaa";
-            MainApplication.documents.db().lines().insert(ln);
+            Application.documents.db().lines().insert(ln);
         } catch (Exception e) {
             e.printStackTrace();
         }

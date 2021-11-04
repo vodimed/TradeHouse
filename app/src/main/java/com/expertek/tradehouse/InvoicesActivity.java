@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 
 import com.common.extensions.database.AdapterInterface;
 import com.common.extensions.database.AdapterTemplate;
+import com.common.extensions.database.DateConverter;
 import com.common.extensions.database.PagingList;
 import com.common.extensions.exchange.ServiceConnector;
 import com.common.extensions.exchange.ServiceInterface;
@@ -51,9 +52,10 @@ public class InvoicesActivity extends Activity {
         final Spinner spinSelector = findViewById(R.id.spinSelector);
         spinSelector.setAdapter(adapterType);
 
-        documents = new PagingList<document>(MainApplication.documents.db().documents().getDocType(adapterType.getKey(0)));
+        documents = new PagingList<document>(Application.documents.db().
+                documents().getDocType(adapterType.getKey(0).split(",")));
 
-        adapterDocument = new DocumentAdapter(this, android.R.layout.simple_list_item_single_choice);
+        adapterDocument = new DocumentAdapter(this, R.layout.invoice_document);
         adapterDocument.setDataSet(documents);
         adapterDocument.setOnItemSelectionListener(onDocumentSelection);
 
@@ -117,13 +119,13 @@ public class InvoicesActivity extends Activity {
 
         documents.commit(new PagingList.Commit<document>() {
             @Override
-            public void replace(document objects) {
-                MainApplication.documents.db().documents().insert(objects);
+            public void renew(document objects) {
+                Application.documents.db().documents().insert(objects);
             }
 
             @Override
             public void delete(document objects) {
-                MainApplication.documents.db().documents().delete(objects);
+                Application.documents.db().documents().delete(objects);
             }
         });
     }
@@ -132,7 +134,7 @@ public class InvoicesActivity extends Activity {
         assert adapterDocument.getDataSet() != null;
 
         final document document = new document();
-        document.DocName = MainApplication.documents.db().documents().getMaxId();
+        document.DocName = Application.documents.db().documents().getMaxId();
         document.StartDate = Calendar.getInstance().getTime();
 
         final Intent intent = new Intent(InvoicesActivity.this, InvoiceCreateActivity.class);
@@ -162,8 +164,8 @@ public class InvoicesActivity extends Activity {
     {
         @Override
         public void onItemSelected(ViewGroup parent, View view, int position, long id) {
-            final String key = adapterType.getKey(position);
-            documents = new PagingList<document>(MainApplication.documents.db().documents().getDocType(key));
+            final String[] key = adapterType.getKey(position).split(",");
+            documents = new PagingList<document>(Application.documents.db().documents().getDocType(key));
             adapterDocument.setDataSet(documents);
         }
 
@@ -254,8 +256,20 @@ public class InvoicesActivity extends Activity {
 
         @Override
         public void onBindViewHolder(@NonNull Holder holder, int position) {
-            final TextView text1 = holder.getView().findViewById(android.R.id.text1);
-            text1.setText(getItem(position).DocName);
+            final View owner = holder.getView();
+            final document document = getItem(position);
+
+            final TextView textDocName = owner.findViewById(R.id.textDocName);
+            final TextView textDocType = owner.findViewById(R.id.textDocType);
+            final TextView textStatus = owner.findViewById(R.id.textStatus);
+            final TextView textFactSum = owner.findViewById(R.id.textFactSum);
+            final TextView textStartDate = owner.findViewById(R.id.textStartDate);
+
+            textDocName.setText(document.DocName);
+            textDocType.setText(document.DocType);
+            textStatus.setText(document.Status);
+            textFactSum.setText(String.valueOf(document.FactSum));
+            textStartDate.setText(new DateConverter().save(document.StartDate));
         }
 
         @Override
@@ -272,6 +286,7 @@ public class InvoicesActivity extends Activity {
         public long getItemId(int position) {
             if (position < 0 || position >= getCount()) return INVALID_ROW_ID;
             final document item = getItem(position);
+            if (item == null) return INVALID_ROW_ID;
             return item.DocName.hashCode() * 31 + item.DocType.hashCode();
         }
     }

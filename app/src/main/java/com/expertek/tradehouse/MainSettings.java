@@ -1,6 +1,5 @@
 package com.expertek.tradehouse;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -81,7 +80,7 @@ public class MainSettings {
      * Return Application settings and preferences.
      */
     private static SharedPreferences loadPreferences() {
-        final Application app = MainApplication.app();
+        final android.app.Application app = Application.app();
         return app.getSharedPreferences(app.getPackageName(), Context.MODE_PRIVATE);
     }
 

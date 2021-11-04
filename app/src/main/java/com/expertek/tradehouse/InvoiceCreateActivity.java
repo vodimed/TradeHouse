@@ -23,7 +23,7 @@ import com.expertek.tradehouse.documents.entity.document;
 import java.util.List;
 
 public class InvoiceCreateActivity extends Activity {
-    private final Clients clients = MainApplication.dictionaries.db().clients();
+    private final Clients clients = Application.dictionaries.db().clients();
     private document document = null;
     private InvoiceTypeAdapter adapterType = null;
     private ClientAdapter adapterClient = null;
@@ -142,7 +142,7 @@ public class InvoiceCreateActivity extends Activity {
         @SafeVarargs
         public InvoiceTypeAdapter(Context context, @NonNull Class<? extends View>... layer) {
             super(context, layer);
-            setDataSet(context.getResources().getStringArray(R.array.doc_types));
+            setDataSet(context.getResources().getStringArray(R.array.invoice_types));
             setHasStableIds(true);
         }
 
@@ -213,6 +213,8 @@ public class InvoiceCreateActivity extends Activity {
         @Override
         public long getItemId(int position) {
             if (position < 0 || position >= getCount()) return INVALID_ROW_ID;
+            final client item = getItem(position);
+            if (item == null) return INVALID_ROW_ID;
             return getItem(position).cli_code;
         }
     }

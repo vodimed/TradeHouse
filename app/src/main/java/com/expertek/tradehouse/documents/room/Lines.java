@@ -7,6 +7,7 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
+import com.common.extensions.database.SQLitePager;
 import com.expertek.tradehouse.documents.entity.line;
 
 @Dao
@@ -23,6 +24,9 @@ public interface Lines {
 
     @Query("SELECT * FROM MT_lines WHERE DocName = :docName")
     DataSource.Factory<Integer, line> loadByDocument(String docName);
+
+    @Query("SELECT * FROM MT_lines WHERE BC = :BC")
+    DataSource.Factory<Integer, line> loadByDocument(String BC);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(line... objects);

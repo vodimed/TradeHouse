@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.widget.EditText;
 
+import com.common.extensions.database.PagingList;
+import com.expertek.tradehouse.documents.DBDocuments;
+import com.expertek.tradehouse.documents.entity.line;
 import com.honeywell.aidc.AidcException;
 import com.honeywell.aidc.AidcManager;
 import com.honeywell.aidc.BarcodeFailureEvent;
@@ -11,12 +14,17 @@ import com.honeywell.aidc.BarcodeReadEvent;
 import com.honeywell.aidc.BarcodeReader;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class BarcodeActivity extends Activity implements BarcodeReader.BarcodeListener {
+    private final DBDocuments dbd = Application.documents.db();
     private AidcManager aidcManager = null;
     private BarcodeReader barcodeReader = null;
     private EditText editBarcode = null;
+    private EditText editName = null;
+    private EditText editPrice = null;
+    private String editBartext = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +32,8 @@ public class BarcodeActivity extends Activity implements BarcodeReader.BarcodeLi
         setContentView(R.layout.barcode_actvity);
 
         editBarcode = findViewById(R.id.editBarcode);
+        editName = findViewById(R.id.editName);
+        editPrice = findViewById(R.id.editPrice);
 
         // Initiialize Barcode Reader
         AidcManager.create(this, manager);
@@ -72,13 +82,12 @@ public class BarcodeActivity extends Activity implements BarcodeReader.BarcodeLi
         private BarcodeReader connectReader(AidcManager aidcManager) {
             try {
                 final BarcodeReader reader = aidcManager.createBarcodeReader();
-
                 reader.setProperty(BarcodeReader.PROPERTY_TRIGGER_CONTROL_MODE,
                         BarcodeReader.TRIGGER_CONTROL_MODE_AUTO_CONTROL);
 
                 // Optional: scanner continuous mode
-                reader.setProperty(BarcodeReader.PROPERTY_TRIGGER_SCAN_MODE,
-                        BarcodeReader.TRIGGER_SCAN_MODE_CONTINUOUS);
+                //reader.setProperty(BarcodeReader.PROPERTY_TRIGGER_SCAN_MODE,
+                //        BarcodeReader.TRIGGER_SCAN_MODE_CONTINUOUS);
 
                 final Map<String, Object> properties = new HashMap<String, Object>();
 
@@ -88,7 +97,7 @@ public class BarcodeActivity extends Activity implements BarcodeReader.BarcodeLi
                 properties.put(BarcodeReader.PROPERTY_CODE_39_ENABLED, true);
                 properties.put(BarcodeReader.PROPERTY_DATAMATRIX_ENABLED, true);
                 properties.put(BarcodeReader.PROPERTY_UPC_A_ENABLE, true);
-                properties.put(BarcodeReader.PROPERTY_EAN_13_ENABLED, false);
+                //properties.put(BarcodeReader.PROPERTY_EAN_13_ENABLED, false);
                 properties.put(BarcodeReader.PROPERTY_AZTEC_ENABLED, false);
                 properties.put(BarcodeReader.PROPERTY_CODABAR_ENABLED, false);
                 properties.put(BarcodeReader.PROPERTY_INTERLEAVED_25_ENABLED, false);
@@ -111,12 +120,37 @@ public class BarcodeActivity extends Activity implements BarcodeReader.BarcodeLi
         }
     };
 
+    private final Runnable barcodesetter = new Runnable() {
+        @Override
+        public void run() {
+            editBarcode.setText(editBartext);
+
+            final PagingList<line> lines = new PagingList<line>(
+                    dbd.lines().findBarCode(editBartext));
+
+            if (lines.size() > 0) {
+                editName.setText(lines.get(0).GoodsName);
+                editPrice.setText(String.format(Locale.getDefault(),
+                        "%.2f", lines.get(0).Price));
+            } else {
+                editName.setText("");
+                editPrice.setText("");
+            }
+        }
+    };
+
+    private void updateBarcode(String barcode) {
+        editBartext = barcode;
+        runOnUiThread(barcodesetter);
+    }
+
     @Override
     public void onBarcodeEvent(BarcodeReadEvent barcodeReadEvent) {
-        editBarcode.setText(barcodeReadEvent.getBarcodeData());
+        updateBarcode(barcodeReadEvent.getBarcodeData());
     }
 
     @Override
     public void onFailureEvent(BarcodeFailureEvent barcodeFailureEvent) {
+        System.out.println(barcodeFailureEvent);
     }
 }

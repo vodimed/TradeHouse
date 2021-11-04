@@ -15,22 +15,37 @@
     <string name="zero_value">0,00</string>
 
     <string-array name="doc_types">
-        <item>Invoices|накладные</item>
-        <item>Inventories|инвентаризации</item>
-        <item>IntPurchWB|внут. прих. накл.</item>
-        <item>IntSaleWB|внут. расх. накл.</item>
-        <item>ExtPurchWB|внеш. прих. накл.</item>
-        <item>ExtSaleWB|внеш. расх. накл.</item>
-        <item>Initial|первоначальный ввод</item>
-        <item>Terminal|приход УТД</item>
+        <item>|Документы и инвентариз.</item>
+        <item>Inv,InvIntroduce,InvMarks,Inventory|Инвентаризации</item>
+        <item>Introduce,UTD,IntPurchWB,IntSalesWB,ExtPurchWB,ExtSalesWB|Документы</item>
+        <item>IntPurchWB,IntSalesWB,ExtPurchWB,ExtSalesWB|Накладные</item>
+        <item>IntPurchWB|Внутренние приходные н.</item>
+        <item>IntSalesWB|Внутренние расходные н.</item>
+        <item>ExtPurchWB|Внешние приходные накл.</item>
+        <item>ExtSalesWB|Внешние расходные накл.</item>
+        <item>Introduce,UTD|ЭДО</item>
+        <!--
+        <item>InvMarks|Инвентаризация с маркировкой</item>
+        <item>InvIntroduce|Инвентар./Первоначальный ввод</item>
+        <item>Introduce|Первоначальный ввод</item>
+        <item>UTD|Приход УТД</item>
+        -->
+        
     </string-array>
 
     <!--MainActivity-->
+    <!--
     <string name="mainmenu_invoices">1. Накладные</string>
     <string name="mainmenu_inventories">2. Инвентаризации</string>
     <string name="mainmenu_pricecontrol">3. Контроль цен</string>
     <string name="mainmenu_dictionaries">4. Обновление справочников</string>
     <string name="mainmenu_settings">5. Настройки</string>
+    -->
+    <string name="mainmenu_invoices">.</string>
+    <string name="mainmenu_inventories">.</string>
+    <string name="mainmenu_pricecontrol">.</string>
+    <string name="mainmenu_dictionaries">.</string>
+    <string name="mainmenu_settings">.</string>
 
     <!--InvoicesActivity-->
     <string name="invoice_selector">Отобразить</string>
@@ -43,10 +58,19 @@
     <string name="invoice_amount_fact">Фактически</string>
 
     <string-array name="invoice_types">
+        <!--
+        <item>Inv|Инвентаризация</item>
+        <item>InvMarks|Инвентаризация с маркировкой</item>
+        <item>InvIntroduce|Инвентар. первоначальный ввод</item>
+        -->
         <item>IntPurchWB|Накладная внутренняя приходная</item>
-        <item>IntSaleWB|Накладная внутренняя расходная</item>
+        <item>IntSalesWB|Накладная внутренняя расходная</item>
         <item>ExtPurchWB|Накладная внешняя приходная</item>
-        <item>ExtSaleWB|Накладная внешняя расходная</item>
+        <item>ExtSalesWB|Накладная внешняя расходная</item>
+        <!--
+        <item>Introduce|Первоначальный ввод</item>
+        <item>UTD|Приход УТД</item>
+        -->
     </string-array>
 
     <!--BarcodeActivity-->
@@ -62,7 +86,7 @@
     <string name="setting_object">Объект</string>
     <string name="setting_connect">Параметры подключения</string>
     <string name="setting_tethering">USB соединение</string>
-    <string name="setting_check">Проверка</string>
+    <string name="setting_check">Подключить</string>
 
     <string name="option_offline">Оффлайн-режим</string>
     <string name="option_loadinv">Загружать накладные</string>

@@ -427,6 +427,8 @@ public class ServiceActivity extends Activity {
         @Override
         public long getItemId(int position) {
             if (position < 0 || position >= getCount()) return INVALID_ROW_ID; // called if hasStableIds
+            final ServiceInterface.JobInfo item = getItem(position);
+            if (item == null) return INVALID_ROW_ID;
             return getItem(position).jobId;
         }
     }

@@ -2,7 +2,7 @@ package com.expertek.tradehouse.tradehouse;
 
 import android.os.Bundle;
 
-import com.expertek.tradehouse.MainApplication;
+import com.expertek.tradehouse.Application;
 import com.expertek.tradehouse.MainSettings;
 
 import java.io.File;
@@ -21,13 +21,13 @@ public class Словари extends TradeHouseTask {
             throw new IOException(connection.getResponseMessage());
         }
 
-        final File dictionaries = MainApplication.app().getDatabasePath(MainSettings.Dictionaries_db);
+        final File dictionaries = Application.app().getDatabasePath(MainSettings.Dictionaries_db);
 
         // By 12.10.2021 Server sends incorrect ContentType="text/csv" for "raw" data
         if ("text/csv".equals(connection.getContentType()) && connection.getContentLength() < 8192) {
             response(connection.getInputStream(), result);
         } else if (binary_response(connection.getInputStream(), dictionaries)) {
-            result.putSerializable(dictionaries.getName(), MainApplication.dictionaries.version());
+            result.putSerializable(dictionaries.getName(), Application.dictionaries.version());
         }
         return result;
     }

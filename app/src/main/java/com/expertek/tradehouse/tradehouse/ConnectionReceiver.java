@@ -17,43 +17,50 @@ import java.io.IOException;
 // <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 // ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Service.CONNECTIVITY_SERVICE);
 // Log.i("", connectivityManager.getLinkProperties(connectivityManager.getActiveNetwork()).toString());
-public class USBConnectReceiver extends BroadcastReceiver {
+public class ConnectionReceiver extends BroadcastReceiver {
+    public enum Status {connected, unavailable, launched};
     private static final String tetherPackage = "com.android.settings";
     private static final String tetherClassName = "com.android.settings.TetherSettings";
+    private static final String[] linksSupported = {"eth", "rndis"}; // in preferable order
 
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)) {
-            onUSBConnected(context);
+            onUSBCableConnected(context);
         } else if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)) {
-            onUSBDisconnected(context);
+            onUSBCableDisconnected(context);
         }
     }
 
-    // https://developer.android.com/training/monitoring-device-state/battery-monitoring.html
-    public static void checkUSBConnection(Context context) {
-        final IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-        final Intent batteryStatus = context.registerReceiver(null, ifilter);
-        final int chargePlug = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
-        final boolean usbChargeOn = (chargePlug == BatteryManager.BATTERY_PLUGGED_USB);
-
-        if (usbChargeOn && (getConnectedIp() == null))
-            new USBConnectReceiver().onUSBConnected(context);
+    protected void onUSBCableConnected(Context context) {
+        connect(context);
     }
 
-    protected void onUSBConnected(Context context) {
-        if (MainSettings.Tethering) {
-            Intent tetherSettings = new Intent();
-            tetherSettings.setClassName(tetherPackage, tetherClassName);
-            context.startActivity(tetherSettings);
-        }
-    }
-
-    protected void onUSBDisconnected(Context context) {
+    protected void onUSBCableDisconnected(Context context) {
         System.out.println("USB cable disconnected");
     }
 
+    // https://developer.android.com/training/monitoring-device-state/battery-monitoring.html
+    public static boolean isUSBCableConnected(Context context) {
+        final IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        final Intent batteryStatus = context.registerReceiver(null, ifilter);
+        final int chargePlug = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+        return (chargePlug == BatteryManager.BATTERY_PLUGGED_USB);
+    }
+
+    public static Status connect(Context context) {
+        if (getConnectedIp() != null) return Status.connected;
+        if (!MainSettings.Tethering) return Status.unavailable;
+
+        final Intent tetherSettings = new Intent();
+        tetherSettings.setClassName(tetherPackage, tetherClassName);
+        context.startActivity(tetherSettings);
+        return Status.launched;
+    }
+
     public static String getConnectedIp() {
+        int foindId = linksSupported.length;
+        String foundIp = null;
         try {
             final BufferedReader arpfile = new BufferedReader(new FileReader("/proc/net/arp"));
             String line;
@@ -65,13 +72,18 @@ public class USBConnectReceiver extends BroadcastReceiver {
                 final String mac = split[3];
                 final String ip = split[0];
 
-                if (iface.equals("rndis0") && mac.matches("..:..:..:..:..:..")) {
-                    return ip;
+                if (mac.matches("..:..:..:..:..:..")) {
+                    for (int i = 0; i < foindId; i++) {
+                        if (iface.startsWith(linksSupported[i])) {
+                            foundIp = ip;
+                            foindId = i;
+                        }
+                    }
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return foundIp;
     }
 }

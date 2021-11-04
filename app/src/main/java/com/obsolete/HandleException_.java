@@ -4,7 +4,7 @@ import android.util.Log;
 
 import androidx.annotation.StringRes;
 
-import com.expertek.tradehouse.MainApplication;
+import com.expertek.tradehouse.Application;
 
 public final class HandleException_ {
     public HandleException_(Exception e) {
@@ -20,7 +20,7 @@ public final class HandleException_ {
     }
 
     public static void accept(Exception e, @StringRes int id) {
-        accept(e, MainApplication.app().getResources().getString(id));
+        accept(e, Application.app().getResources().getString(id));
     }
 
     public static void accept(Exception e, String msg) {

@@ -85,13 +85,13 @@ public class DictionariesActivity extends Activity {
     protected void actionReceive(@NonNull ServiceInterface.JobInfo work, Bundle result) {
         switch (work.getJobId()) {
             case 2:
-                final File dictionaries = MainApplication.app().getDatabasePath(MainSettings.Dictionaries_db);
-                MainApplication.replace_dictionaries_db_file(TradeHouseTask.temporary(dictionaries).getName(),
+                final File dictionaries = Application.app().getDatabasePath(MainSettings.Dictionaries_db);
+                Application.replace_dictionaries_db_file(TradeHouseTask.temporary(dictionaries).getName(),
                         (Class<? extends DbDictionaries>) result.getSerializable(dictionaries.getName()));
                 break;
             case 3:
-                final File documents = MainApplication.app().getDatabasePath(MainSettings.Documents_db);
-                MainApplication.replace_documents_db_file(TradeHouseTask.temporary(documents).getName(),
+                final File documents = Application.app().getDatabasePath(MainSettings.Documents_db);
+                Application.replace_documents_db_file(TradeHouseTask.temporary(documents).getName(),
                         (Class<? extends DBDocuments>) result.getSerializable(documents.getName()));
                 break;
         }

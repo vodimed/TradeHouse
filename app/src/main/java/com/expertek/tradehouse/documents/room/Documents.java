@@ -24,8 +24,8 @@ public interface Documents {
     @Query("SELECT MAX(DocName) FROM MT_documents")
     String getMaxId();
 
-    @Query("SELECT * FROM MT_documents WHERE DocType = :docType")
-    DataSource.Factory<Integer, document> getDocType(String docType);
+    @Query("SELECT * FROM MT_documents WHERE DocType IN (:t0,:t1,:t2,:t3,:t4,:t5,:t6,:t7,:t8,:t9)")
+    DataSource.Factory<Integer, document> getDocType(String[] docType);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(document... objects);
