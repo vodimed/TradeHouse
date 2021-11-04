@@ -62,7 +62,7 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
             page = cache[slot].page(header);
         }
 
-        return (page.size() > 0 ? page.get(identifier - header) : null);
+        return ((page != null) && (page.size() > 0) ? page.get(identifier - header) : null);
     }
 
     @Override

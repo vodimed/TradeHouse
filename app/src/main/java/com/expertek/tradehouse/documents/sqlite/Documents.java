@@ -10,6 +10,8 @@ import com.common.extensions.database.SQLiteDatabase;
 import com.common.extensions.database.SQLitePager;
 import com.expertek.tradehouse.documents.entity.document;
 
+import java.util.Arrays;
+
 public class Documents {
     private final SQLiteDatabase db;
 
@@ -42,6 +44,7 @@ public class Documents {
         }
 
         final String[] docParams = new String[10];
+        Arrays.fill(docParams, "");
         System.arraycopy(docType, 0, docParams, 0, docType.length);
 
         return new SQLitePager.Factory<>(db, document.class,

@@ -98,8 +98,9 @@ public abstract class SQLitePager<Value extends Serializable> extends Positional
     @NonNull
     public List<Value> loadRange(int startPosition, int loadCount) {
         final ArrayList<Value> result = new ArrayList<Value>();
-        args[args.length - 2] = loadCount;
-        args[args.length - 1] = startPosition;
+        args[args.length - 2] = String.valueOf(loadCount);
+        args[args.length - 1] = String.valueOf(startPosition);
+        // TODO: ^ (object / string)
 
         final String[] sagrs = new String[args.length];
         for (int i = 0; i < args.length; i++) {
