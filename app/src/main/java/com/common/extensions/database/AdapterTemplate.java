@@ -23,11 +23,12 @@ import androidx.annotation.Nullable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Adapter for ListView class (when RecycledView library is not connected).
- * To correct handling onItemClick events items must implement Checkable interface.
+ * To correct handling onItemClick events items must implement Checkable interface,
+ * and send event "sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_CLICKED);"
  * To suppress second onClick sound (echo), set ListView.setSoundEffectsEnabled(false).
  */
 public abstract class AdapterTemplate<Item>
@@ -146,11 +147,11 @@ public abstract class AdapterTemplate<Item>
         // which drops acessibility of non-transient layout (if this layout consists of one View).
         // View.setHasTransientState(true) is overcomplicated way, so we just restore Acessibility
         // on stage of binding ViewHolder (onBindViewHolder) in getView() method of this class.
-        final View view = acessible(createView(parent, viewType), true);
-        // view.setHasTransientState(true);
+        final View layout = acessible(createView(parent, viewType), true);
+        // layout.setHasTransientState(true);
         try {
-            final Holder result = creator.newInstance(view);
-            view.setTag(result);
+            final Holder result = creator.newInstance(layout);
+            layout.setTag(result);
             return result;
         } catch (IllegalAccessException e) {
             e.printStackTrace();
@@ -178,9 +179,8 @@ public abstract class AdapterTemplate<Item>
     }
 
     protected View acessible(View view, boolean indeepth) {
-        if (!(view instanceof ViewGroup)) {
-            view.setAccessibilityDelegate(delegate);
-        } else if (indeepth) {
+        view.setAccessibilityDelegate(delegate);
+        if (indeepth && (view instanceof ViewGroup)) {
             final ViewGroup parent = (ViewGroup) view;
             for (int i = parent.getChildCount() - 1; i >= 0; i--) {
                 acessible(parent.getChildAt(i), indeepth);
@@ -226,8 +226,8 @@ public abstract class AdapterTemplate<Item>
     public int getCount() {
         if (dataset instanceof Cursor) {
             return ((Cursor) dataset).getCount();
-        } else if (dataset instanceof List) {
-            return ((List<?>) dataset).size();
+        } else if (dataset instanceof Collection) {
+            return ((Collection<?>) dataset).size();
         } else if (dataset instanceof Object[]) {
             return ((Object[]) dataset).length;
         } else if (dataset == null) {
@@ -596,7 +596,7 @@ public abstract class AdapterTemplate<Item>
      * Checkable logic implementation
      */
     protected static class Choicer {
-        private final static boolean fastop = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P);
+        private static final boolean fastop = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P);
         private final SparseBooleanArray selection = new SparseBooleanArray();
         private final LongSparseArray<Integer> hintpos = new LongSparseArray<Integer>();
         private int choiceMode;

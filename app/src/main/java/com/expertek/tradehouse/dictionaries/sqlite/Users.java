@@ -18,7 +18,7 @@ public class Users {
     }
 
     public DataSource.Factory<Integer, user> get(String... ident) {
-        return new SQLitePager.Factory<>(db, user.class, "SELECT * FROM TH_users WHERE userID IN (:ident)", (Object) ident);
+        return new SQLitePager.Factory<>(db, user.class, "SELECT * FROM TH_users WHERE userID IN (:ident)", ident);
     }
 
     //@Query("SELECT * FROM TH_users WHERE first_name LIKE :first AND " +

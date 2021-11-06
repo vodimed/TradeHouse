@@ -29,4 +29,10 @@ public class line implements Serializable {
     public String AlcCode; // Дополнительный код
     public String PartIDTH; // ИД партии
     public int Flags; // Битовый флаги означающие различные свойства документа в формате int
+
+    @Override
+    @NonNull
+    public String toString() {
+        return "Позиция: " + GoodsName + ", " + FactQnty + " " + UnitBC;
+    }
 }

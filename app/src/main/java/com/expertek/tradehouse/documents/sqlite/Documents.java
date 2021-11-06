@@ -24,32 +24,47 @@ public class Documents {
     }
 
     public DataSource.Factory<Integer, document> get(String... ident) {
-        return new SQLitePager.Factory<>(db, document.class, "SELECT * FROM MT_documents WHERE DocName IN (:ident)", (Object) ident);
+        return new SQLitePager.Factory<>(db, document.class, "SELECT * FROM MT_documents WHERE DocName IN (:ident)", ident);
     }
 
     //@Query("SELECT * FROM MT_documents WHERE first_name LIKE :first AND " +
     //        "last_name LIKE :last LIMIT 1")
     //document findByName(String first, String last);
 
-    public String getMaxId() {
+    public String getNextId() {
         final SQLiteStatement stmt = db.compileStatement("SELECT MAX(DocName) FROM MT_documents");
-        return stmt.simpleQueryForString();
+        final String lastId = stmt.simpleQueryForString();
+        if (lastId == null) return "0001";
+
+        final char[] nextId = lastId.toCharArray();
+        for (int i = nextId.length - 1; i >= 0; i--) {
+            if (nextId[i] >= '0' && nextId[i] <= '9') {
+                if (++nextId[i] <= '9') return new String(nextId);
+                nextId[i] = '0';
+            }
+        }
+        return "1" + (new String(nextId));
+    }
+
+    public boolean duplicate(document document) {
+        final SQLiteStatement stmt = db.compileStatement("SELECT COUNT(*) FROM MT_documents WHERE DocName = :DocName");
+        stmt.bindString(1, document.DocName);
+        return (stmt.simpleQueryForLong() > 0);
     }
 
     public DataSource.Factory<Integer, document> getDocType(String[] docType) {
-        if (docType == null || docType.length <= 0) return load();
-
-        for (int i = 0; i < docType.length; i++) {
-            if (docType[i] == null || docType[i].length() <= 0) return load();
+        if ((docType == null) || (docType.length <= 0)) return load();
+        for (String elem : docType) {
+            if ((elem == null) || (elem.length() <= 0)) return load();
         }
 
         final String[] docParams = new String[10];
-        Arrays.fill(docParams, "");
+        Arrays.fill(docParams, docType[0]);
         System.arraycopy(docType, 0, docParams, 0, docType.length);
 
         return new SQLitePager.Factory<>(db, document.class,
                "SELECT * FROM MT_documents WHERE DocType IN " +
-                      "(:t0,:t1,:t2,:t3,:t4,:t5,:t6,:t7,:t8,:t9)", (Object[]) docParams);
+                      "(:t0,:t1,:t2,:t3,:t4,:t5,:t6,:t7,:t8,:t9)", docParams);
     }
 
     public void insert(document... objects) {
@@ -67,7 +82,7 @@ public class Documents {
             map.put("UserID", document.UserID);
             map.put("UserName", document.UserName);
             map.put("FactSum", document.FactSum);
-            map.put("StartDate", new DateConverter().save(document.StartDate));
+            map.put("StartDate", DateConverter.get(document.StartDate));
             map.put("Flags", document.Flags);
             db.replace("MT_documents", null, map);
         }

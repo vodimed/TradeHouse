@@ -18,7 +18,7 @@ public class Barcodes {
     }
 
     public DataSource.Factory<Integer, barcode> get(String... ident) {
-        return new SQLitePager.Factory<>(db, barcode.class, "SELECT * FROM TH_barcodes WHERE BC IN (:ident)", (Object) ident);
+        return new SQLitePager.Factory<>(db, barcode.class, "SELECT * FROM TH_barcodes WHERE BC IN (:ident)", ident);
     }
 
     //@Query("SELECT * FROM TH_barcodes WHERE first_name LIKE :first AND " +

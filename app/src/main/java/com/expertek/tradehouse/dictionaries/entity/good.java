@@ -4,8 +4,9 @@ import androidx.annotation.NonNull;
 
 import java.io.Serializable;
 
-//TODO ROOM: @Entity(tableName = "TH_goods", primaryKeys = {"GoodsID"})
+//TODO ROOM: @Entity(tableName = "TH_goods")
 public class good implements Serializable {
+    //TODO ROOM: @PrimaryKey
     public @NonNull int GoodsID; // идентификатор товара из TH
     public String Name; // название
     public String UnitBase; // основная ед. изм.

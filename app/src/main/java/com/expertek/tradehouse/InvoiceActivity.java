@@ -11,8 +11,8 @@ import android.widget.TextView;
 import com.expertek.tradehouse.documents.entity.line;
 
 public class InvoiceActivity extends Activity {
-    public final static int REQUEST_ADD_POSITION = 1;
-    public final static int REQUEST_EDIT_POSITION = 2;
+    public static final int REQUEST_ADD_POSITION = 1;
+    public static final int REQUEST_EDIT_POSITION = 2;
     private line line = null;
     private TextView editName = null;
     protected EditText editPrice = null;

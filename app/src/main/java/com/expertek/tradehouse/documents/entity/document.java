@@ -1,16 +1,21 @@
 package com.expertek.tradehouse.documents.entity;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.expertek.tradehouse.Application;
+import com.expertek.tradehouse.R;
 
 import java.io.Serializable;
 import java.util.Date;
 
 /*TODO ROOM:
-@Entity(tableName = "MT_documents", primaryKeys = {"DocName"}, indices = {
+@Entity(tableName = "MT_documents", indices = {
         @Index(name = "docNameDoc", value = {"DocName", "DocType"}, unique = true)
 })
 */
 public class document implements Serializable {
+    //TODO ROOM: @PrimaryKey
     public @NonNull String DocName = ""; // Идентификатор-имя документа
     public String DocType; // Тип документа (приход, расход, возврат)
     public boolean Complete; // Означает загрузить документ в TH (0 – нет 1 – да)
@@ -25,4 +30,20 @@ public class document implements Serializable {
     //@TypeConverters({DateTime.RoomConverter.class}) -- moved to database definition
     public Date StartDate; // Дата документа
     public int Flags; // Битовый флаги означающие различные свойства документа в формате int
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (!(obj instanceof document)) return super.equals(obj);
+        return DocName.equals(((document) obj).DocName);
+    }
+
+    @Override
+    @NonNull
+    public String toString() {
+        String documentType = DocType;
+        for (String doctype : Application.app().getResources().getStringArray(R.array.document_types)) {
+            if (doctype.startsWith(documentType)) documentType = doctype.split("\\|")[1];
+        }
+        return "Документ: " + DocName + ", " + documentType;
+    }
 }

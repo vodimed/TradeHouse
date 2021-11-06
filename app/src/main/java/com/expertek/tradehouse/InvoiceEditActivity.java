@@ -16,22 +16,22 @@ import androidx.annotation.NonNull;
 import com.common.extensions.database.AdapterInterface;
 import com.common.extensions.database.AdapterTemplate;
 import com.common.extensions.database.PagingList;
+import com.expertek.tradehouse.documents.DBDocuments;
 import com.expertek.tradehouse.documents.entity.document;
 import com.expertek.tradehouse.documents.entity.line;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class InvoiceEditActivity extends Activity {
-    public final static int REQUEST_ADD_DOCUMENT = 1;
-    public final static int REQUEST_EDIT_DOCUMENT = 2;
-    public final static int REQUEST_DELETE_DOCUMENT = 3;
-    private static final DateFormat date = SimpleDateFormat.getInstance(); // SimpleDateFormat("dd.MM.yyyy HH:mm")
-    private PagingList<line> lines = null;
-    protected document document = null;
+    public static final int REQUEST_ADD_DOCUMENT = 1;
+    public static final int REQUEST_EDIT_DOCUMENT = 2;
+    public static final int REQUEST_DELETE_DOCUMENT = 3;
+    private DBDocuments dbd = Application.documents.db();
+    protected PagingList<line> lines = null;
     protected LineAdapter adapterLine = null;
-    private ListView listLine = null;
+    protected document document = null;
+    protected final long firstLineId = dbd.lines().getNextId();
     private int position = AdapterInterface.INVALID_POSITION;
     private Button buttonAdd = null;
     private Button buttonEdit = null;
@@ -45,20 +45,21 @@ public class InvoiceEditActivity extends Activity {
 
         // Retrieve Activity parameters
         document = (document) getIntent().getSerializableExtra(document.class.getName());
-        lines = new PagingList<line>(Application.documents.db().lines().loadByDocument(document.DocName));
+        lines = new PagingList<line>(dbd.lines().loadByDocument(document.DocName));
 
         final EditText editNumber = findViewById(R.id.editNumber);
         editNumber.setText(document.DocName);
 
         final TextView labelDate = findViewById(R.id.labelDate);
-        labelDate.setText(date.format(document.StartDate));
+        if (document.StartDate != null)
+            labelDate.setText(SimpleDateFormat.getInstance().format(document.StartDate));
 
         adapterLine = new LineAdapter(this, R.layout.invoice_position);
         adapterLine.setDataSet(lines);
         adapterLine.setOnItemSelectionListener(onLineSelection);
 
-        listLine = findViewById(R.id.listLine);
-        listLine.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        final ListView listLine = findViewById(R.id.listLine);
+        adapterLine.setChoiceMode(listLine, ListView.CHOICE_MODE_SINGLE);
         listLine.setSelector(android.R.drawable.list_selector_background);
         listLine.setAdapter(adapterLine);
 
@@ -98,7 +99,7 @@ public class InvoiceEditActivity extends Activity {
         switch (requestCode) {
             case InvoiceActivity.REQUEST_ADD_POSITION:
                 lines.add(line);
-                position = listLine.getCount() - 1;
+                position = lines.size() - 1;
                 break;
             case InvoiceActivity.REQUEST_EDIT_POSITION:
                 lines.set(position, line);
@@ -109,6 +110,8 @@ public class InvoiceEditActivity extends Activity {
     protected void actionAdd(int position) {
         final line line = new line();
         line.DocName = document.DocName;
+        line.LineID = (int) firstLineId + lines.size();
+        line.Pos = lines.size() + 1;
 
         final Intent intent = new Intent(InvoiceEditActivity.this, InvoiceActivity.class);
         intent.putExtra(line.class.getName(), line);
@@ -125,12 +128,12 @@ public class InvoiceEditActivity extends Activity {
         lines.commit(new PagingList.Commit<line>() {
             @Override
             public void renew(line objects) {
-                Application.documents.db().lines().insert(objects);
+                dbd.lines().insert(objects);
             }
 
             @Override
             public void delete(line objects) {
-                Application.documents.db().lines().delete(objects);
+                dbd.lines().delete(objects);
             }
         });
 
@@ -180,14 +183,14 @@ public class InvoiceEditActivity extends Activity {
             final View owner = holder.getView();
             final line line = getItem(position);
 
-            final TextView textLineID = owner.findViewById(R.id.textLineID);
+            final TextView textPos = owner.findViewById(R.id.textPos);
             final TextView textGoodsName = owner.findViewById(R.id.textGoodsName);
             final TextView textUnitBC = owner.findViewById(R.id.textUnitBC);
             final TextView textPrice = owner.findViewById(R.id.textPrice);
             final TextView textFactQnty = owner.findViewById(R.id.textFactQnty);
             final TextView textDocQnty = owner.findViewById(R.id.textDocQnty);
 
-            textLineID.setText(String.valueOf(line.LineID));
+            textPos.setText(String.valueOf(line.Pos));
             textGoodsName.setText(line.GoodsName);
             textUnitBC.setText(line.UnitBC);
             textPrice.setText(String.valueOf(line.Price));

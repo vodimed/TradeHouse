@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class ServiceConnector implements ServiceConnection, ServiceInterface, ServiceInterface.Receiver {
-    private final static Parcel empty = Parcel.obtain();
+    private static final Parcel empty = Parcel.obtain();
     private final ServiceReceiver delegate = new ServiceReceiver(this);
     private final WeakReference<Context> client;
     private final Class<? extends ServiceEngine> server;

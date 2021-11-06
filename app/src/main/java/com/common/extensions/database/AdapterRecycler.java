@@ -22,7 +22,7 @@ public abstract class AdapterRecycler<Item>
         extends RecyclerView.Adapter<AdapterRecycler.ViewHolder>
         implements AdapterInterface<Item>, AdapterInterface.Viewer
 {
-    private final static boolean useActivated = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB);
+    private static final boolean useActivated = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB);
     private final AdapterTemplate<Item> template;
 
     public AdapterRecycler(Context context, @NonNull @LayoutRes int... layout) {

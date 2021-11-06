@@ -1,28 +1,39 @@
 package com.common.extensions.database;
 
+import android.annotation.SuppressLint;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 public class DateConverter {
     private static final String sqlDateFormat = "yyyy-MM-dd HH:mm:ss";
-    private static final DateFormat date = new SimpleDateFormat(sqlDateFormat);
+    @SuppressLint("SimpleDateFormat")
+    private static final DateFormat template = new SimpleDateFormat(sqlDateFormat);
 
-    public String save(java.util.Date value) {
+    public static String get(java.util.Date value) {
         if (value != null) {
-            return date.format(value);
+            return template.format(value);
         } else {
             return null;
         }
     }
 
-    public java.util.Date load(String value) {
+    public static java.util.Date get(String value) {
         if (value != null) try {
-            return date.parse(value);
+            return template.parse(value);
         } catch (ParseException e) {
             return null;
         } else {
             return null;
         }
+    }
+
+    public String save(java.util.Date value) {
+        return get(value);
+    }
+
+    public java.util.Date load(String value) {
+        return get(value);
     }
 }

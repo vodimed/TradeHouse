@@ -20,6 +20,7 @@ import com.expertek.tradehouse.dictionaries.entity.client;
 import com.expertek.tradehouse.dictionaries.sqlite.Clients;
 import com.expertek.tradehouse.documents.entity.document;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class InvoiceCreateActivity extends Activity {
@@ -39,7 +40,11 @@ public class InvoiceCreateActivity extends Activity {
         document = (document) getIntent().getSerializableExtra(document.class.getName());
 
         adapterType = new InvoiceTypeAdapter(this, android.R.layout.simple_list_item_single_choice);
+        adapterType.setDataSet(InvoiceTypeAdapter.createDataSet(this, document.DocType));
         adapterType.setOnItemSelectionListener(onTypeSelection);
+
+        final EditText editNumber = findViewById(R.id.editNumber);
+        editNumber.setText(document.DocName);
 
         final Spinner spinSelector = findViewById(R.id.spinType);
         spinSelector.setAdapter(adapterType);
@@ -72,8 +77,8 @@ public class InvoiceCreateActivity extends Activity {
     };
 
     protected void actionCreate() {
-        final EditText number = findViewById(R.id.editNumber);
-        final String text = number.getText().toString();
+        final EditText editNumber = findViewById(R.id.editNumber);
+        final String text = editNumber.getText().toString();
         if (text.length() > 0) document.DocName = text;
 
         final Intent intent = new Intent();
@@ -106,7 +111,7 @@ public class InvoiceCreateActivity extends Activity {
         @Override
         public void onItemSelected(ViewGroup parent, View view, int position, long id) {
             document.ClientID = (int) id;
-            document.ClientType = String.valueOf(adapterClient.getItem(position).cli_type);
+            document.ClientType = adapterClient.getItem(position).cli_type;
         }
 
         @Override
@@ -135,15 +140,28 @@ public class InvoiceCreateActivity extends Activity {
     private static class InvoiceTypeAdapter extends AdapterTemplate<String> {
         public InvoiceTypeAdapter(Context context, @NonNull int... layout) {
             super(context, layout);
-            setDataSet(context.getResources().getStringArray(R.array.invoice_types));
+            setDataSet(createDataSet(context, null));
             setHasStableIds(true);
         }
 
         @SafeVarargs
         public InvoiceTypeAdapter(Context context, @NonNull Class<? extends View>... layer) {
             super(context, layer);
-            setDataSet(context.getResources().getStringArray(R.array.invoice_types));
+            setDataSet(createDataSet(context, null));
             setHasStableIds(true);
+        }
+
+        public static String[] createDataSet(Context context, String filter) {
+            final String[] dataset = context.getResources().getStringArray(R.array.document_types);
+            if (filter == null) filter = "";
+            int count = 0;
+            for (int i = 0; i < dataset.length; i++) {
+                final String code = dataset[i].split("\\|")[0];
+                if (code.endsWith("WB") && (filter.length() <= 0 || filter.contains(code))) {
+                    dataset[count++] = dataset[i];
+                }
+            }
+            return Arrays.copyOf(dataset, count);
         }
 
         @Override

@@ -6,6 +6,7 @@ import android.database.DataSetObserver;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
+import androidx.annotation.Nullable;
 import androidx.paging.DataSource;
 
 import java.lang.ref.WeakReference;
@@ -13,9 +14,10 @@ import java.lang.reflect.Method;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 
 public class PagingList<Value> extends AbstractList<Value> implements AdapterInterface.Observable<DataSetObserver> {
-    private final static int pagesize = 20;
+    private static final int pagesize = 20;
     private final DataSetObservable notifier = new DataSetObservable();
     private final DataSource.Factory<Integer, Value> factory;
     private DataSource<Integer, Value> source;
@@ -25,6 +27,14 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
     private final PagingCache<Value>[] cache = new PagingCache[PagingCache.base];
     private final SparseArray<Value> update = new SparseArray<Value>(pagesize);
     private final SparseBooleanArray delete = new SparseBooleanArray(pagesize);
+
+    /**
+     * Commit Listener Interface
+     */
+    public interface Commit<Value> {
+        void renew(Value objects);
+        void delete(Value objects);
+    }
 
     @SuppressLint("RestrictedApi")
     public PagingList(DataSource.Factory<Integer, Value> factory) {
@@ -38,15 +48,22 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
     }
 
     // Restore original index in the DataSet
-    protected int identifier(int index) {
-        int skip = delete.indexOfKey(index);
-        while (skip >= 0) {
-            skip++;
-            if ((skip >= delete.size()) || (delete.keyAt(skip - 1) != delete.keyAt(skip) - 1)) {
-                skip = ~skip;
-            }
+    protected int identifier(int position) {
+        int index = delete.indexOfKey(position);
+        if (index >= 0) {
+            int sequence = delete.keyAt(index);
+            do {
+                index++;
+                sequence++;
+            } while ((index >= 0) && (delete.keyAt(index) == sequence));
+            index = ~index;
         }
-        return index + (~skip);
+        return position + (~index);
+    }
+
+    // Restore actual position in the Adapter
+    protected int position(int identifier) {
+        return identifier - (~delete.indexOfKey(identifier));
     }
 
     // Retrieve page of data and put it into cache
@@ -62,21 +79,25 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
             page = cache[slot].page(header);
         }
 
-        return ((page != null) && (page.size() > 0) ? page.get(identifier - header) : null);
+        if ((page != null) && (page.size() > 0)) {
+            return page.get(identifier - header);
+        } else {
+            return null;
+        }
     }
 
     @Override
-    public Value get(int index) {
-        final int identifier = identifier(index);
+    public Value get(int position) {
+        final int identifier = identifier(position);
         Value cached = update.get(identifier);
         if (cached == null) cached = retrieve(identifier);
         return cached;
     }
 
     @Override
-    public Value set(int index, Value element) {
-        assert (index >= 0) && (index < size);
-        final int identifier = identifier(index);
+    public Value set(int position, Value element) {
+        assert (position >= 0) && (position < size);
+        final int identifier = identifier(position);
         update.put(identifier, element);
         notifier.notifyChanged();
         return null;
@@ -92,9 +113,9 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
     }
 
     @Override
-    public Value remove(int index) {
-        assert (index >= 0) && (index < size);
-        final int identifier = identifier(index);
+    public Value remove(int position) {
+        assert (position >= 0) && (position < size);
+        final int identifier = identifier(position);
         update.delete(identifier);
         delete.put(identifier, true);
         size--;
@@ -102,23 +123,36 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
         return null;
     }
 
-    public void dismiss(int index) {
-        assert (index >= 0) && (index < size);
-        final int identifier = identifier(index);
-        update.put(identifier, null);
-        notifier.notifyChanged();
-    }
-
-    public void recover(int index) {
-        assert (index >= 0) && (index < size);
-        final int identifier = identifier(index);
-        update.put(identifier, retrieve(identifier));
-        notifier.notifyChanged();
+    @Override
+    public int indexOf(@Nullable Object o) {
+        final Value element = (Value) o;
+        int identifier = 0;
+        for (Iterator<Value> itr = iterator(); itr.hasNext(); identifier++) {
+            final Value exists = itr.next();
+            if (exists.equals(element)) {
+                return position(identifier);
+            }
+        }
+        return -1;
     }
 
     @Override
     public int size() {
         return size;
+    }
+
+    public void dismiss(int position) {
+        assert (position >= 0) && (position < size);
+        final int identifier = identifier(position);
+        update.put(identifier, null);
+        notifier.notifyChanged();
+    }
+
+    public void recover(int position) {
+        assert (position >= 0) && (position < size);
+        final int identifier = identifier(position);
+        update.put(identifier, retrieve(identifier));
+        notifier.notifyChanged();
     }
 
     public void commit(Commit<Value> listener) {
@@ -159,18 +193,10 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
     }
 
     /**
-     * Commit Listener Interface
-     */
-    public interface Commit<Value> {
-        void renew(Value objects);
-        void delete(Value objects);
-    }
-
-    /**
      * Cache element
      */
     private static class PagingCache<Value> {
-        private final static int base = 31;
+        private static final int base = 31;
         private final WeakReference<ArrayList<Value>> page;
         private final int header;
 
@@ -187,12 +213,12 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
             }
         }
 
-        public static int header(int index) {
-            return (index / pagesize) * pagesize;
+        public static int header(int identifier) {
+            return (identifier / pagesize) * pagesize;
         }
 
-        public static int slot(int index) {
-            return (index / pagesize) % base;
+        public static int slot(int identifier) {
+            return (identifier / pagesize) % base;
         }
     }
 

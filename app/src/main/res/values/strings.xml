@@ -9,12 +9,15 @@
     <string name="add">Добавить</string>
     <string name="edit">Изменить</string>
     <string name="delete">Удалить</string>
-    <string name="save">Сохранить</string>
-    <string name="send">Отправить</string>
+    <string name="save">Записать</string>
+    <string name="send">Послать</string>
     <string name="close">Закрыть</string>
     <string name="zero_value">0,00</string>
+    <string name="confirmation">Подтвердите</string>
+    <string name="deletion">Удаляется</string>
+    <string name="duplicate">Дубликат</string>
 
-    <string-array name="doc_types">
+    <string-array name="document_filters">
         <item>|Документы и инвентариз.</item>
         <item>Inv,InvIntroduce,InvMarks,Inventory|Инвентаризации</item>
         <item>Introduce,UTD,IntPurchWB,IntSalesWB,ExtPurchWB,ExtSalesWB|Документы</item>
@@ -57,20 +60,16 @@
     <string name="invoice_amount_doc">Документарно</string>
     <string name="invoice_amount_fact">Фактически</string>
 
-    <string-array name="invoice_types">
-        <!--
+    <string-array name="document_types">
         <item>Inv|Инвентаризация</item>
         <item>InvMarks|Инвентаризация с маркировкой</item>
         <item>InvIntroduce|Инвентар. первоначальный ввод</item>
-        -->
         <item>IntPurchWB|Накладная внутренняя приходная</item>
         <item>IntSalesWB|Накладная внутренняя расходная</item>
         <item>ExtPurchWB|Накладная внешняя приходная</item>
         <item>ExtSalesWB|Накладная внешняя расходная</item>
-        <!--
         <item>Introduce|Первоначальный ввод</item>
         <item>UTD|Приход УТД</item>
-        -->
     </string-array>
 
     <!--BarcodeActivity-->

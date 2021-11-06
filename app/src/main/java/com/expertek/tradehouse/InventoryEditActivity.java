@@ -9,6 +9,8 @@ public class InventoryEditActivity extends InvoiceEditActivity {
     protected void actionAdd(int position) {
         final line line = new line();
         line.DocName = document.DocName;
+        line.LineID = (int) firstLineId + lines.size();
+        line.Pos = lines.size() + 1;
 
         final Intent intent = new Intent(InventoryEditActivity.this, InventoryActivity.class);
         intent.putExtra(line.class.getName(), line);

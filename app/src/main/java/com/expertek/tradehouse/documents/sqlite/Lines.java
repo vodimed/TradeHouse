@@ -1,6 +1,7 @@
 package com.expertek.tradehouse.documents.sqlite;
 
 import android.content.ContentValues;
+import android.database.sqlite.SQLiteStatement;
 
 import androidx.paging.DataSource;
 
@@ -26,6 +27,11 @@ public class Lines {
     //@Query("SELECT * FROM MT_lines WHERE first_name LIKE :first AND " +
     //        "last_name LIKE :last LIMIT 1")
     //line findByName(String first, String last);
+
+    public long getNextId() {
+        final SQLiteStatement stmt = db.compileStatement("SELECT MAX(LineID) FROM MT_lines");
+        return stmt.simpleQueryForLong() + 1;
+    }
 
     public DataSource.Factory<Integer, line> loadByDocument(String docName) {
         return new SQLitePager.Factory<>(db, line.class, "SELECT * FROM MT_lines WHERE DocName = :docName", docName);
