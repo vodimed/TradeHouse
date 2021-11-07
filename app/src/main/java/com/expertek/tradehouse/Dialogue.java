@@ -23,6 +23,13 @@ public class Dialogue {
         display1(dialog, listener);
     }
 
+    public static void Error(Context context, Exception e) {
+        final AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+        dialog.setTitle(R.string.exception);
+        dialog.setMessage(e.getMessage());
+        display1(dialog, null);
+    }
+
     public static void Delete(Context context, Serializable record, DialogInterface.OnClickListener listener) {
         final AlertDialog.Builder dialog = new AlertDialog.Builder(context);
         dialog.setTitle(R.string.deletion);

@@ -12,10 +12,11 @@
     <string name="save">Записать</string>
     <string name="send">Послать</string>
     <string name="close">Закрыть</string>
-    <string name="zero_value">0,00</string>
+    <string name="zero_value">0.00</string>
     <string name="confirmation">Подтвердите</string>
     <string name="deletion">Удаляется</string>
     <string name="duplicate">Дубликат</string>
+    <string name="exception">Ошибка</string>
 
     <string-array name="document_filters">
         <item>|Документы и инвентариз.</item>

@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 
 import com.common.extensions.database.AdapterInterface;
 import com.common.extensions.database.AdapterTemplate;
+import com.common.extensions.database.CurrencyFormatter;
 import com.common.extensions.database.DateConverter;
 import com.common.extensions.database.PagingList;
 import com.common.extensions.exchange.ServiceConnector;
@@ -39,6 +40,7 @@ public class InvoicesActivity extends Activity {
     protected DocumentAdapter adapterDocument = null;
     private String[] filtertype = null;
     private int position = AdapterInterface.INVALID_POSITION;
+    private TextView editSummary = null;
     protected Button buttonCreate = null;
     private Button buttonEdit = null;
     private Button buttonDelete = null;
@@ -51,6 +53,8 @@ public class InvoicesActivity extends Activity {
 
         // Register Service
         tradehouse.registerService(false);
+
+        editSummary = findViewById(R.id.editSummary);
 
         adapterType = new DocTypeAdapter(this, android.R.layout.simple_list_item_single_choice);
         adapterType.setOnItemSelectionListener(onTypeSelection);
@@ -117,7 +121,7 @@ public class InvoicesActivity extends Activity {
                     position = documents.indexOf(document);
                     if (position < 0) {
                         Dialogue.Duplicate(InvoicesActivity.this, document, null);
-                        position = AdapterInterface.INVALID_POSITION;
+                        onDocumentSelection.onNothingSelected(null);
                         return; // not in selection
                     }
                     document = documents.get(position);
@@ -129,7 +133,7 @@ public class InvoicesActivity extends Activity {
                 break;
             case InvoiceEditActivity.REQUEST_DELETE_DOCUMENT:
                 documents.remove(position);
-                position = AdapterInterface.INVALID_POSITION;
+                onDocumentSelection.onNothingSelected(null);
                 break;
         }
 
@@ -144,6 +148,8 @@ public class InvoicesActivity extends Activity {
                 dbd.documents().delete(objects);
             }
         });
+
+        refreshActivityControls();
     }
 
     protected void actionCreate(int position) {
@@ -184,6 +190,12 @@ public class InvoicesActivity extends Activity {
         }
     };
 
+    private void refreshActivityControls() {
+        final String selectedKey = TextUtils.join(",", filtertype);
+        editSummary.setText(CurrencyFormatter.format(dbd.documents().sumAllDocs(filtertype)));
+        buttonCreate.setEnabled(selectedKey.length() <= 0 || selectedKey.contains("WB"));
+    }
+
     private final AdapterInterface.OnItemSelectionListener onTypeSelection =
             new AdapterInterface.OnItemSelectionListener()
     {
@@ -193,7 +205,7 @@ public class InvoicesActivity extends Activity {
             filtertype = selectedKey.split(",");
             documents = new PagingList<document>(dbd.documents().getDocType(filtertype));
             adapterDocument.setDataSet(documents);
-            buttonCreate.setEnabled(selectedKey.length() <= 0 || selectedKey.contains("WB"));
+            refreshActivityControls();
             onDocumentSelection.onNothingSelected(parent);
         }
 
@@ -324,7 +336,7 @@ public class InvoicesActivity extends Activity {
             textDocName.setText(document.DocName);
             textDocType.setText(shortype.get(document.DocType));
             textStatus.setText(document.Status);
-            textFactSum.setText(String.valueOf(document.FactSum));
+            textFactSum.setText(CurrencyFormatter.format(document.FactSum));
             textStartDate.setText(DateConverter.format(document.StartDate));
         }
 

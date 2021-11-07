@@ -47,9 +47,34 @@ public class Documents {
     }
 
     public boolean duplicate(document document) {
-        final SQLiteStatement stmt = db.compileStatement("SELECT COUNT(*) FROM MT_documents WHERE DocName = :DocName");
+        final SQLiteStatement stmt = db.compileStatement(
+                "SELECT COUNT(*) FROM MT_documents WHERE DocName = :DocName");
         stmt.bindString(1, document.DocName);
         return (stmt.simpleQueryForLong() > 0);
+    }
+
+    public double sumAllDocs(String[] docType) {
+        boolean all_docs = false;
+        if ((docType == null) || (docType.length <= 0)) all_docs = true;
+        for (String elem : docType) {
+            if ((elem == null) || (elem.length() <= 0)) all_docs = true;
+        }
+
+        if (all_docs) {
+            final SQLiteStatement stmt = db.compileStatement(
+                    "SELECT SUM(FactSum) * 100 FROM MT_documents");
+            return (double) stmt.simpleQueryForLong() / 100;
+        } else {
+            final String[] docParams = new String[10];
+            Arrays.fill(docParams, docType[0]);
+            System.arraycopy(docType, 0, docParams, 0, docType.length);
+
+            final SQLiteStatement stmt = db.compileStatement(
+                    "SELECT SUM(FactSum) * 100 FROM MT_documents WHERE DocType IN " +
+                            "(:t0,:t1,:t2,:t3,:t4,:t5,:t6,:t7,:t8,:t9)");
+            stmt.bindAllArgsAsStrings(docParams);
+            return (double) stmt.simpleQueryForLong() / 100;
+        }
     }
 
     public DataSource.Factory<Integer, document> getDocType(String[] docType) {

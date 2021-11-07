@@ -8,7 +8,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.common.extensions.database.CurrencyFormatter;
 import com.expertek.tradehouse.documents.entity.line;
+
+import java.text.ParseException;
 
 public class InvoiceActivity extends Activity {
     public static final int REQUEST_ADD_POSITION = 1;
@@ -33,13 +36,13 @@ public class InvoiceActivity extends Activity {
         editName.setText(line.GoodsName);
 
         editPrice = findViewById(R.id.buttonPrice);
-        editPrice.setText(String.valueOf(line.Price));
+        editPrice.setText(CurrencyFormatter.format(line.Price));
 
         editAmountDoc = findViewById(R.id.editAmountDoc);
-        editAmountDoc.setText(String.valueOf(line.DocQnty));
+        editAmountDoc.setText(CurrencyFormatter.format(line.DocQnty));
 
         editAmountFact = findViewById(R.id.editAmountFact);
-        editAmountFact.setText(String.valueOf(line.FactQnty));
+        editAmountFact.setText(CurrencyFormatter.format(line.FactQnty));
 
         buttonOk = findViewById(R.id.buttonOk);
         buttonCancel = findViewById(R.id.buttonCancel);
@@ -61,9 +64,14 @@ public class InvoiceActivity extends Activity {
 
     protected void actionOk() {
         line.GoodsName = editName.getText().toString();
-        line.Price = Double.parseDouble(editPrice.getText().toString());
-        line.DocQnty = Double.parseDouble(editAmountDoc.getText().toString());
-        line.FactQnty = Double.parseDouble(editAmountFact.getText().toString());
+        try {
+            line.Price = CurrencyFormatter.parse(editPrice.getText().toString());
+            line.DocQnty = CurrencyFormatter.parse(editAmountDoc.getText().toString());
+            line.FactQnty = CurrencyFormatter.parse(editAmountFact.getText().toString());
+        } catch (ParseException e) {
+            Dialogue.Error(this, e);
+            return;
+        }
 
         final Intent intent = new Intent();
         intent.putExtra(line.class.getName(), line);
