@@ -29,6 +29,7 @@ import com.expertek.tradehouse.tradehouse.TradeHouseService;
 import com.expertek.tradehouse.tradehouse.Документы;
 
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 public class InvoicesActivity extends Activity {
@@ -276,6 +277,8 @@ public class InvoicesActivity extends Activity {
      * ListView data Adapter: list of documents by DocType
      */
     protected static class DocumentAdapter extends AdapterTemplate<document> {
+        private static final HashMap<String, String> shortype = fillDocTypes();
+
         public DocumentAdapter(Context context, @NonNull int... layout) {
             super(context, layout);
             setHasStableIds(true);
@@ -285,6 +288,26 @@ public class InvoicesActivity extends Activity {
         public DocumentAdapter(Context context, @NonNull Class<? extends View>... layer) {
             super(context, layer);
             setHasStableIds(true);
+        }
+
+        private static HashMap<String, String> fillDocTypes() {
+            final String[] document_types = Application.app().
+                    getResources().getStringArray(R.array.document_types);
+            final HashMap<String, String> result =
+                    new HashMap<String, String>(document_types.length);
+            final char[] buffer = new char[5];
+
+            for (String doctype : document_types) {
+                final String[] keyval = doctype.split("\\|");
+
+                for (int i = 0, j = 0; i < buffer.length; i++) {
+                    buffer[i] = keyval[1].charAt(j);
+                    j = keyval[1].indexOf(' ', j);
+                    if (++j <= 0) break;
+                }
+                result.put(keyval[0], new String(buffer));
+            }
+            return result;
         }
 
         @Override
@@ -299,10 +322,10 @@ public class InvoicesActivity extends Activity {
             final TextView textStartDate = owner.findViewById(R.id.textStartDate);
 
             textDocName.setText(document.DocName);
-            textDocType.setText(document.DocType);
+            textDocType.setText(shortype.get(document.DocType));
             textStatus.setText(document.Status);
             textFactSum.setText(String.valueOf(document.FactSum));
-            textStartDate.setText(DateConverter.get(document.StartDate));
+            textStartDate.setText(DateConverter.format(document.StartDate));
         }
 
         @Override

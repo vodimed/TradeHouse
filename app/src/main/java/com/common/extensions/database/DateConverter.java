@@ -7,9 +7,18 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 public class DateConverter {
-    private static final String sqlDateFormat = "yyyy-MM-dd HH:mm:ss";
+    private static final String sqlDateTimeFormat = "yyyy-MM-dd HH:mm:ss";
     @SuppressLint("SimpleDateFormat")
-    private static final DateFormat template = new SimpleDateFormat(sqlDateFormat);
+    private static final DateFormat template = new SimpleDateFormat(sqlDateTimeFormat);
+    private static final DateFormat visual = SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT);
+
+    public static String format(java.util.Date value) {
+        if (value != null) {
+            return visual.format(value);
+        } else {
+            return null;
+        }
+    }
 
     public static String get(java.util.Date value) {
         if (value != null) {

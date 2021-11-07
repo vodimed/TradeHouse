@@ -15,12 +15,12 @@ import androidx.annotation.NonNull;
 
 import com.common.extensions.database.AdapterInterface;
 import com.common.extensions.database.AdapterTemplate;
+import com.common.extensions.database.DateConverter;
 import com.common.extensions.database.PagingList;
 import com.expertek.tradehouse.documents.DBDocuments;
 import com.expertek.tradehouse.documents.entity.document;
 import com.expertek.tradehouse.documents.entity.line;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class InvoiceEditActivity extends Activity {
@@ -51,8 +51,7 @@ public class InvoiceEditActivity extends Activity {
         editNumber.setText(document.DocName);
 
         final TextView labelDate = findViewById(R.id.labelDate);
-        if (document.StartDate != null)
-            labelDate.setText(SimpleDateFormat.getInstance().format(document.StartDate));
+        labelDate.setText(DateConverter.format(document.StartDate));
 
         adapterLine = new LineAdapter(this, R.layout.invoice_position);
         adapterLine.setDataSet(lines);
