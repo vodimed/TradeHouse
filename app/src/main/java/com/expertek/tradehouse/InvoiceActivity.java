@@ -32,7 +32,7 @@ public class InvoiceActivity extends Activity {
         editName = findViewById(R.id.editName);
         editName.setText(line.GoodsName);
 
-        editPrice = findViewById(R.id.editPrice);
+        editPrice = findViewById(R.id.buttonPrice);
         editPrice.setText(String.valueOf(line.Price));
 
         editAmountDoc = findViewById(R.id.editAmountDoc);

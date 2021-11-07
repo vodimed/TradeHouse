@@ -38,14 +38,16 @@
         android:id="@+id/labelPrice"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:labelFor="@+id/editPrice"
-        android:text="@string/invoice_price" />
+        android:labelFor="@+id/buttonPrice"
+        android:text="@string/barcode_price" />
 
-    <EditText
-        android:id="@+id/editPrice"
+    <Button
+        android:id="@+id/buttonPrice"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="numberDecimal"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textSize="72sp"
         android:focusable="false"
-        android:enabled="false" />
+        android:drawableBottom="@drawable/ic_launcher"
+        android:text="@string/zero_value" />
 </LinearLayout>

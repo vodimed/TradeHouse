@@ -10,38 +10,38 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:text="@string/mainmenu_invoices"
-        android:drawableLeft="@drawable/main_1_wb" />
+        android:drawableLeft="@drawable/main_1_wb"
+        android:text="@string/mainmenu_invoices" />
     <Button
         android:id="@+id/buttonInventories"
         android:theme="@style/Widget.Button.MainMenu"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:text="@string/mainmenu_inventories"
-        android:drawableLeft="@drawable/main_2_inv" />
+        android:drawableLeft="@drawable/main_2_inv"
+        android:text="@string/mainmenu_inventories" />
     <Button
         android:id="@+id/buttonPricecontrol"
         android:theme="@style/Widget.Button.MainMenu"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:text="@string/mainmenu_pricecontrol"
-        android:drawableLeft="@drawable/main_3_price" />
+        android:drawableLeft="@drawable/main_3_price"
+        android:text="@string/mainmenu_pricecontrol" />
     <Button
         android:id="@+id/buttonDictionaries"
         android:theme="@style/Widget.Button.MainMenu"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:text="@string/mainmenu_dictionaries"
-        android:drawableLeft="@drawable/main_4_upd" />
+        android:drawableLeft="@drawable/main_4_upd"
+        android:text="@string/mainmenu_dictionaries" />
     <Button
         android:id="@+id/buttonSettings"
         android:theme="@style/Widget.Button.MainMenu"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:text="@string/mainmenu_settings"
-        android:drawableLeft="@drawable/main_5_settings" />
+        android:drawableLeft="@drawable/main_5_settings"
+        android:text="@string/mainmenu_settings" />
 </LinearLayout>

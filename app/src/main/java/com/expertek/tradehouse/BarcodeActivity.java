@@ -2,6 +2,10 @@ package com.expertek.tradehouse;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.MotionEvent;
+import android.view.SoundEffectConstants;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 
 import com.common.extensions.database.PagingList;
@@ -21,22 +25,23 @@ public class BarcodeActivity extends Activity implements BarcodeReader.BarcodeLi
     private final DBDocuments dbd = Application.documents.db();
     private AidcManager aidcManager = null;
     private BarcodeReader barcodeReader = null;
+    private String editBartext = null;
     private EditText editBarcode = null;
     private EditText editName = null;
-    private EditText editPrice = null;
-    private String editBartext = null;
+    private Button buttonPrice = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.barcode_actvity);
 
-        editBarcode = findViewById(R.id.editBarcode);
-        editName = findViewById(R.id.editName);
-        editPrice = findViewById(R.id.editPrice);
-
         // Initiialize Barcode Reader
         AidcManager.create(this, manager);
+
+        editBarcode = findViewById(R.id.editBarcode);
+        editName = findViewById(R.id.editName);
+        buttonPrice = findViewById(R.id.buttonPrice);
+        buttonPrice.setOnTouchListener(onPriceTouch);
     }
 
     @Override
@@ -70,7 +75,33 @@ public class BarcodeActivity extends Activity implements BarcodeReader.BarcodeLi
             aidcManager.close();
         }
     }
-    
+
+    private final View.OnTouchListener onPriceTouch = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            boolean switch_on;
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    switch_on = true;
+                    break;
+                case MotionEvent.ACTION_UP:
+                    switch_on = false;
+                    break;
+                default:
+                    return false;
+            }
+            try {
+                barcodeReader.aim(switch_on);
+                barcodeReader.light(switch_on);
+                barcodeReader.decode(switch_on);
+            } catch (AidcException e) {
+                e.printStackTrace();
+            }
+            // Do not "eat" events
+            return false;
+        }
+    };
+
     private final AidcManager.CreatedCallback manager = new AidcManager.CreatedCallback() {
         @Override
         public void onCreated(AidcManager aidcManager) {
@@ -130,27 +161,32 @@ public class BarcodeActivity extends Activity implements BarcodeReader.BarcodeLi
 
             if (lines.size() > 0) {
                 editName.setText(lines.get(0).GoodsName);
-                editPrice.setText(String.format(Locale.getDefault(),
+                buttonPrice.setText(String.format(Locale.getDefault(),
                         "%.2f", lines.get(0).Price));
+                buttonPrice.setTextSize(48);
             } else {
                 editName.setText("");
-                editPrice.setText("");
+                buttonPrice.setText(R.string.zero_value);
+                buttonPrice.setTextSize(72);
             }
         }
     };
 
-    private void updateBarcode(String barcode) {
-        editBartext = barcode;
+    private final Runnable barcodeerror = new Runnable() {
+        @Override
+        public void run() {
+            buttonPrice.playSoundEffect(SoundEffectConstants.CLICK);
+        }
+    };
+
+    @Override
+    public void onBarcodeEvent(BarcodeReadEvent barcodeReadEvent) {
+        editBartext = barcodeReadEvent.getBarcodeData();
         runOnUiThread(barcodesetter);
     }
 
     @Override
-    public void onBarcodeEvent(BarcodeReadEvent barcodeReadEvent) {
-        updateBarcode(barcodeReadEvent.getBarcodeData());
-    }
-
-    @Override
     public void onFailureEvent(BarcodeFailureEvent barcodeFailureEvent) {
-        System.out.println(barcodeFailureEvent);
+        runOnUiThread(barcodeerror);
     }
 }

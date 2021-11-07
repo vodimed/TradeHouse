@@ -75,6 +75,7 @@
     <!--BarcodeActivity-->
     <string name="barcode_prompt">Сканируйте штрих-код или введите его вручную</string>
     <string name="barcode_name">Наименование товара</string>
+    <string name="barcode_price">Цена (нажмите, чтобы сканировать)</string>
 
     <!--SettingsActivity-->
     <string name="setting_general">Основные</string>

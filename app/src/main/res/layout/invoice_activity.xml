@@ -22,11 +22,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:labelFor="@+id/editPrice"
+            android:labelFor="@+id/buttonPrice"
             android:text="@string/invoice_price" />
 
         <EditText
-            android:id="@+id/editPrice"
+            android:id="@+id/buttonPrice"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
