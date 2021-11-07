@@ -27,6 +27,8 @@ import java.nio.charset.Charset;
 public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
     protected static final String REQ_SETTINGS = "SETTINGS";
     protected static final String REQ_DICTIONARIES = "TH_ALL";
+    protected static final String REQ_INVENTORY = "INVENTORY";
+    protected static final String REQ_WAYBILL = "WAYBILL";
 
     protected static final Charset charset = Charset.forName("windows-1251"); // cp1251
     protected static final XmlPullParserFactory xmlfactory = createXmlFactory();
@@ -93,6 +95,10 @@ public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
         }
     }
 
+    protected void request(OutputStream outputStream, XmlSerializer serializer) throws IOException, XmlPullParserException {
+        // Override to place request body
+    }
+
     protected void request(OutputStream outputStream, String qualifier) throws IOException, XmlPullParserException {
         final OutputStreamWriter writer = new OutputStreamWriter(outputStream, charset);
         final XmlSerializer serializer = xmlfactory.newSerializer();
@@ -130,6 +136,8 @@ public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
 
         // End tag <TSD>
         serializer.endTag("", "TSD");
+
+        request(outputStream, serializer);
 
         // End document
         serializer.endDocument();

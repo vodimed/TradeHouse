@@ -23,7 +23,7 @@ public class Dialogue {
         display1(dialog, listener);
     }
 
-    public static void Error(Context context, Exception e) {
+    public static void Error(Context context, Throwable e) {
         final AlertDialog.Builder dialog = new AlertDialog.Builder(context);
         dialog.setTitle(R.string.exception);
         dialog.setMessage(e.getMessage());

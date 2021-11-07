@@ -18,9 +18,13 @@ import com.common.extensions.database.AdapterTemplate;
 import com.common.extensions.database.CurrencyFormatter;
 import com.common.extensions.database.DateConverter;
 import com.common.extensions.database.PagingList;
+import com.common.extensions.exchange.ServiceConnector;
+import com.common.extensions.exchange.ServiceInterface;
 import com.expertek.tradehouse.documents.DBDocuments;
 import com.expertek.tradehouse.documents.entity.document;
 import com.expertek.tradehouse.documents.entity.line;
+import com.expertek.tradehouse.tradehouse.TradeHouseService;
+import com.expertek.tradehouse.tradehouse.Проводка;
 
 import java.util.List;
 
@@ -49,6 +53,9 @@ public class InvoiceEditActivity extends Activity {
         document = (document) getIntent().getSerializableExtra(document.class.getName());
         lines = new PagingList<line>(dbd.lines().loadByDocument(document.DocName));
 
+        // Register Service
+        tradehouse.registerService(false);
+
         final EditText editNumber = findViewById(R.id.editNumber);
         editNumber.setText(document.DocName);
 
@@ -76,6 +83,14 @@ public class InvoiceEditActivity extends Activity {
         buttonEdit.setOnClickListener(onClickAction);
         buttonSave.setOnClickListener(onClickAction);
         buttonSend.setOnClickListener(onClickAction);
+
+        onLineSelection.onNothingSelected(null);
+    }
+
+    @Override
+    protected void onDestroy() {
+        tradehouse.unregisterService();
+        super.onDestroy();
     }
 
     private final View.OnClickListener onClickAction = new View.OnClickListener() {
@@ -154,8 +169,11 @@ public class InvoiceEditActivity extends Activity {
     }
 
     protected void actionSend(int position) {
-        document.Complete = true;
-        actionSave(position);
+        final document export = document;
+        if (!export.Complete) return;
+        final Bundle params = new Bundle();
+        params.putSerializable(document.class.getName(), export);
+        tradehouse.enqueue(new ServiceInterface.JobInfo(1, Проводка.class, tradehouse.receiver()), params);
     }
 
     private final AdapterInterface.OnItemSelectionListener onLineSelection =
@@ -164,11 +182,13 @@ public class InvoiceEditActivity extends Activity {
         @Override
         public void onItemSelected(ViewGroup parent, View view, int position, long id) {
             InvoiceEditActivity.this.position = position;
+            buttonEdit.setEnabled(true);
         }
 
         @Override
         public void onNothingSelected(ViewGroup parent) {
             InvoiceEditActivity.this.position = AdapterInterface.INVALID_POSITION;
+            buttonEdit.setEnabled(false);
         }
     };
 
@@ -225,4 +245,18 @@ public class InvoiceEditActivity extends Activity {
             return getItem(position).LineID;
         }
     }
+
+    private final ServiceConnector tradehouse = new ServiceConnector(this, TradeHouseService.class) {
+        @Override
+        public void onJobResult(@NonNull ServiceInterface.JobInfo work, Bundle result) {
+            final document export = (document) result.getSerializable(document.class.getName());
+            document = export;
+            actionSave(position);
+        }
+
+        @Override
+        public void onJobException(@NonNull ServiceInterface.JobInfo work, @NonNull Throwable e) {
+            Dialogue.Error(InvoiceEditActivity.this, e);
+        }
+    };
 }

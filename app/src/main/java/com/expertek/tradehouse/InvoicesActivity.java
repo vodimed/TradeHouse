@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -27,7 +26,7 @@ import com.expertek.tradehouse.documents.DBDocuments;
 import com.expertek.tradehouse.documents.entity.document;
 import com.expertek.tradehouse.documents.entity.line;
 import com.expertek.tradehouse.tradehouse.TradeHouseService;
-import com.expertek.tradehouse.tradehouse.Документы;
+import com.expertek.tradehouse.tradehouse.Проводка;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -176,8 +175,11 @@ public class InvoicesActivity extends Activity {
     }
 
     protected void actionSend(int position) {
-        //TODO: final document document = adapterDocument.getItem(position);
-        tradehouse.enqueue(new ServiceInterface.JobInfo(1, Документы.class, tradehouse.receiver()), null);
+        final document export = documents.get(position);
+        if (!export.Complete) return;
+        final Bundle params = new Bundle();
+        params.putSerializable(document.class.getName(), export);
+        tradehouse.enqueue(new ServiceInterface.JobInfo(1, Проводка.class, tradehouse.receiver()), params);
     }
 
     private final DialogInterface.OnClickListener onDeleteClick = new DialogInterface.OnClickListener() {
@@ -225,6 +227,7 @@ public class InvoicesActivity extends Activity {
             InvoicesActivity.this.position = position;
             buttonEdit.setEnabled(true);
             buttonDelete.setEnabled(true);
+            buttonSend.setEnabled(documents.get(position).Complete);
         }
 
         @Override
@@ -232,6 +235,7 @@ public class InvoicesActivity extends Activity {
             InvoicesActivity.this.position = AdapterInterface.INVALID_POSITION;
             buttonEdit.setEnabled(false);
             buttonDelete.setEnabled(false);
+            buttonSend.setEnabled(false);
         }
     };
 
@@ -362,12 +366,16 @@ public class InvoicesActivity extends Activity {
     private final ServiceConnector tradehouse = new ServiceConnector(this, TradeHouseService.class) {
         @Override
         public void onJobResult(@NonNull ServiceInterface.JobInfo work, Bundle result) {
-            Log.d("RESULT", result.toString());
+            final Intent intent = new Intent();
+            intent.putExtras(result);
+            final document export = (document) result.getSerializable(document.class.getName());
+            position = documents.indexOf(export);
+            onActivityResult(InvoiceEditActivity.REQUEST_EDIT_DOCUMENT, RESULT_OK, intent);
         }
 
         @Override
         public void onJobException(@NonNull ServiceInterface.JobInfo work, @NonNull Throwable e) {
-            Log.d("EXCEPTION", e.toString());
+            Dialogue.Error(InvoicesActivity.this, e);
         }
     };
 }
