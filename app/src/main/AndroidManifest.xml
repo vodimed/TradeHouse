@@ -7,6 +7,7 @@
 
     <uses-permission android:name="com.honeywell.decode.permission.DECODE" /> <!-- HoneyWell -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- USB -->
+    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" /> <!-- Serial No. -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" /> <!-- Serial No. -->
     <uses-permission android:name="android.permission.INTERNET" /> <!-- Network -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />

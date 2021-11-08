@@ -35,6 +35,35 @@ public class MainSettings {
     public static int LoadTimeout = mSettings.getInt("LoadTimeout", 60000);
     public static int SendTimeout = mSettings.getInt("SendTimeout", 180000);
 
+    // Reload cross-process values from disk (for separated process Service)
+    public static void reloadPreferences() {
+        final SharedPreferences preferences = loadPreferences();
+        final Field[] fields = MainSettings.class.getDeclaredFields();
+
+        for (Field field : fields) {
+            final String name = field.getName();
+            final Class<?> datatype = field.getType();
+
+            if (!Modifier.isFinal(field.getModifiers())) try {
+                if (datatype.equals(String.class)) {
+                    field.set(null, preferences.getString(name, (String) field.get(null)));
+                } else if (datatype.equals(Integer.class) || datatype.equals(Integer.TYPE)) {
+                    field.setInt(null, preferences.getInt(name, field.getInt(null)));
+                } else if (datatype.equals(Boolean.class) || datatype.equals(Boolean.TYPE)) {
+                    field.setBoolean(null, preferences.getBoolean(name, field.getBoolean(null)));
+                } else if (datatype.equals(Long.class) || datatype.equals(Long.TYPE)) {
+                    field.setLong(null, preferences.getLong(name, field.getLong(null)));
+                } else if (datatype.equals(Float.class) || datatype.equals(Float.TYPE)) {
+                    field.setFloat(null, preferences.getFloat(name, field.getFloat(null)));
+                } else if (datatype.equals(Set.class)) {
+                    field.set(null, preferences.getStringSet(name, toStringSet((Set<?>) field.get(null))));
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     /**
      * Save Application settings and preferences.
      */
@@ -81,7 +110,7 @@ public class MainSettings {
      */
     private static SharedPreferences loadPreferences() {
         final android.app.Application app = Application.app();
-        return app.getSharedPreferences(app.getPackageName(), Context.MODE_PRIVATE);
+        return app.getSharedPreferences(app.getPackageName(), Context.MODE_PRIVATE | Context.MODE_MULTI_PROCESS);
     }
 
     /**

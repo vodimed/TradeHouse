@@ -27,6 +27,10 @@ public class Marklines {
     //        "last_name LIKE :last LIMIT 1")
     //markline findByName(String first, String last);
 
+    public DataSource.Factory<Integer, markline> loadByDocument(String docName) {
+        return new SQLitePager.Factory<>(db, markline.class, "SELECT * FROM MT_MarkLines WHERE DocName = :docName", docName);
+    }
+
     public void insert(markline... objects) {
         final ContentValues map = new ContentValues();
         for (markline markline : objects) {

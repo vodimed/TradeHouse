@@ -4,8 +4,8 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
-import com.expertek.tradehouse.MainSettings;
 import com.common.extensions.exchange.ServiceInterface;
+import com.expertek.tradehouse.MainSettings;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -46,6 +46,7 @@ public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
     @Override
     public void onCreate(@Nullable Bundle params) throws Exception {
         this.params = params;
+        MainSettings.reloadPreferences();
 
         final String address = (MainSettings.Tethering ?
                 ConnectionReceiver.getConnectedIp() :
@@ -95,7 +96,7 @@ public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
         }
     }
 
-    protected void request(OutputStream outputStream, XmlSerializer serializer) throws IOException, XmlPullParserException {
+    protected void request(XmlSerializer serializer) throws IOException, XmlPullParserException {
         // Override to place request body
     }
 
@@ -137,7 +138,7 @@ public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
         // End tag <TSD>
         serializer.endTag("", "TSD");
 
-        request(outputStream, serializer);
+        request(serializer);
 
         // End document
         serializer.endDocument();
