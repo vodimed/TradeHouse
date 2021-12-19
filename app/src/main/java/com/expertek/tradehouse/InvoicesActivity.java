@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class InvoicesActivity extends Activity {
-    private DBDocuments dbd = Application.documents.db();
+    private final DBDocuments dbd = Application.documents.db();
     private PagingList<document> documents = null;
     private DocTypeAdapter adapterType = null;
     protected DocumentAdapter adapterDocument = null;

@@ -42,7 +42,7 @@ public class Application extends android.app.Application {
     public void onCreate() {
         super.onCreate();
 
-       if (!dictionaries.open(this, MainSettings.Dictionaries_db)) {
+        if (!dictionaries.open(this, MainSettings.Dictionaries_db)) {
             tradehouse.enqueue(new ServiceInterface.JobInfo(1, Словари.class, tradehouse.receiver()), null);
         }
 

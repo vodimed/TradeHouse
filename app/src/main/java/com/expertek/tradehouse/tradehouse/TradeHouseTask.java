@@ -78,60 +78,43 @@ public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
         }
     }
 
-    // Convert a string from charset encoding to default
-    protected String convertFrom(String str, Charset charset) {
-        if (str != null) {
-            return new String(str.getBytes(charset));
-        } else {
-            return null;
-        }
-    }
-
-    // Convert a simple string to charset encoding
-    protected String convertTo(String str, Charset charset) {
-        if (str != null) {
-            return new String(str.getBytes(), charset);
-        } else {
-            return null;
-        }
-    }
-
     protected void request(XmlSerializer serializer) throws IOException, XmlPullParserException {
         // Override to place request body
     }
 
     protected void request(OutputStream outputStream, String qualifier) throws IOException, XmlPullParserException {
-        final OutputStreamWriter writer = new OutputStreamWriter(outputStream, charset);
+        final OutputStreamWriter writer = new WindowsStreamWriter(outputStream, charset);
         final XmlSerializer serializer = xmlfactory.newSerializer();
         serializer.setOutput(writer);
 
         // Start document
-        serializer.startDocument(charset.name(), true);
+        serializer.startDocument(Charset.defaultCharset().name(), true);
         serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
+        final String[] magheader = parseMagHeader(MainSettings.TradeHouseObject);
 
         // Open Tag <TSD>
         serializer.startTag("", "TSD");
         serializer.attribute("", "item", qualifier);
-        serializer.attribute("", "from", "G14G88755");
-        serializer.attribute("", "to", "маг1");
+        serializer.attribute("", "from", MainSettings.SerialNumber);
+        serializer.attribute("", "to", MainSettings.TradeHouseObject);
         serializer.attribute("", "user", "1-1");
-        serializer.attribute("", "tstamp", "1270325113");
+        serializer.attribute("", "tstamp", String.valueOf(System.currentTimeMillis()));
         serializer.attribute("", "version", "2.4b");
         serializer.attribute("", "currDecSeparator", ".");
         serializer.attribute("", "shortDatePattern", "M/d/yy");
         serializer.attribute("", "longTimePattern", "h:mm:ss tt");
         serializer.attribute("", "MarksReg", "True");
-        serializer.attribute("", "user-agent", "маг?1?True?");
+        serializer.attribute("", "user-agent", String.format("%s?%s?True?,?True", magheader[0], magheader[1]));
 
         if (REQ_SETTINGS.equals(qualifier)) {
             serializer.startTag("", "SN");
             serializer.attribute("", "type", "HARDWARE");
-            serializer.attribute("", "value", "G14G88755");
+            serializer.attribute("", "value", MainSettings.SerialNumber);
             serializer.endTag("", "SN");
 
             serializer.startTag("", "OBJ");
-            serializer.attribute("", "obj_type", "маг");
-            serializer.attribute("", "obj_code", "1");
+            serializer.attribute("", "obj_type", magheader[0]);
+            serializer.attribute("", "obj_code", magheader[1]);
             serializer.endTag("", "OBJ");
         }
 
@@ -214,5 +197,43 @@ public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
 
     public static File temporary(File original) {
         return new File(original.getPath() + "_");
+    }
+
+    protected static String[] parseMagHeader(String thObject) {
+        final String[] result = new String[2];
+        for (int i = 0; i < thObject.length(); i++) {
+            if (thObject.charAt(i) <= '9') {
+                result[0] = thObject.substring(0, i);
+                result[1] = thObject.substring(i);
+                return result;
+            }
+        }
+        result[0] = thObject;
+        result[1] = "";
+        return result;
+    }
+
+    // Correct Java error with encoding marker
+    private static class WindowsStreamWriter extends OutputStreamWriter {
+        private final static char[] replacement = String.format(
+                "<?xml version='1.0' encoding='%s'", TradeHouseTask.charset.name()).toCharArray();
+
+        public WindowsStreamWriter(OutputStream out, Charset cs) {
+            super(out, cs);
+        }
+
+        @Override
+        public void write(char[] cbuf, int off, int len) throws IOException {
+            if ((cbuf[off] == '<') && (cbuf[off + 1] == '?')) {
+                for (int i = 0; i < replacement.length; i++) {
+                    cbuf[off + i] = replacement[i];
+                }
+                for (int i = replacement.length; i < off + len; i++) {
+                    if (cbuf[i] == '?') break;
+                    cbuf[i] = ' ';
+                }
+            }
+            super.write(cbuf, off, len);
+        }
     }
 }
