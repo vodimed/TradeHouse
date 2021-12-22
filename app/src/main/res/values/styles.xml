@@ -6,16 +6,35 @@
         <item name="android:colorBackground">@android:color/holo_orange_light</item>
         <item name="android:disabledAlpha">0.5</item>
 
+        <item name="android:textViewStyle">@style/Widget.TextView</item>
+        <item name="android:editTextStyle">@style/Widget.EditText</item>
+        <item name="android:checkboxStyle">@style/Widget.CheckBox</item>
+        <item name="android:switchStyle">@style/Widget.Switch</item>
         <item name="android:buttonStyle">@style/Widget.Button</item>
         <item name="android:buttonStyleToggle">@style/Widget.Button.Toggle</item>
         <item name="android:spinnerStyle">@style/Widget.Spinner</item>
     </style>
 
-    <style name="Widget">
-        <item name="android:textAppearance">?android:textAppearance</item>
+    <style name="Widget" parent="android:Widget.DeviceDefault">
+    </style>
+
+    <style name="Widget.TextView" parent="android:Widget.DeviceDefault.TextView">
+        <item name="android:textAppearance">?android:textAppearanceMedium</item>
+    </style>
+
+    <style name="Widget.EditText" parent="android:Widget.DeviceDefault.EditText">
+    </style>
+
+    <style name="Widget.CheckBox" parent="android:Widget.DeviceDefault.CompoundButton.CheckBox">
+        <item name="android:textAppearance">?android:textAppearanceMedium</item>
+    </style>
+
+    <style name="Widget.Switch" parent="android:Widget.Material.CompoundButton.Switch">
+        <item name="android:textAppearance">?android:textAppearanceMedium</item>
     </style>
 
     <style name="Widget.Button" parent="android:Widget.DeviceDefault.ImageButton">
+        <item name="android:textAppearance">?android:textAppearanceMedium</item>
         <item name="android:background">@android:drawable/btn_default_small</item>
         <item name="android:textAlignment">center</item>
     </style>
@@ -24,14 +43,15 @@
     </style>
 
     <style name="Widget.Spinner" parent="android:Widget.DeviceDefault.Spinner">
+<!--        <item name="android:background">@android:drawable/star_on</item>-->
     </style>
 
     <style name="Widget.Button.MainMenu">
+        <item name="android:textAppearance">?android:textAppearanceLarge</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:paddingLeft">@dimen/main_pagging</item>
         <item name="android:drawablePadding">@dimen/main_spacing</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textSize">@dimen/main_textsize</item>
     </style>
 
 </resources>

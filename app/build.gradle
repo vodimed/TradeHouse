@@ -78,10 +78,6 @@ android {
         sourceSets.main.java.exclude '**/documents/sqlite/**'
     }
 
-    // TODO: maybe automatic reconnect
-    sourceSets.main.java.exclude '**/ModemManager.java'
-    sourceSets.main.java.exclude '**/TetheringManager.java'
-
     dependencies {
         // Honeywell SDK
         implementation project(':DataCollectionLib')

@@ -21,7 +21,6 @@ import java.io.File;
 
 public class Application extends android.app.Application {
     private static android.app.Application app;
-    //private static ModemManager mmr;
     public static final SQLiteSchema<DbDictionaries> dictionaries = new SQLiteSchema<DbDictionaries>(Dictionaries_v1Sqlite.class, new Dictionaries_v1Sqlite.M_0_1());
     public static final SQLiteSchema<DBDocuments> documents = new SQLiteSchema<DBDocuments>(Documents_v1Sqlite.class, new Documents_v1Sqlite.M_0_1());
     //public static final RoomSchema<DbDictionaries> dictionaries = new RoomSchema<DbDictionaries>(Dictionaries_v1Room.class);
@@ -55,7 +54,6 @@ public class Application extends android.app.Application {
                 R.string.service_tradehouse);
 
         //AccessibilityManager -- logging
-        //ActivityManager.killBackgroundProcesses(Service); ActivityManager.AppTask
     }
 
     // Replace DbDictionaries database file with new one (as a whole)

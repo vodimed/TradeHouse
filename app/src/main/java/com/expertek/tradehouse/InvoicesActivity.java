@@ -55,7 +55,9 @@ public class InvoicesActivity extends Activity {
 
         editSummary = findViewById(R.id.editSummary);
 
-        adapterType = new DocTypeAdapter(this, android.R.layout.simple_list_item_single_choice);
+        //adapterType = new DocTypeAdapter(this, android.R.layout.simple_list_item_single_choice);
+        //adapterType = new DocTypeAdapter(this, android.R.layout.simple_spinner_dropdown_item);
+        adapterType = new DocTypeAdapter(this, android.R.layout.simple_list_item_activated_1);
         adapterType.setOnItemSelectionListener(onTypeSelection);
 
         final Spinner spinSelector = findViewById(R.id.spinSelector);

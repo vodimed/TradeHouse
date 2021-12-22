@@ -65,7 +65,7 @@ public class Проводка extends TradeHouseTask {
     private void serialize(Serializable object, XmlSerializer serializer) throws IOException, XmlPullParserException {
         final Field[] fields = object.getClass().getDeclaredFields();
         for (Field field : fields) {
-            if (!field.isAccessible()) continue;;
+            if (!field.isAccessible()) continue;
             serializer.attribute("", field.getName(), getValue(object, field));
         }
     }
@@ -100,63 +100,3 @@ public class Проводка extends TradeHouseTask {
         return null;
     }
 }
-/*
-Connectivity.cs
-
-        private static string makeDocForSending(DocumentsDataSet.MT_documentsRow docRow)
-        {
-            XmlDocument xmlDoc = new XmlDocument();
-            XmlNode rootNode = Connectivity.makeXMLRootNode(ref xmlDoc);
-            Storage.DocTypes docType = Storage.DocTypes.Parse(docRow.DocType);
-            rootNode.Attributes["item"].Value = docType.GeneralType == Storage.DocTypesGeneral.Inv ?
-                "INVENTORY" : "WAYBILL";
-
-            XmlNode headerNode = xmlDoc.CreateElement("header");
-            foreach (DataColumn col in docRow.Table.Columns)
-            {
-                headerNode.Attributes.Append(xmlDoc.CreateAttribute(col.ColumnName));
-                headerNode.Attributes[col.ColumnName].Value = docRow[col].ToString();
-            }
-            rootNode.AppendChild(headerNode);
-
-            DocumentsDataSet.MT_linesRow[] lines = (DocumentsDataSet.MT_linesRow[])docRow.GetMT_linesRows();
-            for (int i = 0; i < lines.Length; i++)
-            {
-                XmlNode lineNode = xmlDoc.CreateElement("line");
-                foreach (DataColumn col in lines[i].Table.Columns)
-                {
-                    lineNode.Attributes.Append(xmlDoc.CreateAttribute(col.ColumnName));
-                    lineNode.Attributes[col.ColumnName].Value = lines[i][col].ToString();
-                }
-                rootNode.AppendChild(lineNode);
-            }
-
-            DocumentsDataSet.MT_MarkLinesRow[] markLinesRows = (DocumentsDataSet.MT_MarkLinesRow[])docRow.GetMT_MarkLinesRows();
-            for (int ii = 0; ii < markLinesRows.Length; ii++)
-            {
-                XmlNode MarkNode = xmlDoc.CreateElement("MarkLines");
-                foreach (DataColumn col in markLinesRows[ii].Table.Columns)
-                {
-                    MarkNode.Attributes.Append(xmlDoc.CreateAttribute(col.ColumnName));
-                    MarkNode.Attributes[col.ColumnName].Value = markLinesRows[ii][col].ToString();
-                }
-                rootNode.AppendChild(MarkNode);
-            }
-
-            return xmlDoc.OuterXml;
-        }
-
-        private static XmlDocument parseXMLResponse(string resp)
-        {
-            XmlDocument xmlRcvDoc = new XmlDocument();
-            try { xmlRcvDoc.LoadXml(resp); }
-            catch (Exception)
-            {
-                //MessageBox.Show("Ошибка парсинга ответа сервера.");
-                Cursor.Current = Cursors.Default;
-                return null;
-            }
-
-            return xmlRcvDoc;
-        }
-*/

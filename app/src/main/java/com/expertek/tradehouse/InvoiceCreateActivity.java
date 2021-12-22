@@ -39,7 +39,7 @@ public class InvoiceCreateActivity extends Activity {
         // Retrieve Activity parameters
         document = (document) getIntent().getSerializableExtra(document.class.getName());
 
-        adapterType = new InvoiceTypeAdapter(this, android.R.layout.simple_list_item_single_choice);
+        adapterType = new InvoiceTypeAdapter(this, android.R.layout.simple_list_item_activated_1);
         adapterType.setDataSet(InvoiceTypeAdapter.createDataSet(this, document.DocType));
         adapterType.setOnItemSelectionListener(onTypeSelection);
 
@@ -50,7 +50,7 @@ public class InvoiceCreateActivity extends Activity {
         spinSelector.setAdapter(adapterType);
         onSpinnerInit(spinSelector, onTypeSelection);
 
-        adapterClient = new ClientAdapter(this, android.R.layout.simple_list_item_single_choice);
+        adapterClient = new ClientAdapter(this, android.R.layout.simple_list_item_activated_1);
         adapterClient.setDataSet(new PagingList<client>(clients.load()));
         adapterClient.setOnItemSelectionListener(onClientSelection);
 
