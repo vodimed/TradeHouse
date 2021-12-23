@@ -71,7 +71,6 @@ public class InvoiceEditActivity extends Activity {
 
         final ListView listLine = findViewById(R.id.listLine);
         adapterLine.setChoiceMode(listLine, ListView.CHOICE_MODE_SINGLE);
-        listLine.setSelector(android.R.drawable.list_selector_background);
         listLine.setAdapter(adapterLine);
 
         buttonAdd = findViewById(R.id.buttonAdd);

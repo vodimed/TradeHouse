@@ -108,6 +108,7 @@ public class MainSettings {
     /**
      * Return Application settings and preferences.
      */
+    @SuppressWarnings("deprecation")
     private static SharedPreferences loadPreferences() {
         final android.app.Application app = Application.app();
         return app.getSharedPreferences(app.getPackageName(), Context.MODE_PRIVATE | Context.MODE_MULTI_PROCESS);

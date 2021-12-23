@@ -44,7 +44,6 @@ public class DictionariesActivity extends Activity {
 
         final ListView listResponse = findViewById(R.id.listResponse);
         listResponse.setChoiceMode(ListView.CHOICE_MODE_NONE);
-        listResponse.setSelector(android.R.drawable.list_selector_background);
         listResponse.setAdapter(adapterResponse);
 
         buttonSend = findViewById(R.id.buttonSend);

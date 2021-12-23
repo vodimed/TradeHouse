@@ -13,6 +13,7 @@
         <item name="android:buttonStyle">@style/Widget.Button</item>
         <item name="android:buttonStyleToggle">@style/Widget.Button.Toggle</item>
         <item name="android:spinnerStyle">@style/Widget.Spinner</item>
+        <item name="android:listViewStyle">@style/Widget.ListView</item>
     </style>
 
     <style name="Widget" parent="android:Widget.DeviceDefault">
@@ -36,6 +37,8 @@
     <style name="Widget.Button" parent="android:Widget.DeviceDefault.ImageButton">
         <item name="android:textAppearance">?android:textAppearanceMedium</item>
         <item name="android:background">@android:drawable/btn_default_small</item>
+        <item name="android:paddingStart">@dimen/zero_padding</item>
+        <item name="android:paddingEnd">@dimen/zero_padding</item>
         <item name="android:textAlignment">center</item>
     </style>
 
@@ -43,13 +46,18 @@
     </style>
 
     <style name="Widget.Spinner" parent="android:Widget.DeviceDefault.Spinner">
-<!--        <item name="android:background">@android:drawable/star_on</item>-->
+        <item name="android:background">@drawable/spinner_background</item>
+    </style>
+
+    <style name="Widget.ListView" parent="android:Widget.DeviceDefault.ListView">
+        <item name="android:listSelector">@android:color/holo_green_light</item>
     </style>
 
     <style name="Widget.Button.MainMenu">
         <item name="android:textAppearance">?android:textAppearanceLarge</item>
         <item name="android:gravity">center_vertical</item>
-        <item name="android:paddingLeft">@dimen/main_pagging</item>
+        <item name="android:paddingStart">@dimen/main_padding</item>
+        <item name="android:paddingEnd">@dimen/main_padding</item>
         <item name="android:drawablePadding">@dimen/main_spacing</item>
         <item name="android:textStyle">bold</item>
     </style>

@@ -68,8 +68,7 @@ public class InvoicesActivity extends Activity {
 
         final ListView listDocument = findViewById(R.id.listDocument);
         adapterDocument.setChoiceMode(listDocument, ListView.CHOICE_MODE_SINGLE);
-        listDocument.setSelector(android.R.drawable.list_selector_background);
-        listDocument.setAdapter(adapterDocument);
+         listDocument.setAdapter(adapterDocument);
 
         buttonCreate = findViewById(R.id.buttonCreate);
         buttonEdit = findViewById(R.id.buttonEdit);

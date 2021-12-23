@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="zero_padding">0dp</dimen>
+
     <!--MainActivity-->
-    <dimen name="main_pagging">32dp</dimen>
+    <dimen name="main_padding">32dp</dimen>
     <dimen name="main_spacing">18dp</dimen>
 
     <!--InvoicesActivity-->

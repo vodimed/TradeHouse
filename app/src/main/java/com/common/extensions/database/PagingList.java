@@ -124,6 +124,7 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public int indexOf(@Nullable Object o) {
         final Value element = (Value) o;
         int identifier = 0;

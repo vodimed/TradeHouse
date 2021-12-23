@@ -329,7 +329,7 @@ public class ServiceActivity extends Activity {
         private void setupList(ViewGroup listActions) {
             if (listActions instanceof ListView) {
                 ((ListView) listActions).setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-                ((ListView) listActions).setSelector(android.R.drawable.list_selector_background);
+                //((ListView) listActions).setSelector(android.R.drawable.list_selector_background);
             }
         }
 
