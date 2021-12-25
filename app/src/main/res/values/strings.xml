@@ -6,7 +6,7 @@
     <string name="CHANNEL_ID">tradehouse.notification.service</string>
     <string name="msgServiceNotification">Открыть менеджер обмена с TradeHouse</string>
     <string name="create">Создать</string>
-    <string name="add">Добавить</string>
+    <string name="add">Додать</string>
     <string name="edit">Править</string>
     <string name="delete">Удалить</string>
     <string name="save">Записать</string>
