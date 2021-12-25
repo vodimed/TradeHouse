@@ -91,6 +91,6 @@
             android:paddingTop="@dimen/invc_pagging"
             android:drawablePadding="@dimen/invc_spacing"
             android:text="@string/send"
-            android:drawableTop="@drawable/saved_3_repeat1" />
+            android:drawableTop="@drawable/saved_3_repeat" />
     </LinearLayout>
 </LinearLayout>

@@ -38,18 +38,11 @@
     </string-array>
 
     <!--MainActivity-->
-    <!--
     <string name="mainmenu_invoices">1. Накладные</string>
     <string name="mainmenu_inventories">2. Инвентаризации</string>
     <string name="mainmenu_pricecontrol">3. Контроль цен</string>
     <string name="mainmenu_dictionaries">4. Обновление справочников</string>
     <string name="mainmenu_settings">5. Настройки</string>
-    -->
-    <string name="mainmenu_invoices">.</string>
-    <string name="mainmenu_inventories">.</string>
-    <string name="mainmenu_pricecontrol">.</string>
-    <string name="mainmenu_dictionaries">.</string>
-    <string name="mainmenu_settings">.</string>
 
     <!--InvoicesActivity-->
     <string name="invoice_selector">Отобразить</string>

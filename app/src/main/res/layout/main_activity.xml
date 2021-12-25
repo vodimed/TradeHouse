@@ -11,6 +11,7 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:drawableStart="@drawable/main_1_wb"
+        android:textAlignment="textStart"
         android:paddingStart="@dimen/main_padding"
         android:paddingEnd="@dimen/main_padding"
         android:text="@string/mainmenu_invoices" />
@@ -21,6 +22,7 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:drawableStart="@drawable/main_2_inv"
+        android:textAlignment="textStart"
         android:paddingStart="@dimen/main_padding"
         android:paddingEnd="@dimen/main_padding"
         android:text="@string/mainmenu_inventories" />
@@ -31,6 +33,7 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:drawableStart="@drawable/main_3_price"
+        android:textAlignment="textStart"
         android:paddingStart="@dimen/main_padding"
         android:paddingEnd="@dimen/main_padding"
         android:text="@string/mainmenu_pricecontrol" />
@@ -41,6 +44,7 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:drawableStart="@drawable/main_4_upd"
+        android:textAlignment="textStart"
         android:paddingStart="@dimen/main_padding"
         android:paddingEnd="@dimen/main_padding"
         android:text="@string/mainmenu_dictionaries" />
@@ -51,6 +55,7 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:drawableStart="@drawable/main_5_settings"
+        android:textAlignment="textStart"
         android:paddingStart="@dimen/main_padding"
         android:paddingEnd="@dimen/main_padding"
         android:text="@string/mainmenu_settings" />

@@ -38,7 +38,7 @@
             android:drawablePadding="@dimen/invc_spacing"
             android:enabled="false"
             android:text="@string/send"
-            android:drawableTop="@drawable/saved_3_repeat1" />
+            android:drawableTop="@drawable/saved_3_repeat" />
         <Button
             android:id="@+id/buttonClose"
             android:layout_width="match_parent"
@@ -48,6 +48,6 @@
             android:paddingTop="@dimen/invc_pagging"
             android:drawablePadding="@dimen/invc_spacing"
             android:text="@string/close"
-            android:drawableTop="@android:drawable/gallery_thumb" />
+            android:drawableTop="@drawable/common_2_cancel" />
     </LinearLayout>
 </LinearLayout>
