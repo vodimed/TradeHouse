@@ -45,7 +45,7 @@
     <string name="mainmenu_settings">5. Настройки</string>
 
     <!--InvoicesActivity-->
-    <string name="invoice_selector">Отобразить</string>
+    <string name="invoice_selector">Фильтр</string>
     <string name="invoice_summary">Общая сумма</string>
     <string name="invoice_number">Номер документа</string>
     <string name="invoice_type">Тип накладной</string>
