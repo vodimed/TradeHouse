@@ -29,6 +29,16 @@
         android:orientation="horizontal">
 
         <Button
+            android:id="@+id/buttonClose"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:paddingTop="@dimen/invc_pagging"
+            android:drawablePadding="@dimen/invc_spacing"
+            android:text="@string/close"
+            android:drawableTop="@drawable/common_2_cancel" />
+        <Button
             android:id="@+id/buttonSend"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -39,15 +49,5 @@
             android:enabled="false"
             android:text="@string/send"
             android:drawableTop="@drawable/saved_3_repeat" />
-        <Button
-            android:id="@+id/buttonClose"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center_horizontal"
-            android:paddingTop="@dimen/invc_pagging"
-            android:drawablePadding="@dimen/invc_spacing"
-            android:text="@string/close"
-            android:drawableTop="@drawable/common_2_cancel" />
     </LinearLayout>
 </LinearLayout>
