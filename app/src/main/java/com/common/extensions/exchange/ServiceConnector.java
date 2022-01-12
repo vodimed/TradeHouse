@@ -40,8 +40,8 @@ public abstract class ServiceConnector implements ServiceConnection, ServiceInte
         final Context context = client.get();
 
         if (context != null) {
-            final Intent intent = work.asIntent(context, server);
-            if (context.startService(intent.replaceExtras(params)) != null) return RESULT_SUCCESS;
+            final Intent intent = work.asIntent(context, server).replaceExtras(params);
+            if (context.startService(intent) != null) return RESULT_SUCCESS;
         }
         return RESULT_FAILURE;
     }

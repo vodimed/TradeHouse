@@ -71,7 +71,7 @@ public class MainActivity_ extends Activity implements BarcodeReader.BarcodeList
         mScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
         //tradehouse.registerService(false);
 
-        //TODO: database
+        // database
         try {
             object ob = new object();
             ob.Name = "aaa";
