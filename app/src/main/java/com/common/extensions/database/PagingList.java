@@ -9,6 +9,8 @@ import android.util.SparseBooleanArray;
 import androidx.annotation.Nullable;
 import androidx.paging.DataSource;
 
+import com.common.extensions.Logger;
+
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.AbstractList;
@@ -228,7 +230,7 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
             final Method countItems = source.getClass().getMethod("countItems"); // LimitOffsetDataSource
             return (Integer) countItems.invoke(source);
         } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
+            Logger.e(e);
             return 0;
         }
     }
@@ -239,7 +241,7 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
             final Method loadRange = source.getClass().getMethod("loadRange", Integer.TYPE, Integer.TYPE); // LimitOffsetDataSource
             return (ArrayList<Value>) loadRange.invoke(source, header, pagesize);
         } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
+            Logger.e(e);
             return null;
         }
     }

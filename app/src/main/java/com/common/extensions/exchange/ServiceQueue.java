@@ -5,6 +5,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.common.extensions.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -12,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ServiceQueue implements Runnable {
     private static final int processors_limit = 1; // Max number of working threads
+    private static final List<String> empty_list = empty_list();
     private final AtomicInteger processors_count = new AtomicInteger(0);
     private final ConcurrentLinkedQueue<Controller> waiting = new ConcurrentLinkedQueue<Controller>();
     private final ConcurrentLinkedQueue<Controller> working = new ConcurrentLinkedQueue<Controller>();
@@ -41,7 +44,7 @@ public class ServiceQueue implements Runnable {
     private void destroy_processor(Thread processor) {
         processors_count.decrementAndGet();
         processors.remove(processor);
-        garbage_queue();
+        // garbage_queue();
 
         // Kill another process, but not itself
         if (!processor.equals(Thread.currentThread())) {
@@ -83,8 +86,23 @@ public class ServiceQueue implements Runnable {
         final ArrayList<ServiceInterface.JobInfo> result = new ArrayList<ServiceInterface.JobInfo>(working.size());
 
         for (Controller controller : working) {
-            if (!controller.isTerminated()) result.add(controller.jobInfo());
+            result.add(controller.jobInfo());
         }
+        return result;
+    }
+
+    public List<String> getProgress(@NonNull ServiceInterface.JobInfo work, int since) {
+        for (Controller controller : working) {
+            if (work.equals(controller.jobInfo())) {
+                return controller.getProgress(since);
+            }
+        }
+        return empty_list;
+    }
+
+    private static List<String> empty_list() {
+        final List<String> result = new ArrayList<String>(1);
+        result.add("Wait");
         return result;
     }
 
@@ -132,7 +150,7 @@ public class ServiceQueue implements Runnable {
      * Task execution Controller
      */
     private static class Controller implements Runnable {
-        private enum Step {none, start, init, exec, send, fine, done};
+        private enum Step {none, start, init, exec, send, fine, done}
         private static final ExceptionHandler handler = new ExceptionHandler();
         private final ServiceInterface.ServiceTask task;
         private final ServiceInterface.JobInfo work;
@@ -161,6 +179,10 @@ public class ServiceQueue implements Runnable {
             return processor;
         }
 
+        public List<String> getProgress(int since) {
+            return task.getProgress(since);
+        }
+
         public boolean isTerminated() {
             return (step == Step.done);
         }
@@ -172,6 +194,7 @@ public class ServiceQueue implements Runnable {
 
             // Cancel the task if it is already running
             try {
+                task.setProgress("Cancel");
                 task.onCancel();
                 for (int i = 0; i < 10; i++) {
                     if (step == Step.done) break;
@@ -181,7 +204,7 @@ public class ServiceQueue implements Runnable {
             } catch (UnsupportedOperationException e) {
                 return false;
             } catch (Exception e) {
-                e.printStackTrace();
+                Logger.e(e);
                 return false;
             }
         }
@@ -197,10 +220,12 @@ public class ServiceQueue implements Runnable {
 
                 switch (step) {
                     case init:
+                        task.setProgress("Initialize");
                         task.onCreate(params);
                         break;
                     case exec:
                         if (!cancelled) try {
+                            task.setProgress("Execute");
                             result = task.call();
                         } catch (InterruptedException e) {
                             throw e;
@@ -215,13 +240,15 @@ public class ServiceQueue implements Runnable {
                         }
                         break;
                     case fine:
+                        task.setProgress("Finalize");
                         task.onDestroy();
                         break;
                 }
             } catch (InterruptedException e) {
+                task.setProgress("Interrupt");
                 Thread.currentThread().interrupt();
             } catch (Exception e) {
-                e.printStackTrace();
+                Logger.e(e);
             }
         }
 

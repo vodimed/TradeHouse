@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.common.extensions.Dialogue;
 import com.common.extensions.database.AdapterInterface;
 import com.common.extensions.database.AdapterTemplate;
 import com.common.extensions.database.CurrencyFormatter;
@@ -110,7 +111,7 @@ public class InvoicesActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != RESULT_OK) return;
-        document document = (document) data.getSerializableExtra(document.class.getName());
+        final document document = (document) data.getSerializableExtra(document.class.getName());
 
         switch (requestCode) {
             case InvoiceEditActivity.REQUEST_ADD_DOCUMENT:
@@ -124,7 +125,6 @@ public class InvoicesActivity extends Activity {
                         onDocumentSelection.onNothingSelected(null);
                         return; // not in selection
                     }
-                    document = documents.get(position);
                 }
                 actionEdit(position);
                 break;

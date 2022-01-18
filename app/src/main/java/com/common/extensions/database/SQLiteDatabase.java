@@ -13,7 +13,7 @@ import android.util.Pair;
 
 import androidx.annotation.NonNull;
 
-import org.jetbrains.annotations.NotNull;
+import com.common.extensions.Logger;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -54,7 +54,7 @@ public class SQLiteDatabase extends SQLiteClosable {
             method.setAccessible(true);
             method.invoke(db);
         } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
+            Logger.e(e);
         }
     }
 
@@ -341,7 +341,7 @@ public class SQLiteDatabase extends SQLiteClosable {
         db.setVersion(version);
     }
 
-    @NotNull
+    @NonNull
     @Override
     public String toString() {
         return db.toString();

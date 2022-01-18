@@ -1,5 +1,6 @@
 package com.expertek.tradehouse.tradehouse;
 
+import com.common.extensions.Logger;
 import com.common.extensions.exchange.ServiceActivity;
 import com.common.extensions.exchange.ServiceEngine;
 import com.expertek.tradehouse.R;
@@ -16,7 +17,7 @@ public class TradeHouseService extends ServiceEngine {
                     ServiceActivity.class, this, R.string.CHANNEL_ID, R.drawable.ic_launcher,
                     R.string.service_tradehouse, R.string.msgServiceNotification));
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.e(e);
         }
     }
 
@@ -25,7 +26,7 @@ public class TradeHouseService extends ServiceEngine {
         try {
             stopForeground(false);
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.e(e);
         }
 
         super.onDestroy();

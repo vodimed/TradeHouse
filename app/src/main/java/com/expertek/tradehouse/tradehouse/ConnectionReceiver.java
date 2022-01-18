@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
 
+import com.common.extensions.Logger;
 import com.expertek.tradehouse.MainSettings;
 
 import java.io.BufferedReader;
@@ -18,7 +19,7 @@ import java.io.IOException;
 // ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Service.CONNECTIVITY_SERVICE);
 // Log.i("", connectivityManager.getLinkProperties(connectivityManager.getActiveNetwork()).toString());
 public class ConnectionReceiver extends BroadcastReceiver {
-    public enum Status {connected, unavailable, launched};
+    public enum Status {connected, unavailable, launched}
     private static final String tetherPackage = "com.android.settings";
     private static final String tetherClassName = "com.android.settings.TetherSettings";
     private static final String[] linksSupported = {"eth", "rndis"}; // in preferable order
@@ -82,7 +83,7 @@ public class ConnectionReceiver extends BroadcastReceiver {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.e(e);
         }
         return foundIp;
     }

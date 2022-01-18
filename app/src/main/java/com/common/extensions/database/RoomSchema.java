@@ -7,6 +7,8 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
 
+import com.common.extensions.Logger;
+
 import java.lang.ref.WeakReference;
 
 /**
@@ -34,7 +36,7 @@ public class RoomSchema<SchemaDAO> extends SQLiteSchema<SchemaDAO> {
             filename = name;
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.e(e);
             return false;
         }
     }

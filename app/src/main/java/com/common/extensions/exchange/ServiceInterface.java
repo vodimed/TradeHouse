@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 public interface ServiceInterface {
+    int ACTION_PROGRESS = -2;
     int ACTION_CANCEL = -1;
     int ACTION_LISTALL = 0;
     int ACTION_LISTRUN = 1;
@@ -28,7 +29,7 @@ public interface ServiceInterface {
     void cancel(@NonNull JobInfo work) throws RemoteException;
     @NonNull List<JobInfo> getAllPendingJobs() throws RemoteException;
     @NonNull List<JobInfo> getStartedJobs() throws RemoteException;
-    //void onLogEvent(int priority, String tag, String message) throws RemoteException;
+    @NonNull List<String> getProgress(@NonNull JobInfo work, int since);
 
     /**
      * JobScheduler-compatible format. Parcelable code is
@@ -121,6 +122,8 @@ public interface ServiceInterface {
         void onCreate(@Nullable Bundle params) throws Exception;
         void onCancel() throws Exception; // UnsupportedOperationException()
         void onDestroy() throws Exception;
+        void setProgress(String progress);
+        List<String> getProgress(int since);
     }
 
     /**

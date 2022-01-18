@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.common.extensions.Dialogue;
 import com.common.extensions.database.CurrencyFormatter;
 import com.expertek.tradehouse.documents.entity.line;
 

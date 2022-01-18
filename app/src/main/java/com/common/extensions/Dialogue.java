@@ -1,10 +1,12 @@
-package com.expertek.tradehouse;
+package com.common.extensions;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 
 import androidx.annotation.StringRes;
+
+import com.expertek.tradehouse.R;
 
 import java.io.Serializable;
 

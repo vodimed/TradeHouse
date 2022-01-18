@@ -6,6 +6,8 @@ import android.database.sqlite.SQLiteCantOpenDatabaseException;
 
 import androidx.annotation.NonNull;
 
+import com.common.extensions.Logger;
+
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -42,7 +44,7 @@ public class SQLiteSchema<SchemaDAO> {
             final String path = context.getDatabasePath(filename).getPath();
             instance = schema.getConstructor(String.class).newInstance(path);
         } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
+            Logger.e(e);
             return false;
         }
 
@@ -53,7 +55,7 @@ public class SQLiteSchema<SchemaDAO> {
             migrate(actualVersion, requiredVersion);
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.e(e);
             return false;
         }
     }
@@ -85,7 +87,7 @@ public class SQLiteSchema<SchemaDAO> {
         if (obsolete.exists()) try {
             if (!obsolete.delete()) throw new SecurityException();
         } catch (SecurityException e) {
-            e.printStackTrace();
+            Logger.e(e);
             return false;
         }
 
@@ -98,11 +100,11 @@ public class SQLiteSchema<SchemaDAO> {
             checkoper(source.renameTo(current));
             this.schema = schema;
         } catch (SecurityException e) {
-            e.printStackTrace();
+            Logger.e(e);
             if (obsolete.exists()) try {
                 checkoper(obsolete.renameTo(current));
             } catch (SecurityException g) {
-                g.printStackTrace();
+                Logger.e(g);
                 return false;
             }
         } finally {
@@ -125,8 +127,7 @@ public class SQLiteSchema<SchemaDAO> {
                 database.setVersion(migration.endVersion);
                 database.setTransactionSuccessful();
             } catch (SQLException e) {
-                e.printStackTrace();
-                throw new SQLiteCantOpenDatabaseException();
+                throw (SQLiteCantOpenDatabaseException) new SQLiteCantOpenDatabaseException().initCause(e);
             } finally {
                 database.endTransaction();
             }

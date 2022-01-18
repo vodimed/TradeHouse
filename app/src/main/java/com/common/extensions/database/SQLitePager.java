@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.paging.DataSource;
 import androidx.paging.PositionalDataSource;
 
-import org.jetbrains.annotations.NotNull;
+import com.common.extensions.Logger;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -95,19 +95,19 @@ public abstract class SQLitePager<Value extends Serializable> extends Positional
                         break;
                 }
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                Logger.e(e);
             }
         }
         return object;
     }
 
     @Override
-    public void loadInitial(@NotNull LoadInitialParams loadInitialParams, @NotNull LoadInitialCallback<Value> loadInitialCallback) {
+    public void loadInitial(@NonNull LoadInitialParams loadInitialParams, @NonNull LoadInitialCallback<Value> loadInitialCallback) {
         // Do Nothing
     }
 
     @Override
-    public void loadRange(@NotNull LoadRangeParams loadRangeParams, @NotNull LoadRangeCallback<Value> loadRangeCallback) {
+    public void loadRange(@NonNull LoadRangeParams loadRangeParams, @NonNull LoadRangeCallback<Value> loadRangeCallback) {
         loadRangeCallback.onResult(loadRange(loadRangeParams.startPosition, loadRangeParams.loadSize));
     }
 
@@ -157,7 +157,7 @@ public abstract class SQLitePager<Value extends Serializable> extends Positional
             return object;
         }
 
-        @NotNull
+        @NonNull
         @Override
         public DataSource<Integer, Value> create() {
             return new SQLitePager<Value>(db, query, args) {
@@ -168,7 +168,7 @@ public abstract class SQLitePager<Value extends Serializable> extends Positional
                         value = super.convertRow(value, cursor);
                         return convertRow(value, cursor);
                     } catch (ReflectiveOperationException e) {
-                        e.printStackTrace();
+                        Logger.e(e);
                         return null;
                     }
                 }

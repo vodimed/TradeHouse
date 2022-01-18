@@ -21,7 +21,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -81,8 +80,7 @@ public abstract class AdapterTemplate<Item>
         try {
             return holder.getDeclaredConstructor(View.class);
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException("Invalid Holder: " + holder.getName());
+            throw new IllegalArgumentException("Invalid Holder: " + holder.getName(), e);
         }
     }
 
@@ -94,8 +92,7 @@ public abstract class AdapterTemplate<Item>
             try {
                 result[i] = views[i].getDeclaredConstructor(Context.class);
             } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-                throw new IllegalArgumentException("Invalid View: " + views[i].getName());
+                throw new IllegalArgumentException("Invalid View: " + views[i].getName(), e);
             }
         }
         return result;
@@ -153,14 +150,9 @@ public abstract class AdapterTemplate<Item>
             final Holder result = creator.newInstance(layout);
             layout.setTag(result);
             return result;
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalArgumentException("Invalid Constructor: " + creator.getName(), e);
         }
-        throw new IllegalArgumentException("Invalid Constructor: " + creator.getName());
     }
 
     private View createView(@NonNull ViewGroup parent, int viewType) {
@@ -168,14 +160,9 @@ public abstract class AdapterTemplate<Item>
             return inflater.inflate(layout[viewType], parent, false);
         } else try {
             return instance[viewType].newInstance(parent.getContext());
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalArgumentException("Invalid Constructor: " + instance[viewType].getName(), e);
         }
-        throw new IllegalArgumentException("Invalid Constructor: " + instance[viewType].getName());
     }
 
     protected View acessible(View view, boolean indeepth) {
@@ -381,7 +368,7 @@ public abstract class AdapterTemplate<Item>
             if (getChoiceMode(parent) != AbsListView.CHOICE_MODE_SINGLE)
                 checked = !choicer.isItemChecked(position);
             final long id = getItemIdForView(parent, layout);
-            if (choicer != null) choicer.setItemChecked(position, id, checked);
+            choicer.setItemChecked(position, id, checked);
         }
         return checked;
     }

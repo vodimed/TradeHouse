@@ -17,6 +17,7 @@ import android.widget.ToggleButton;
 
 import androidx.annotation.IdRes;
 
+import com.common.extensions.Logger;
 import com.expertek.tradehouse.tradehouse.ConnectionReceiver;
 
 import java.io.IOException;
@@ -314,7 +315,7 @@ public class SettingsActivity extends Activity {
                         connection.setConnectTimeout(timeout);
                         return connection;
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        Logger.e(e);
                         return null;
                     }
                 }

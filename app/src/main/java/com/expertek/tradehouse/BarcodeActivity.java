@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.common.extensions.Logger;
 import com.common.extensions.database.PagingList;
 import com.expertek.tradehouse.documents.DBDocuments;
 import com.expertek.tradehouse.documents.entity.line;
@@ -58,7 +59,7 @@ public class BarcodeActivity extends Activity implements BarcodeReader.BarcodeLi
         if (barcodeReader != null) try {
             barcodeReader.claim();
         } catch (AidcException e) {
-            e.printStackTrace();
+            Logger.w(e);
         }
     }
 
@@ -79,6 +80,7 @@ public class BarcodeActivity extends Activity implements BarcodeReader.BarcodeLi
     private final View.OnTouchListener onPriceTouch = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
+            v.performClick();
             boolean switch_on;
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
@@ -95,7 +97,7 @@ public class BarcodeActivity extends Activity implements BarcodeReader.BarcodeLi
                 barcodeReader.light(switch_on);
                 barcodeReader.decode(switch_on);
             } catch (AidcException e) {
-                e.printStackTrace();
+                Logger.e(e);
             }
             // Do not "eat" events
             return false;
@@ -145,7 +147,7 @@ public class BarcodeActivity extends Activity implements BarcodeReader.BarcodeLi
                 reader.claim();
                 return reader;
             } catch (AidcException e) {
-                e.printStackTrace();
+                Logger.e(e);
                 return null;
             }
         }

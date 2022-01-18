@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -28,6 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 
+import com.common.extensions.Logger;
 import com.common.extensions.database.AdapterInterface;
 import com.common.extensions.database.AdapterTemplate;
 
@@ -46,7 +48,7 @@ import java.util.TimerTask;
  *          startForeground(R.string.service_tradehouse, MainApplication.createNotification(
  *              ServiceActivity.class, R.string.trayTitle, R.string.trayMessage);
  *      } catch (Exception e) {
- *          e.printStackTrace();
+ *          Logger.e(e);
  *      }
  * }
  * @Override
@@ -54,7 +56,7 @@ import java.util.TimerTask;
  *      try {
  *          stopForeground(false);
  *      } catch (Exception e) {
- *          e.printStackTrace();
+ *          Logger.e(e);
  *      }
  *      super.onDestroy();
  * }
@@ -123,10 +125,18 @@ public class ServiceActivity extends Activity {
             @Override
             public void run() {
                 if (activity.service.isConnected()) try {
-                    activity.adapter.setDataSet(activity.service.getAllPendingJobs());
+                    activity.adapter.setDataSet(activity.service.getAllJobs());
                     activity.layout.onDataReceived(true);
+
+                    final int position = activity.layout.getSelectedPosition();
+                    if (position != AdapterInterface.INVALID_POSITION) {
+                        activity.onItemSelection.onItemSelected(activity.layout.listActions,
+                                null, position, AdapterInterface.INVALID_ROW_ID);
+                    } else {
+                        activity.onItemSelection.onNothingSelected(activity.layout.listActions);
+                    }
                 } catch (RemoteException e) {
-                    e.printStackTrace();
+                    Logger.w(e);
                 }
             }
         };
@@ -135,7 +145,7 @@ public class ServiceActivity extends Activity {
         public void run() {
             activity.runOnUiThread(update);
         }
-    };
+    }
 
     private final View.OnClickListener onClickClear = new View.OnClickListener() {
         @Override
@@ -149,11 +159,9 @@ public class ServiceActivity extends Activity {
         public void onClick(View v) {
             final int position = layout.getSelectedPosition();
             if (position != AdapterInterface.INVALID_POSITION) try {
-                final AdapterInterface<ServiceInterface.JobInfo> adapter =
-                        (TaskAdapter) layout.listActions.getAdapter();
                 service.cancel(adapter.getItem(position));
             } catch (RemoteException e) {
-                e.printStackTrace();
+                Logger.w(e);
             }
         }
     };
@@ -164,11 +172,14 @@ public class ServiceActivity extends Activity {
         @Override
         public void onItemSelected(ViewGroup parent, View view, int position, long id) {
             layout.onItemSelection(position);
+            layout.textProtocol.setText(TextUtils.join("\n",
+                    service.getProgress(adapter.getItem(position), 0)));
         }
 
         @Override
         public void onNothingSelected(ViewGroup parent) {
             layout.onItemSelection(AdapterInterface.INVALID_POSITION);
+            layout.textProtocol.setText(null);
         }
     };
 
@@ -253,7 +264,7 @@ public class ServiceActivity extends Activity {
         try {
             return Class.forName(component.getClassName()).asSubclass(ServiceEngine.class);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            Logger.e(e);
             return null;
         }
     }
@@ -297,6 +308,7 @@ public class ServiceActivity extends Activity {
             this.addView(scrollProtocol);
 
             textProtocol = new TextView(context);
+            textProtocol.setTextSize(labelProtocol.getTextSize() * 0.5f);
             scrollProtocol.addView(textProtocol);
 
             final LinearLayout layoutButtons = new LinearLayout(context);
@@ -338,6 +350,7 @@ public class ServiceActivity extends Activity {
         }
 
         public void onItemSelection(int position) {
+            this.position = position;
             buttonCancel.setEnabled(position != AdapterInterface.INVALID_POSITION);
         }
 

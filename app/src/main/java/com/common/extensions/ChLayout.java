@@ -1,4 +1,4 @@
-package com.expertek.tradehouse;
+package com.common.extensions;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -8,22 +8,22 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
 
-public class CheckableLayout extends LinearLayout implements Checkable {
+public class ChLayout extends LinearLayout implements Checkable {
     private boolean checked = false;
 
-    public CheckableLayout(Context context) {
+    public ChLayout(Context context) {
         super(context);
     }
 
-    public CheckableLayout(Context context, @Nullable AttributeSet attrs) {
+    public ChLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public CheckableLayout(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public ChLayout(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
-    public CheckableLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public ChLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 

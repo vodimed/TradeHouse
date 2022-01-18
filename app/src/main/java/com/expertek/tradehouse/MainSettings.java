@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.util.ArraySet;
 
+import com.common.extensions.Logger;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Set;
@@ -59,7 +61,7 @@ public class MainSettings {
                     field.set(null, preferences.getStringSet(name, toStringSet((Set<?>) field.get(null))));
                 }
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                Logger.e(e);
             }
         }
     }
@@ -90,7 +92,7 @@ public class MainSettings {
                     preferences.putStringSet(name, toStringSet((Set<?>) field.get(null)));
                 }
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                Logger.e(e);
             }
         }
         return preferences.commit();
@@ -129,7 +131,7 @@ public class MainSettings {
                 return android.os.Build.SERIAL;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.e(e);
             return null;
         }
     }

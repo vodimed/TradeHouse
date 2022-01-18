@@ -11,12 +11,16 @@ import android.os.RemoteException;
 
 import androidx.annotation.NonNull;
 
+import com.common.extensions.Logger;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class ServiceConnector implements ServiceConnection, ServiceInterface, ServiceInterface.Receiver {
     private static final Parcel empty = Parcel.obtain();
+    private static final String unavailable = "Service unavailable";
+    private static final List<String> empty_list = new ArrayList<String>(0);
     private final ServiceReceiver delegate = new ServiceReceiver(this);
     private final WeakReference<Context> client;
     private final Class<? extends ServiceEngine> server;
@@ -63,8 +67,7 @@ public abstract class ServiceConnector implements ServiceConnection, ServiceInte
             parcel.writeParcelable(work, 0);
             service.transact(ACTION_CANCEL, parcel, null, IBinder.FLAG_ONEWAY);
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RemoteException("Service unavailable");
+            throw (RemoteException) new RemoteException(unavailable).initCause(e);
         }
     }
 
@@ -76,14 +79,10 @@ public abstract class ServiceConnector implements ServiceConnection, ServiceInte
                 parcel.readTypedList(result, JobInfo.CREATOR);
                 return result;
             }
+            throw new RemoteException(unavailable);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw (RemoteException) new RemoteException(unavailable).initCause(e);
         }
-        throw new RemoteException("Service unavailable");
-    }
-
-    public boolean isConnected() {
-        return (this.service != null);
     }
 
     @NonNull
@@ -96,6 +95,35 @@ public abstract class ServiceConnector implements ServiceConnection, ServiceInte
     @Override
     public List<JobInfo> getStartedJobs() throws RemoteException {
         return joblist(ACTION_LISTRUN);
+    }
+
+    @NonNull
+    public List<JobInfo> getAllJobs() throws RemoteException {
+        final List<JobInfo> list = getStartedJobs();
+        list.addAll(getAllPendingJobs());
+        return list;
+    }
+
+    @NonNull
+    @Override
+    public List<String> getProgress(@NonNull JobInfo work, int since) {
+        try {
+            final Parcel parcel = Parcel.obtain();
+            parcel.writeParcelable(work, 0);
+            parcel.writeInt(since);
+            if (service.transact(ACTION_PROGRESS, parcel, parcel, 0)) {
+                final List<String> result = new ArrayList<String>(parcel.dataSize());
+                parcel.readStringList(result);
+                return result;
+            }
+        } catch (Exception e) {
+            Logger.w(e);
+        }
+        return empty_list;
+    }
+
+    public boolean isConnected() {
+        return (this.service != null);
     }
 
     @Override // Bind link ESTABLISHED

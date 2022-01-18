@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.common.extensions.Dialogue;
 import com.common.extensions.database.AdapterInterface;
 import com.common.extensions.database.AdapterTemplate;
 import com.common.extensions.database.CurrencyFormatter;
@@ -248,8 +249,7 @@ public class InvoiceEditActivity extends Activity {
     private final ServiceConnector tradehouse = new ServiceConnector(this, TradeHouseService.class) {
         @Override
         public void onJobResult(@NonNull ServiceInterface.JobInfo work, Bundle result) {
-            final document export = (document) result.getSerializable(document.class.getName());
-            document = export;
+            document = (document) result.getSerializable(document.class.getName());
             actionSave(position);
         }
 

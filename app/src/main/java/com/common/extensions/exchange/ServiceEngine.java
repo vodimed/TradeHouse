@@ -17,6 +17,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import com.common.extensions.Logger;
+
 import java.util.List;
 
 public class ServiceEngine extends Service implements ServiceInterface, ServiceInterface.Receiver {
@@ -48,12 +50,14 @@ public class ServiceEngine extends Service implements ServiceInterface, ServiceI
 
     @Override
     public boolean onUnbind(Intent intent) {
-        return super.onUnbind(intent); // TODO: Cancel asynchronous running transactions (?) notify mb
+        queue.cancelAll();
+        return super.onUnbind(intent);
     }
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
-        super.onTaskRemoved(rootIntent); // TODO: Notify all running tasks on being killed
+        queue.cancel(new JobInfo(rootIntent));
+        super.onTaskRemoved(rootIntent);
     }
 
     @Override
@@ -106,6 +110,12 @@ public class ServiceEngine extends Service implements ServiceInterface, ServiceI
         return queue.listExecuting();
     }
 
+    @NonNull
+    @Override
+    public List<String> getProgress(@NonNull JobInfo work, int since) {
+        return queue.getProgress(work, since);
+    }
+
     private static class TransactionBinder extends Binder {
         private final ServiceInterface service;
 
@@ -118,6 +128,12 @@ public class ServiceEngine extends Service implements ServiceInterface, ServiceI
         protected boolean onTransact(int code, @NonNull Parcel data, @Nullable Parcel reply, int flags) throws RemoteException {
             try {
                 switch (code) {
+                    case ACTION_PROGRESS:
+                        assert reply != null;
+                        reply.writeStringList(service.getProgress(
+                                data.readTypedObject(JobInfo.CREATOR),
+                                data.readInt()));
+                        return true;
                     case ACTION_CANCEL:
                         service.cancel(data.readTypedObject(JobInfo.CREATOR));
                         return true;
@@ -133,7 +149,7 @@ public class ServiceEngine extends Service implements ServiceInterface, ServiceI
                         return super.onTransact(code, data, reply, flags);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                Logger.e(e);
                 return false;
             }
         }
@@ -185,7 +201,7 @@ public class ServiceEngine extends Service implements ServiceInterface, ServiceI
             try {
                 service.cancel(new JobInfo(params.getJobId(), ServiceTask.class, null));
             } catch (RemoteException e) {
-                e.printStackTrace();
+                Logger.w(e);
             }
             return false; // false = acyclic; true = reshedule
         }

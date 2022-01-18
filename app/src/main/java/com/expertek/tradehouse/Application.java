@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
+import com.common.extensions.Logger;
 import com.common.extensions.database.SQLiteSchema;
 import com.common.extensions.exchange.ServiceActivity;
 import com.common.extensions.exchange.ServiceConnector;
@@ -86,7 +87,7 @@ public class Application extends android.app.Application {
 
         @Override
         public void onJobException(@NonNull ServiceInterface.JobInfo work, @NonNull Throwable e) {
-            e.printStackTrace();
+            Logger.e(e);
             //System.exit(-1);
         }
     };
@@ -99,7 +100,7 @@ public class Application extends android.app.Application {
 
         @Override
         public void uncaughtException(@NonNull Thread t, @NonNull Throwable e) {
-            e.printStackTrace();
+            Logger.e(e);
             original.uncaughtException(t, e);
         }
     };

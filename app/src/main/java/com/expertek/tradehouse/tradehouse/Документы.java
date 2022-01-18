@@ -14,7 +14,7 @@ public class Документы extends TradeHouseTask {
     protected void setRequestHeaders() {
         connection.setRequestProperty("Content-Type", "raw");
         final String[] magheader = parseMagHeader(MainSettings.TradeHouseObject);
-        magheader[0].replace("маг", "shop"); // encoding "windows-1251"
+        magheader[0] = magheader[0].replace("маг", "shop"); // encoding "windows-1251"
         connection.setRequestProperty("user-Agent", String.format("%s?%s?True?.", magheader[0], magheader[1]));
         connection.setDoOutput(true);
     }

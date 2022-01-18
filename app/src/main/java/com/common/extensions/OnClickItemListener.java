@@ -51,7 +51,7 @@ public abstract class OnClickItemListener implements View.OnClickListener {
             position = (Integer) getChildAdapterPosition.invoke(parent, v);
             id = (Long) getChildItemId.invoke(parent, v);
         } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
+            Logger.e(e);
         }
 
         if (v instanceof Checkable) {
@@ -94,7 +94,7 @@ public abstract class OnClickItemListener implements View.OnClickListener {
             getChildItemId = recycler.getMethod("getChildItemId", View.class);
             return true;
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+            Logger.e(e);
             return false;
         }
     }

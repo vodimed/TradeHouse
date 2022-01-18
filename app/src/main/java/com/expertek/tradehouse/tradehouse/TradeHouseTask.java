@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
+import com.common.extensions.Logger;
 import com.common.extensions.exchange.ServiceInterface;
 import com.expertek.tradehouse.MainSettings;
 
@@ -23,6 +24,9 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
     protected static final String REQ_SETTINGS = "SETTINGS";
@@ -36,6 +40,7 @@ public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
     protected String getquery = null;
     protected Bundle params = null;
     protected volatile boolean cancelled = false;
+    private final List<String> log = new ArrayList<String>(10);
 
     // Override to change
     protected void setRequestHeaders() {
@@ -69,11 +74,21 @@ public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
         connection.disconnect();
     }
 
+    @Override
+    public void setProgress(String progress) {
+        log.add(progress);
+    }
+
+    @Override
+    public List<String> getProgress(int since) {
+        return log.subList(since, log.size());
+    }
+
     private static XmlPullParserFactory createXmlFactory() {
         try {
             return XmlPullParserFactory.newInstance();
         } catch (XmlPullParserException e) {
-            e.printStackTrace();
+            Logger.e(e);
             return null;
         }
     }
@@ -143,8 +158,11 @@ public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
 
         if (inputStream != null) {
             final byte[] buffer = new byte[1024];
+            int totalWrite = 0;
             for (int bytesRead; !cancelled && ((bytesRead = inputStream.read(buffer)) != -1);) {
                 outputStream.write(buffer, 0, bytesRead);
+                totalWrite += bytesRead;
+                setProgress(String.format(Locale.getDefault(), "%dKb written", totalWrite / 1024));
             }
             inputStream.close();
         }
@@ -184,8 +202,11 @@ public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
         final FileOutputStream outputStream = new FileOutputStream(temporaryFile, false);
 
         final byte[] buffer = new byte[1024];
+        int totalRead = 0;
         for (int bytesRead; !cancelled && ((bytesRead = inputStream.read(buffer)) != -1);) {
             outputStream.write(buffer, 0, bytesRead);
+            totalRead += bytesRead;
+            setProgress(String.format(Locale.getDefault(), "%dKb read", totalRead / 1024));
         }
 
         inputStream.close();
