@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.common.extensions.Logger;
 import com.common.extensions.database.AdapterTemplate;
 import com.common.extensions.exchange.ServiceConnector;
 import com.common.extensions.exchange.ServiceInterface;
@@ -39,6 +40,7 @@ public class DictionariesActivity extends Activity {
 
         tradehouse.registerService(false);
 
+        datasetResponse.appendAll(Logger.getMessages());
         adapterResponse = new ResponseAdapter(this, TextView.class);
         adapterResponse.setDataSet(datasetResponse);
 
@@ -74,6 +76,7 @@ public class DictionariesActivity extends Activity {
     };
 
     protected void actionSend() {
+        datasetResponse.clear();
         tradehouse.enqueue(new ServiceInterface.JobInfo(1, Настройки.class, tradehouse.receiver()), null);
         tradehouse.enqueue(new ServiceInterface.JobInfo(2, Словари.class, tradehouse.receiver()), null);
         tradehouse.enqueue(new ServiceInterface.JobInfo(3, Документы.class, tradehouse.receiver()), null);

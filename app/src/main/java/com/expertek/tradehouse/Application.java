@@ -35,6 +35,7 @@ public class Application extends android.app.Application {
     public Application() {
         super();
         app = this;
+        Logger.setApplicationContext(this);
         Thread.setDefaultUncaughtExceptionHandler(allerrors);
     }
 

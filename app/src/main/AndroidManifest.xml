@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" /> <!-- Serial No. -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" /> <!-- Serial No. -->
     <uses-permission android:name="android.permission.INTERNET" /> <!-- Network -->
+    <uses-permission android:name="android.permission.READ_LOGS" /> <!-- Logger -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application

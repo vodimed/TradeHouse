@@ -117,7 +117,7 @@ public abstract class ServiceConnector implements ServiceConnection, ServiceInte
                 return result;
             }
         } catch (Exception e) {
-            Logger.w(e);
+            Logger.e(e);
         }
         return empty_list;
     }

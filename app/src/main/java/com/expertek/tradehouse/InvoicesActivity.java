@@ -16,6 +16,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.common.extensions.Dialogue;
+import com.common.extensions.Logger;
 import com.common.extensions.database.AdapterInterface;
 import com.common.extensions.database.AdapterTemplate;
 import com.common.extensions.database.CurrencyFormatter;
@@ -159,6 +160,7 @@ public class InvoicesActivity extends Activity {
         document.DocName = dbd.documents().getNextId();
         document.DocType = (filtertype != null ? TextUtils.join(",", filtertype) : null);
         document.StartDate = Calendar.getInstance().getTime();
+        document.Complete = true;
 
         final Intent intent = new Intent(InvoicesActivity.this, InvoiceCreateActivity.class);
         intent.putExtra(document.class.getName(), document);
@@ -376,7 +378,7 @@ public class InvoicesActivity extends Activity {
 
         @Override
         public void onJobException(@NonNull ServiceInterface.JobInfo work, @NonNull Throwable e) {
-            Dialogue.Error(InvoicesActivity.this, e);
+            Logger.w(e);
         }
     };
 }

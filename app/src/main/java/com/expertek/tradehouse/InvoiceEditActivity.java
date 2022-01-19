@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.common.extensions.Dialogue;
+import com.common.extensions.Logger;
 import com.common.extensions.database.AdapterInterface;
 import com.common.extensions.database.AdapterTemplate;
 import com.common.extensions.database.CurrencyFormatter;
@@ -255,7 +255,7 @@ public class InvoiceEditActivity extends Activity {
 
         @Override
         public void onJobException(@NonNull ServiceInterface.JobInfo work, @NonNull Throwable e) {
-            Dialogue.Error(InvoiceEditActivity.this, e);
+            Logger.w(e);
         }
     };
 }
