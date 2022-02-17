@@ -1,5 +1,6 @@
 package com.common.extensions.database;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteCantOpenDatabaseException;
@@ -10,6 +11,9 @@ import com.common.extensions.Logger;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -165,5 +169,29 @@ public class SQLiteSchema<SchemaDAO> {
 
     public SchemaDAO db() {
         return instance;
+    }
+
+    public static class DateConverter {
+        private static final String sqlDateTimeFormat = "yyyy-MM-dd HH:mm:ss";
+        @SuppressLint("SimpleDateFormat")
+        private static final DateFormat template = new SimpleDateFormat(sqlDateTimeFormat);
+
+        public static String save(java.util.Date value) {
+            if (value != null) {
+                return template.format(value);
+            } else {
+                return null;
+            }
+        }
+
+        public static java.util.Date load(String value) {
+            if (value != null) try {
+                return template.parse(value);
+            } catch (ParseException e) {
+                return null;
+            } else {
+                return null;
+            }
+        }
     }
 }

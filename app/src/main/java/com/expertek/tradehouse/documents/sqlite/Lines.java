@@ -29,8 +29,8 @@ public class Lines {
     //line findByName(String first, String last);
 
     public long getNextId() {
-        final SQLiteStatement stmt = db.compileStatement("SELECT MAX(LineID) FROM MT_lines");
-        return stmt.simpleQueryForLong() + 1;
+        final SQLiteStatement stmt = db.compileStatement("SELECT MAX(LineID) + 1 FROM MT_lines");
+        return stmt.simpleQueryForLong();
     }
 
     public DataSource.Factory<Integer, line> loadByDocument(String docName) {

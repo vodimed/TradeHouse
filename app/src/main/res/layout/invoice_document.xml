@@ -27,11 +27,13 @@
         android:id="@+id/textFactSum"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="3.5" />
+        android:layout_weight="3.5"
+        android:gravity="end" />
 
     <TextView
         android:id="@+id/textStartDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="3.5" />
+        android:layout_weight="3.5"
+        android:gravity="end" />
 </LinearLayout>

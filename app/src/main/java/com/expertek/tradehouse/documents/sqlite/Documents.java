@@ -5,9 +5,9 @@ import android.database.sqlite.SQLiteStatement;
 
 import androidx.paging.DataSource;
 
-import com.common.extensions.database.DateConverter;
 import com.common.extensions.database.SQLiteDatabase;
 import com.common.extensions.database.SQLitePager;
+import com.common.extensions.database.SQLiteSchema;
 import com.expertek.tradehouse.documents.entity.document;
 
 import java.util.Arrays;
@@ -107,7 +107,7 @@ public class Documents {
             map.put("UserID", document.UserID);
             map.put("UserName", document.UserName);
             map.put("FactSum", document.FactSum);
-            map.put("StartDate", DateConverter.get(document.StartDate));
+            map.put("StartDate", SQLiteSchema.DateConverter.save(document.StartDate));
             map.put("Flags", document.Flags);
             db.replace("MT_documents", null, map);
         }

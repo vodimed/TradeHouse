@@ -6,7 +6,7 @@
     <string name="CHANNEL_ID">tradehouse.notification.service</string>
     <string name="msgServiceNotification">Открыть менеджер обмена с TradeHouse</string>
     <string name="create">Создать</string>
-    <string name="add">Додать</string>
+    <string name="add">Ещё</string>
     <string name="edit">Править</string>
     <string name="delete">Удалить</string>
     <string name="save">Записать</string>
@@ -17,6 +17,7 @@
     <string name="deletion">Удаляется</string>
     <string name="duplicate">Дубликат</string>
     <string name="exception">Ошибка</string>
+    <string name="success">Успешно</string>
 
     <string-array name="document_filters">
         <item>|Документы и инвентариз.</item>
@@ -47,7 +48,7 @@
     <!--InvoicesActivity-->
     <string name="invoice_selector">Фильтр</string>
     <string name="invoice_summary">Общая сумма</string>
-    <string name="invoice_number">Номер документа</string>
+    <string name="invoice_number">Документ</string>
     <string name="invoice_type">Тип накладной</string>
     <string name="invoice_contragent">Контрагент</string>
     <string name="invoice_price">Цена</string>

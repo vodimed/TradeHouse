@@ -4,12 +4,12 @@ import androidx.room.Database;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
-import com.common.extensions.database.RoomDateConverter;
+import com.common.extensions.database.RoomSchema;
 import com.expertek.tradehouse.documents.entity.document;
 import com.expertek.tradehouse.documents.entity.line;
 import com.expertek.tradehouse.documents.entity.markline;
 
-@TypeConverters({RoomDateConverter.class})
+@TypeConverters({RoomSchema.DateConverter.class})
 @Database(version = 1,
         entities = {document.class, line.class, markline.class},
         autoMigrations = {

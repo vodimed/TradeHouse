@@ -19,8 +19,7 @@ import com.common.extensions.Dialogue;
 import com.common.extensions.Logger;
 import com.common.extensions.database.AdapterInterface;
 import com.common.extensions.database.AdapterTemplate;
-import com.common.extensions.database.CurrencyFormatter;
-import com.common.extensions.database.DateConverter;
+import com.common.extensions.database.Formatter;
 import com.common.extensions.database.PagingList;
 import com.common.extensions.exchange.ServiceConnector;
 import com.common.extensions.exchange.ServiceInterface;
@@ -197,7 +196,7 @@ public class InvoicesActivity extends Activity {
 
     private void refreshActivityControls() {
         final String selectedKey = TextUtils.join(",", filtertype);
-        editSummary.setText(CurrencyFormatter.format(dbd.documents().sumAllDocs(filtertype)));
+        editSummary.setText(Formatter.Currency.format(dbd.documents().sumAllDocs(filtertype)));
         buttonCreate.setEnabled(selectedKey.length() <= 0 || selectedKey.contains("WB"));
     }
 
@@ -343,8 +342,8 @@ public class InvoicesActivity extends Activity {
             textDocName.setText(document.DocName);
             textDocType.setText(shortype.get(document.DocType));
             textStatus.setText(document.Status);
-            textFactSum.setText(CurrencyFormatter.format(document.FactSum));
-            textStartDate.setText(DateConverter.format(document.StartDate));
+            textFactSum.setText(Formatter.Currency.format(document.FactSum));
+            textStartDate.setText(Formatter.Date.format(document.StartDate));
         }
 
         @Override

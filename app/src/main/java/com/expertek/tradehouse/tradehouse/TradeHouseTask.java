@@ -133,10 +133,10 @@ public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
             serializer.endTag("", "OBJ");
         }
 
+        request(serializer);
+
         // End tag <TSD>
         serializer.endTag("", "TSD");
-
-        request(serializer);
 
         // End document
         serializer.endDocument();

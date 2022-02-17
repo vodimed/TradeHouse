@@ -7,6 +7,6 @@ public class InventoryActivity extends InvoiceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        editPrice.setVisibility(View.GONE);
+        findViewById(R.id.layoutPrice).setVisibility(View.GONE);
     }
 }

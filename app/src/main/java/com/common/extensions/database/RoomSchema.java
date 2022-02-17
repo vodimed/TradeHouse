@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
+import androidx.room.TypeConverter;
 
 import com.common.extensions.Logger;
 
@@ -51,5 +52,17 @@ public class RoomSchema<SchemaDAO> extends SQLiteSchema<SchemaDAO> {
     @Override
     public boolean isOpen() {
         return ((RoomDatabase) instance).isOpen();
+    }
+
+    public static class DateConverter extends SQLiteSchema.DateConverter {
+        @TypeConverter
+        public String save(java.util.Date value) {
+            return SQLiteSchema.DateConverter.save(value);
+        }
+
+        @TypeConverter
+        public java.util.Date load(String value) {
+            return SQLiteSchema.DateConverter.load(value);
+        }
     }
 }

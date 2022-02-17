@@ -15,7 +15,7 @@
         android:id="@+id/editBarcode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="numberDecimal" />
+        android:inputType="number" />
 
     <TextView
         android:id="@+id/labelName"

@@ -55,6 +55,8 @@ public class SettingsActivity extends Activity {
         object.setText(MainSettings.TradeHouseObject);
 
         conhandler.editAddress = findViewById(R.id.editAddress);
+        conhandler.editAddress.setText(String.format(Locale.getDefault(), "%s:%d",
+                MainSettings.TradeHouseAddress, MainSettings.TradeHousePort));
         conhandler.editAddress.addTextChangedListener(conhandler.onAddressChanged);
 
         conhandler.checkTethering = findViewById(R.id.checkTethering);
@@ -232,11 +234,10 @@ public class SettingsActivity extends Activity {
         {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                final String address = (isChecked ?
-                        ConnectionReceiver.getConnectedIp() :
+                final String address = (isChecked ? ConnectionReceiver.getConnectedIp() :
                         MainSettings.TradeHouseAddress);
                 conhandler.editAddress.setText(String.format(Locale.getDefault(), "%s:%d",
-                        address, MainSettings.TradeHousePort));
+                        address, getPort(editAddress.getText().toString().split(":", 2))));
                 editAddress.setEnabled(!isChecked);
             }
         };

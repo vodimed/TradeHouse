@@ -7,7 +7,6 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
-import com.common.extensions.database.SQLitePager;
 import com.expertek.tradehouse.documents.entity.line;
 
 @Dao
@@ -22,11 +21,14 @@ public interface Lines {
     //        "last_name LIKE :last LIMIT 1")
     //line findByName(String first, String last);
 
+    @Query("SELECT MAX(LineID) + 1 FROM MT_lines")
+    long getNextId();
+
     @Query("SELECT * FROM MT_lines WHERE DocName = :docName")
     DataSource.Factory<Integer, line> loadByDocument(String docName);
 
     @Query("SELECT * FROM MT_lines WHERE BC = :BC")
-    DataSource.Factory<Integer, line> loadByDocument(String BC);
+    DataSource.Factory<Integer, line> findBarCode(String BC);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(line... objects);

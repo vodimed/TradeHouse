@@ -1,13 +1,17 @@
 package com.expertek.tradehouse;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.database.DataSetObservable;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -26,12 +30,14 @@ import com.expertek.tradehouse.tradehouse.Словари;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class DictionariesActivity extends Activity {
-    private ResponseDataSet datasetResponse = new ResponseDataSet();
-    private ResponseAdapter adapterResponse = null;
+    private final ResponseDataSet dataset = new ResponseDataSet();
+    private ClipboardManager clipboard = null;
     private Button buttonSend = null;
     private Button buttonClose = null;
+    private int runcount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,13 +45,15 @@ public class DictionariesActivity extends Activity {
         setContentView(R.layout.dictionaries_activity);
 
         tradehouse.registerService(false);
+        clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
 
-        datasetResponse.appendAll(Logger.getMessages());
-        adapterResponse = new ResponseAdapter(this, TextView.class);
-        adapterResponse.setDataSet(datasetResponse);
+        final ResponseAdapter adapterResponse = new ResponseAdapter(this, TextView.class);
+        dataset.appendAll(Logger.getMessages());
+        adapterResponse.setDataSet(dataset);
 
         final ListView listResponse = findViewById(R.id.listResponse);
         listResponse.setChoiceMode(ListView.CHOICE_MODE_NONE);
+        listResponse.setOnItemLongClickListener(onLongClick);
         listResponse.setAdapter(adapterResponse);
 
         buttonSend = findViewById(R.id.buttonSend);
@@ -54,7 +62,6 @@ public class DictionariesActivity extends Activity {
         buttonSend.setOnClickListener(onClickAction);
         buttonClose.setOnClickListener(onClickAction);
 
-        // TODO: check if exchange is already active
         buttonSend.setEnabled(true);
     }
 
@@ -63,6 +70,16 @@ public class DictionariesActivity extends Activity {
         tradehouse.unregisterService();
         super.onDestroy();
     }
+
+    private final AdapterView.OnItemLongClickListener onLongClick = new AdapterView.OnItemLongClickListener() {
+        @Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            final String message = dataset.get(position);
+            clipboard.setPrimaryClip(ClipData.newPlainText(message, message));
+            Toast.makeText(DictionariesActivity.this, message, Toast.LENGTH_SHORT).show();
+            return true;
+        }
+    };
 
     private final View.OnClickListener onClickAction = new View.OnClickListener() {
         @Override
@@ -76,7 +93,9 @@ public class DictionariesActivity extends Activity {
     };
 
     protected void actionSend() {
-        datasetResponse.clear();
+        dataset.clear();
+        buttonClose.setEnabled(false);
+        runcount = 3;
         tradehouse.enqueue(new ServiceInterface.JobInfo(1, Настройки.class, tradehouse.receiver()), null);
         tradehouse.enqueue(new ServiceInterface.JobInfo(2, Словари.class, tradehouse.receiver()), null);
         tradehouse.enqueue(new ServiceInterface.JobInfo(3, Документы.class, tradehouse.receiver()), null);
@@ -85,7 +104,7 @@ public class DictionariesActivity extends Activity {
 
     @SuppressWarnings("unchecked")
     protected void actionReceive(@NonNull ServiceInterface.JobInfo work, Bundle result) {
-        switch (work.getJobId()) {
+        if (result != null) switch (work.getJobId()) {
             case 2:
                 final File dictionaries = Application.app().getDatabasePath(MainSettings.Dictionaries_db);
                 Application.replace_dictionaries_db_file(TradeHouseTask.temporary(dictionaries).getName(),
@@ -97,6 +116,7 @@ public class DictionariesActivity extends Activity {
                         (Class<? extends DBDocuments>) result.getSerializable(documents.getName()));
                 break;
         }
+        if (--runcount <= 0) buttonClose.setEnabled(true);
     }
 
     protected void actionClose() {
@@ -181,15 +201,26 @@ public class DictionariesActivity extends Activity {
     }
 
     private final ServiceConnector tradehouse = new ServiceConnector(this, TradeHouseService.class) {
+        private final String[] title = {"Настройки", "Словари", "Документы"};
+
+        private String getTitle(@NonNull ServiceInterface.JobInfo work) {
+            final int jobId = work.getJobId();
+            if ((0 < jobId) && (jobId <= title.length)) return title[jobId - 1];
+            return "unknown";
+        }
+
         @Override
         public void onJobResult(@NonNull ServiceInterface.JobInfo work, Bundle result) {
-            datasetResponse.append(result.toString());
+            dataset.append(String.format(Locale.getDefault(), "%d. %s (%s): %s", work.getJobId(),
+                    getTitle(work), getResources().getString(R.string.success), result.toString()));
             actionReceive(work, result);
         }
 
         @Override
         public void onJobException(@NonNull ServiceInterface.JobInfo work, @NonNull Throwable e) {
-            datasetResponse.append(String.valueOf(work.getJobId()) + ": " + e.toString());
+            dataset.append(String.format(Locale.getDefault(), "%d. %s (%s): %s", work.getJobId(),
+                    getTitle(work), getResources().getString(R.string.exception), e.toString()));
+            actionReceive(work, null);
         }
     };
 }

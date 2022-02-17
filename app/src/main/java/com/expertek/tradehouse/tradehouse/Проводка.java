@@ -2,8 +2,7 @@ package com.expertek.tradehouse.tradehouse;
 
 import android.os.Bundle;
 
-import com.common.extensions.database.CurrencyFormatter;
-import com.common.extensions.database.DateConverter;
+import com.common.extensions.database.Formatter;
 import com.common.extensions.database.PagingList;
 import com.expertek.tradehouse.Application;
 import com.expertek.tradehouse.documents.DBDocuments;
@@ -48,18 +47,21 @@ public class Проводка extends TradeHouseTask {
     protected void request(XmlSerializer serializer) throws IOException, XmlPullParserException {
         serializer.startTag("", "header");
         serialize(export, serializer);
-
-        serializer.startTag("", "line");
-        final PagingList<line> lines = new PagingList<line>(dbd.lines().loadByDocument(export.DocName));
-        for (line line : lines) serialize(line, serializer);
-        serializer.endTag("", "line");
-
-        serializer.startTag("", "MarkLines");
-        final PagingList<markline> marklines = new PagingList<markline>(dbd.marklines().loadByDocument(export.DocName));
-        for (markline markline : marklines) serialize(markline, serializer);
-        serializer.endTag("", "MarkLines");
-
         serializer.endTag("", "header");
+
+        final PagingList<line> lines = new PagingList<line>(dbd.lines().loadByDocument(export.DocName));
+        for (line line : lines) {
+            serializer.startTag("", "line");
+            serialize(line, serializer);
+            serializer.endTag("", "line");
+        }
+
+        final PagingList<markline> marklines = new PagingList<markline>(dbd.marklines().loadByDocument(export.DocName));
+        for (markline markline : marklines) {
+            serializer.startTag("", "MarkLines");
+            serialize(markline, serializer);
+            serializer.endTag("", "MarkLines");
+        }
     }
 
     private void serialize(Serializable object, XmlSerializer serializer) throws IOException, XmlPullParserException {
@@ -76,11 +78,11 @@ public class Проводка extends TradeHouseTask {
             if (type.equals(String.class)) {
                 return (String) field.get(object);
             } else if (type.equals(java.util.Date.class)) {
-                return DateConverter.get((java.util.Date) field.get(object));
+                return Formatter.Date.format((java.util.Date) field.get(object));
             } else if (type.equals(Double.TYPE)) {
-                return CurrencyFormatter.format(field.getDouble(object));
+                return Formatter.Number.format(field.getDouble(object));
             } else if (type.equals(Float.TYPE)) {
-                return CurrencyFormatter.format(field.getFloat(object));
+                return Formatter.Number.format(field.getFloat(object));
             } else if (type.equals(Long.TYPE)) {
                 return String.valueOf(field.getLong(object));
             } else if (type.equals(Integer.TYPE)) {

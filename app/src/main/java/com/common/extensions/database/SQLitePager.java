@@ -87,7 +87,7 @@ public abstract class SQLitePager<Value extends Serializable> extends Positional
                         if (type.equals(String.class)) {
                             field.set(object, cursor.getString(index));
                         } else if (type.equals(java.util.Date.class)) {
-                            field.set(object, DateConverter.get(cursor.getString(index)));
+                            field.set(object, SQLiteSchema.DateConverter.load(cursor.getString(index)));
                         }
                         break;
                     case Cursor.FIELD_TYPE_BLOB:

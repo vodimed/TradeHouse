@@ -16,8 +16,7 @@ import androidx.annotation.NonNull;
 import com.common.extensions.Logger;
 import com.common.extensions.database.AdapterInterface;
 import com.common.extensions.database.AdapterTemplate;
-import com.common.extensions.database.CurrencyFormatter;
-import com.common.extensions.database.DateConverter;
+import com.common.extensions.database.Formatter;
 import com.common.extensions.database.PagingList;
 import com.common.extensions.exchange.ServiceConnector;
 import com.common.extensions.exchange.ServiceInterface;
@@ -61,10 +60,10 @@ public class InvoiceEditActivity extends Activity {
         editNumber.setText(document.DocName);
 
         final TextView labelDate = findViewById(R.id.labelDate);
-        labelDate.setText(DateConverter.format(document.StartDate));
+        labelDate.setText(Formatter.Date.format(document.StartDate));
 
         editSummary = findViewById(R.id.editSummary);
-        editSummary.setText(CurrencyFormatter.format(document.FactSum));
+        editSummary.setText(Formatter.Currency.format(document.FactSum));
 
         adapterLine = new LineAdapter(this, R.layout.invoice_position);
         adapterLine.setDataSet(lines);
@@ -128,7 +127,7 @@ public class InvoiceEditActivity extends Activity {
         }
 
         document.FactSum += line.FactQnty * line.Price;
-        editSummary.setText(CurrencyFormatter.format(document.FactSum));
+        editSummary.setText(Formatter.Currency.format(document.FactSum));
     }
 
     protected void actionAdd(int position) {
@@ -222,9 +221,9 @@ public class InvoiceEditActivity extends Activity {
             textPos.setText(String.valueOf(line.Pos));
             textGoodsName.setText(line.GoodsName);
             textUnitBC.setText(line.UnitBC);
-            textPrice.setText(CurrencyFormatter.format(line.Price));
-            textFactQnty.setText(CurrencyFormatter.format(line.FactQnty));
-            textDocQnty.setText(CurrencyFormatter.format(line.DocQnty));
+            textPrice.setText(Formatter.Currency.format(line.Price));
+            textFactQnty.setText(Formatter.Number.format(line.FactQnty));
+            textDocQnty.setText(Formatter.Number.format(line.DocQnty));
         }
 
         @Override
