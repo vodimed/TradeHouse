@@ -124,7 +124,7 @@ public class ScanMarks {
         this.Visible = false;
 
         if (WidgetClosed != null) WidgetClosed(this, EventArgs.Empty);
-    }
+
 
     public void ShowWidget(
             DocumentsDataSet.MT_linesRow line

@@ -2,20 +2,21 @@ package com.expertek.tradehouse.documents.entity;
 
 import androidx.annotation.NonNull;
 
+import com.common.extensions.database.Entity;
+import com.common.extensions.database.Index;
+import com.common.extensions.database.PrimaryKey;
+
 import java.io.Serializable;
 
-/*TODO ROOM:
 @Entity(tableName = "MT_lines", indices = {
         @Index(name = "lDocNPart", value = {"DocName", "PartIDTH"}),
         @Index(name = "lDocName", value = {"DocName"}), // redundant
         @Index(name = "lDocNameAlc", value = {"DocName", "AlcCode"}),
         @Index(name = "lDocNameBC", value = {"DocName", "BC"}),
         @Index(name = "lDocNameGdsUnit", value = {"DocName", "GoodsID", "UnitBC"}),
-        @Index(name = "lLine", value = {"LineID"}, unique = true)
-})
-*/
+        @Index(name = "lLine", value = {"LineID"}, unique = true)})
 public class line implements Serializable {
-    //TODO ROOM: @PrimaryKey(autoGenerate = true)
+    @PrimaryKey(autoGenerate = true)
     public @NonNull int LineID; // Уникальный счетчик
     public @NonNull String DocName = ""; // Идентификатор-имя документа
     public int Pos; // Позиция в документе

@@ -1,12 +1,14 @@
 package com.expertek.tradehouse.documents.sqlite;
 
 import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 
 import androidx.paging.DataSource;
 
-import com.common.extensions.database.SQLiteDatabase;
 import com.common.extensions.database.SQLitePager;
 import com.expertek.tradehouse.documents.entity.markline;
+
+import java.util.List;
 
 public class Marklines {
     private final SQLiteDatabase db;
@@ -19,16 +21,16 @@ public class Marklines {
         return new SQLitePager.Factory<>(db, markline.class, "SELECT * FROM MT_MarkLines");
     }
 
-    public DataSource.Factory<Integer, markline> get(int... ident) {
-        return new SQLitePager.Factory<>(db, markline.class, "SELECT * FROM MT_MarkLines WHERE LineID IN (:ident)", ident);
-    }
-
-    //@Query("SELECT * FROM MT_MarkLines WHERE first_name LIKE :first AND " +
-    //        "last_name LIKE :last LIMIT 1")
-    //markline findByName(String first, String last);
-
     public DataSource.Factory<Integer, markline> loadByDocument(String docName) {
         return new SQLitePager.Factory<>(db, markline.class, "SELECT * FROM MT_MarkLines WHERE DocName = :docName", docName);
+    }
+
+    public markline get(int ident) {
+        final DataSource<Integer, markline> source = new SQLitePager.Factory<>(db, markline.class,
+                "SELECT * FROM MT_MarkLines WHERE LineID = :ident", ident).create();
+        final List<markline> result = ((SQLitePager<markline>) source).loadRange(0, 1);
+        if (result.isEmpty()) return null;
+        return result.get(0);
     }
 
     public void insert(markline... objects) {

@@ -1,18 +1,20 @@
 package com.expertek.tradehouse.documents.sqlite;
 
 import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 
 import androidx.paging.DataSource;
 
-import com.common.extensions.database.SQLiteDatabase;
 import com.common.extensions.database.SQLitePager;
 import com.common.extensions.database.SQLiteSchema;
 import com.expertek.tradehouse.documents.entity.document;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class Documents {
+    private static final int maxpar = 10;
     private final SQLiteDatabase db;
 
     public Documents(SQLiteDatabase db) {
@@ -23,73 +25,52 @@ public class Documents {
         return new SQLitePager.Factory<>(db, document.class, "SELECT * FROM MT_documents");
     }
 
-    public DataSource.Factory<Integer, document> get(String... ident) {
-        return new SQLitePager.Factory<>(db, document.class, "SELECT * FROM MT_documents WHERE DocName IN (:ident)", ident);
-    }
+    public DataSource.Factory<Integer, document> loadByDocType(String... docType) {
+        if ((docType == null) || (docType.length <= 0) || docType[0].equals("*")) return load();
 
-    //@Query("SELECT * FROM MT_documents WHERE first_name LIKE :first AND " +
-    //        "last_name LIKE :last LIMIT 1")
-    //document findByName(String first, String last);
-
-    public String getNextId() {
-        final SQLiteStatement stmt = db.compileStatement("SELECT MAX(DocName) FROM MT_documents");
-        final String lastId = stmt.simpleQueryForString();
-        if (lastId == null) return "0001";
-
-        final char[] nextId = lastId.toCharArray();
-        for (int i = nextId.length - 1; i >= 0; i--) {
-            if (nextId[i] >= '0' && nextId[i] <= '9') {
-                if (++nextId[i] <= '9') return new String(nextId);
-                nextId[i] = '0';
-            }
-        }
-        return "1" + (new String(nextId));
-    }
-
-    public boolean duplicate(document document) {
-        final SQLiteStatement stmt = db.compileStatement(
-                "SELECT COUNT(*) FROM MT_documents WHERE DocName = :DocName");
-        stmt.bindString(1, document.DocName);
-        return (stmt.simpleQueryForLong() > 0);
-    }
-
-    public double sumAllDocs(String[] docType) {
-        boolean all_docs = false;
-        if ((docType == null) || (docType.length <= 0)) all_docs = true;
-        for (String elem : docType) {
-            if ((elem == null) || (elem.length() <= 0)) all_docs = true;
-        }
-
-        if (all_docs) {
-            final SQLiteStatement stmt = db.compileStatement(
-                    "SELECT SUM(FactSum) * 100 FROM MT_documents");
-            return (double) stmt.simpleQueryForLong() / 100;
-        } else {
-            final String[] docParams = new String[10];
-            Arrays.fill(docParams, docType[0]);
-            System.arraycopy(docType, 0, docParams, 0, docType.length);
-
-            final SQLiteStatement stmt = db.compileStatement(
-                    "SELECT SUM(FactSum) * 100 FROM MT_documents WHERE DocType IN " +
-                            "(:t0,:t1,:t2,:t3,:t4,:t5,:t6,:t7,:t8,:t9)");
-            stmt.bindAllArgsAsStrings(docParams);
-            return (double) stmt.simpleQueryForLong() / 100;
-        }
-    }
-
-    public DataSource.Factory<Integer, document> getDocType(String[] docType) {
-        if ((docType == null) || (docType.length <= 0)) return load();
-        for (String elem : docType) {
-            if ((elem == null) || (elem.length() <= 0)) return load();
-        }
-
-        final String[] docParams = new String[10];
+        final String[] docParams = new String[maxpar];
         Arrays.fill(docParams, docType[0]);
         System.arraycopy(docType, 0, docParams, 0, docType.length);
 
-        return new SQLitePager.Factory<>(db, document.class,
-               "SELECT * FROM MT_documents WHERE DocType IN " +
-                      "(:t0,:t1,:t2,:t3,:t4,:t5,:t6,:t7,:t8,:t9)", docParams);
+        return new SQLitePager.Factory<>(db, document.class, "SELECT * FROM MT_documents " +
+                "WHERE DocType IN (:t0,:t1,:t2,:t3,:t4,:t5,:t6,:t7,:t8,:t9)", docParams);
+    }
+
+    public document get(String ident) {
+        final DataSource<Integer, document> source = new SQLitePager.Factory<>(db, document.class,
+                "SELECT * FROM MT_documents WHERE DocName = :ident", ident).create();
+        final List<document> result = ((SQLitePager<document>) source).loadRange(0, 1);
+        if (result.isEmpty()) return null;
+        return result.get(0);
+    }
+
+    public String getMaxId() {
+        final SQLiteStatement stmt = db.compileStatement(
+                "SELECT IFNULL(MAX(DocName), '0000') FROM MT_documents");
+        return stmt.simpleQueryForString();
+    }
+
+    public boolean hasDuplicate(String ident) {
+        final SQLiteStatement stmt = db.compileStatement(
+                "SELECT COUNT(*) > 0 FROM MT_documents WHERE DocName = :DocName");
+        stmt.bindString(1, ident);
+        return (stmt.simpleQueryForLong() > 0);
+    }
+
+    public double sumAllDocs(String... docType) {
+        if ((docType == null) || (docType.length <= 0) || docType[0].equals("*")) {
+            final SQLiteStatement stmt = db.compileStatement("SELECT SUM(FactSum) * 100 FROM MT_documents");
+            return ((double) stmt.simpleQueryForLong()) / 100;
+        } else {
+            final String[] docParams = new String[maxpar];
+            Arrays.fill(docParams, docType[0]);
+            System.arraycopy(docType, 0, docParams, 0, docType.length);
+
+            final SQLiteStatement stmt = db.compileStatement("SELECT SUM(FactSum) * 100 FROM MT_documents " +
+                    "WHERE DocType IN (:t0,:t1,:t2,:t3,:t4,:t5,:t6,:t7,:t8,:t9)");
+            stmt.bindAllArgsAsStrings(docParams);
+            return ((double) stmt.simpleQueryForLong()) / 100;
+        }
     }
 
     public void insert(document... objects) {

@@ -6,6 +6,10 @@
     <dimen name="main_padding">24dp</dimen>
     <dimen name="main_spacing">16dp</dimen>
 
+    <!--BarcodeActivity-->
+    <dimen name="barc_normal">48sp</dimen>
+    <dimen name="barc_large">72sp</dimen>
+
     <!--InvoicesActivity-->
     <dimen name="invc_pagging">16dp</dimen>
     <dimen name="invc_spacing">0dp</dimen>

@@ -2,9 +2,12 @@ package com.expertek.tradehouse.documents.entity;
 
 import androidx.annotation.NonNull;
 
+import com.common.extensions.database.Entity;
+import com.common.extensions.database.Index;
+import com.common.extensions.database.PrimaryKey;
+
 import java.io.Serializable;
 
-/*TODO ROOM:
 @Entity(tableName = "MT_MarkLines", indices = {
         @Index(name = "DocName", value = "DocName"), // redundant
         @Index(name = "markCode", value = "MarkCode"),
@@ -14,9 +17,8 @@ import java.io.Serializable;
         @Index(name = "markline", value = {"LineID", "MarkCode"}, unique = true),
         @Index(name = "pi", value = {"DocName", "MarkCode"}) // redundant
 })
-*/
 public class markline implements Serializable {
-    //TODO ROOM: @PrimaryKey(autoGenerate = true)
+    @PrimaryKey(autoGenerate = true)
     public @NonNull int LineID; // Уникальный счетчик
     public @NonNull String DocName = ""; // Идентификатор-имя документа
     public @NonNull String MarkCode = ""; // Маркировка

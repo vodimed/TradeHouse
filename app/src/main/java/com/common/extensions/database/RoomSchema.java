@@ -54,14 +54,17 @@ public class RoomSchema<SchemaDAO> extends SQLiteSchema<SchemaDAO> {
         return ((RoomDatabase) instance).isOpen();
     }
 
+    /**
+     * Datetime converter
+     */
     public static class DateConverter extends SQLiteSchema.DateConverter {
         @TypeConverter
-        public String save(java.util.Date value) {
+        public static String save(java.util.Date value) {
             return SQLiteSchema.DateConverter.save(value);
         }
 
         @TypeConverter
-        public java.util.Date load(String value) {
+        public static java.util.Date load(String value) {
             return SQLiteSchema.DateConverter.load(value);
         }
     }

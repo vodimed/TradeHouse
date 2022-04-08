@@ -1,23 +1,25 @@
 package com.expertek.tradehouse.documents;
 
+import android.database.sqlite.SQLiteDatabase;
+
 import androidx.annotation.NonNull;
 
-import com.common.extensions.database.SQLiteDatabase;
 import com.common.extensions.database.SQLiteMigration;
+import com.common.extensions.database.SQLiteSchema;
 import com.expertek.tradehouse.documents.sqlite.Documents;
 import com.expertek.tradehouse.documents.sqlite.Lines;
 import com.expertek.tradehouse.documents.sqlite.Marklines;
 
-public class Documents_v1Sqlite extends SQLiteDatabase implements DBDocuments {
+public class Documents_v1Sqlite extends SQLiteSchema.DB implements DBDocuments {
     private final Documents documents;
     private final Lines lines;
     private final Marklines marklines;
 
     public Documents_v1Sqlite(@NonNull String path) {
         super(path, 1);
-        documents = new Documents(this);
-        lines = new Lines(this);
-        marklines = new Marklines(this);
+        documents = new Documents(db);
+        lines = new Lines(db);
+        marklines = new Marklines(db);
     }
 
     public Documents documents() {

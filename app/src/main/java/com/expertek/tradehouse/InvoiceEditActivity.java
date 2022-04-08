@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.common.extensions.Dialogue;
 import com.common.extensions.Logger;
 import com.common.extensions.database.AdapterInterface;
 import com.common.extensions.database.AdapterTemplate;
@@ -32,7 +33,7 @@ public class InvoiceEditActivity extends Activity {
     public static final int REQUEST_ADD_DOCUMENT = 1;
     public static final int REQUEST_EDIT_DOCUMENT = 2;
     public static final int REQUEST_DELETE_DOCUMENT = 3;
-    private DBDocuments dbd = Application.documents.db();
+    private final DBDocuments dbd = Application.documents.db();
     protected PagingList<line> lines = null;
     protected LineAdapter adapterLine = null;
     protected document document = null;
@@ -55,6 +56,9 @@ public class InvoiceEditActivity extends Activity {
 
         // Register Service
         tradehouse.registerService(false);
+
+        // Initiialize Barcode Reader
+        detector.Initialize(this);
 
         final EditText editNumber = findViewById(R.id.editNumber);
         editNumber.setText(document.DocName);
@@ -87,10 +91,30 @@ public class InvoiceEditActivity extends Activity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        detector.Resume();
+    }
+
+    @Override
+    protected void onPause() {
+        detector.Pause();
+        super.onPause();
+    }
+
+    @Override
     protected void onDestroy() {
+        detector.Finalize();
         tradehouse.unregisterService();
         super.onDestroy();
     }
+
+    private final BarcodeDetector detector = new BarcodeDetector() {
+        @Override
+        protected void onBarcodeDetect(String scanned) {
+            Dialogue.Question(InvoiceEditActivity.this, R.string.add, null);
+        }
+    };
 
     private final View.OnClickListener onClickAction = new View.OnClickListener() {
         @Override

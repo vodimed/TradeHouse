@@ -1,10 +1,13 @@
 package com.expertek.tradehouse.dictionaries.sqlite;
 
+import android.database.sqlite.SQLiteDatabase;
+
 import androidx.paging.DataSource;
 
-import com.common.extensions.database.SQLiteDatabase;
 import com.common.extensions.database.SQLitePager;
 import com.expertek.tradehouse.dictionaries.entity.user;
+
+import java.util.List;
 
 public class Users {
     private final SQLiteDatabase db;
@@ -17,19 +20,11 @@ public class Users {
         return new SQLitePager.Factory<>(db, user.class, "SELECT * FROM TH_users");
     }
 
-    public DataSource.Factory<Integer, user> get(String... ident) {
-        return new SQLitePager.Factory<>(db, user.class, "SELECT * FROM TH_users WHERE userID IN (:ident)", ident);
-    }
-
-    //@Query("SELECT * FROM TH_users WHERE first_name LIKE :first AND " +
-    //        "last_name LIKE :last LIMIT 1")
-    //user findByName(String first, String last);
-
-    public void insert(user... objects) {
-        
-    }
-
-    public void delete(user... objects) {
-        
+    public user get(String ident) {
+        final DataSource<Integer, user> source = new SQLitePager.Factory<>(db, user.class,
+                "SELECT * FROM TH_users WHERE userID = :ident", ident).create();
+        final List<user> result = ((SQLitePager<user>) source).loadRange(0, 1);
+        if (result.isEmpty()) return null;
+        return result.get(0);
     }
 }

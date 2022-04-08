@@ -3,19 +3,19 @@ package com.expertek.tradehouse.documents.entity;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.common.extensions.database.Entity;
+import com.common.extensions.database.Index;
+import com.common.extensions.database.PrimaryKey;
 import com.expertek.tradehouse.Application;
 import com.expertek.tradehouse.R;
 
 import java.io.Serializable;
 import java.util.Date;
 
-/*TODO ROOM:
 @Entity(tableName = "MT_documents", indices = {
-        @Index(name = "docNameDoc", value = {"DocName", "DocType"}, unique = true)
-})
-*/
+        @Index(name = "docNameDoc", value = {"DocName", "DocType"}, unique = true)})
 public class document implements Serializable {
-    //TODO ROOM: @PrimaryKey
+    @PrimaryKey
     public @NonNull String DocName = ""; // Идентификатор-имя документа
     public String DocType; // Тип документа (приход, расход, возврат)
     public boolean Complete; // Означает загрузить документ в TH (0 – нет 1 – да)
@@ -45,5 +45,16 @@ public class document implements Serializable {
             if (doctype.startsWith(documentType)) documentType = doctype.split("\\|")[1];
         }
         return "Документ: " + DocName + ", " + documentType;
+    }
+
+    public String getNextId(String lastId) {
+        final char[] nextId = lastId.toCharArray();
+        for (int i = nextId.length - 1; i >= 0; i--) {
+            if (nextId[i] >= '0' && nextId[i] <= '9') {
+                if (++nextId[i] <= '9') return new String(nextId);
+                nextId[i] = '0';
+            }
+        }
+        return "1" + (new String(nextId));
     }
 }

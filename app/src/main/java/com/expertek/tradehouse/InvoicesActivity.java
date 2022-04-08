@@ -115,7 +115,7 @@ public class InvoicesActivity extends Activity {
 
         switch (requestCode) {
             case InvoiceEditActivity.REQUEST_ADD_DOCUMENT:
-                if (!dbd.documents().duplicate(document)) {
+                if (!dbd.documents().hasDuplicate(document.DocName)) {
                     documents.add(document);
                     position = documents.size() - 1;
                 } else {
@@ -156,7 +156,7 @@ public class InvoicesActivity extends Activity {
         assert adapterDocument.getDataSet() != null;
 
         final document document = new document();
-        document.DocName = dbd.documents().getNextId();
+        document.DocName = document.getNextId(dbd.documents().getMaxId());
         document.DocType = (filtertype != null ? TextUtils.join(",", filtertype) : null);
         document.StartDate = Calendar.getInstance().getTime();
         document.Complete = true;
@@ -207,7 +207,7 @@ public class InvoicesActivity extends Activity {
         public void onItemSelected(ViewGroup parent, View view, int position, long id) {
             final String selectedKey = adapterType.getKey(position);
             filtertype = selectedKey.split(",");
-            documents = new PagingList<document>(dbd.documents().getDocType(filtertype));
+            documents = new PagingList<document>(dbd.documents().loadByDocType(filtertype));
             adapterDocument.setDataSet(documents);
             refreshActivityControls();
             onDocumentSelection.onNothingSelected(parent);

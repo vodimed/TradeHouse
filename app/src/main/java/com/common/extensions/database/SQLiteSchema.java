@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteCantOpenDatabaseException;
+import android.database.sqlite.SQLiteDatabase;
 
 import androidx.annotation.NonNull;
 
@@ -42,18 +43,18 @@ public class SQLiteSchema<SchemaDAO> {
     public boolean open(Context context, @NonNull String name) {
         this.context = new WeakReference<Context>(context);
         this.filename = name;
-        final SQLiteDatabase db;
 
         try {
             final String path = context.getDatabasePath(filename).getPath();
             instance = schema.getConstructor(String.class).newInstance(path);
+            if (!(instance instanceof SQLiteSchema.DB)) throw new ReflectiveOperationException();
         } catch (ReflectiveOperationException e) {
             Logger.e(e);
             return false;
         }
 
-        final int actualVersion = ((SQLiteDatabase) instance).getVersion();
-        final int requiredVersion = ((SQLiteDatabase) instance).getSchemaVersion();
+        final int actualVersion = ((DB) instance).db.getVersion();
+        final int requiredVersion = ((DB) instance).schema_version;
 
         try {
             migrate(actualVersion, requiredVersion);
@@ -66,12 +67,12 @@ public class SQLiteSchema<SchemaDAO> {
 
     public void close() {
         if (instance == null) return;
-        ((SQLiteDatabase) instance).close();
+        ((DB) instance).db.close();
         instance = null;
     }
 
     public boolean isOpen() {
-        return ((SQLiteDatabase) instance).isOpen();
+        return ((DB) instance).db.isOpen();
     }
 
     @SuppressWarnings("unchecked")
@@ -119,21 +120,21 @@ public class SQLiteSchema<SchemaDAO> {
 
     private void migrate(int startVersion, int endVersion) throws SQLiteCantOpenDatabaseException {
         if (startVersion == endVersion) return;
-        final SQLiteDatabase database = (SQLiteDatabase) instance;
+        final SQLiteDatabase db = ((DB) instance).db;
 
         final List<SQLiteMigration> path = migrationPath(startVersion, endVersion);
         if (path == null) throw new SQLiteCantOpenDatabaseException();
 
         for (SQLiteMigration migration : path) {
-            database.beginTransaction();
+            db.beginTransaction();
             try {
-                migration.migrate(database);
-                database.setVersion(migration.endVersion);
-                database.setTransactionSuccessful();
+                migration.migrate(db);
+                db.setVersion(migration.endVersion);
+                db.setTransactionSuccessful();
             } catch (SQLException e) {
                 throw (SQLiteCantOpenDatabaseException) new SQLiteCantOpenDatabaseException().initCause(e);
             } finally {
-                database.endTransaction();
+                db.endTransaction();
             }
         }
     }
@@ -171,6 +172,22 @@ public class SQLiteSchema<SchemaDAO> {
         return instance;
     }
 
+    /**
+     * Base class for all DAO Databases
+     */
+    public static abstract class DB {
+        protected final SQLiteDatabase db;
+        protected final int schema_version;
+
+        protected DB(@NonNull String path, int version) {
+            this.db = SQLiteDatabase.openOrCreateDatabase(path, null);
+            this.schema_version = version;
+        }
+    }
+
+    /**
+     * Datetime converter
+     */
     public static class DateConverter {
         private static final String sqlDateTimeFormat = "yyyy-MM-dd HH:mm:ss";
         @SuppressLint("SimpleDateFormat")

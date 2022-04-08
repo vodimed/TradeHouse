@@ -14,18 +14,20 @@ public interface Documents {
     @Query("SELECT * FROM MT_documents")
     DataSource.Factory<Integer, document> load();
 
-    @Query("SELECT * FROM MT_documents WHERE DocName IN (:ident)")
-    DataSource.Factory<Integer, document> get(String... ident);
+    @Query("SELECT * FROM MT_documents WHERE DocType IN (:docType) OR :docType = '*'")
+    DataSource.Factory<Integer, document> loadByDocType(String... docType);
 
-    //@Query("SELECT * FROM MT_documents WHERE first_name LIKE :first AND " +
-    //        "last_name LIKE :last LIMIT 1")
-    //document findByName(String first, String last);
+    @Query("SELECT * FROM MT_documents WHERE DocName = :ident")
+    document get(String ident);
 
-    @Query("SELECT MAX(DocName) FROM MT_documents")
+    @Query("SELECT IFNULL(MAX(DocName), '0000') FROM MT_documents")
     String getMaxId();
 
-    @Query("SELECT * FROM MT_documents WHERE DocType IN (:t0,:t1,:t2,:t3,:t4,:t5,:t6,:t7,:t8,:t9)")
-    DataSource.Factory<Integer, document> getDocType(String[] docType);
+    @Query("SELECT COUNT(*) > 0 FROM MT_documents WHERE DocName = :ident")
+    boolean hasDuplicate(String ident);
+
+    @Query("SELECT SUM(FactSum) FROM MT_documents WHERE DocType IN (:docType) OR :docType = '*'")
+    double sumAllDocs(String... docType);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(document... objects);

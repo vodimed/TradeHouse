@@ -66,9 +66,9 @@ public abstract class BarcodeDetector implements BarcodeReader.BarcodeListener {
         }
     }
 
-    protected abstract void onBarcodeDetect(BarcodeReadEvent event);
+    protected abstract void onBarcodeDetect(String scanned);
 
-    protected void onBarcodeFailure(BarcodeFailureEvent event) {
+    protected void onBarcodeFailure() {
         audioManager.playSoundEffect(SoundEffectConstants.CLICK);
     }
 
@@ -95,14 +95,14 @@ public abstract class BarcodeDetector implements BarcodeReader.BarcodeListener {
     private final Runnable callback = new Runnable() {
         @Override
         public void run() {
-            onBarcodeDetect(barcodeEvent);
+            onBarcodeDetect(barcodeEvent.getBarcodeData());
         }
     };
 
     private final Runnable failure = new Runnable() {
         @Override
         public void run() {
-            onBarcodeFailure(failureEvent);
+            onBarcodeFailure();
         }
     };
 

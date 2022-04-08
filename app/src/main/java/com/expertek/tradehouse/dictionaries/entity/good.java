@@ -2,11 +2,14 @@ package com.expertek.tradehouse.dictionaries.entity;
 
 import androidx.annotation.NonNull;
 
+import com.common.extensions.database.Entity;
+import com.common.extensions.database.PrimaryKey;
+
 import java.io.Serializable;
 
-//TODO ROOM: @Entity(tableName = "TH_goods")
+@Entity(tableName = "TH_goods")
 public class good implements Serializable {
-    //TODO ROOM: @PrimaryKey
+    @PrimaryKey
     public @NonNull int GoodsID; // идентификатор товара из TH
     public String Name; // название
     public String UnitBase; // основная ед. изм.

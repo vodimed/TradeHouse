@@ -16,15 +16,15 @@ import androidx.annotation.NonNull;
 import com.common.extensions.database.AdapterInterface;
 import com.common.extensions.database.AdapterTemplate;
 import com.common.extensions.database.PagingList;
+import com.expertek.tradehouse.dictionaries.DbDictionaries;
 import com.expertek.tradehouse.dictionaries.entity.client;
-import com.expertek.tradehouse.dictionaries.sqlite.Clients;
 import com.expertek.tradehouse.documents.entity.document;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class InvoiceCreateActivity extends Activity {
-    private final Clients clients = Application.dictionaries.db().clients();
+    private final DbDictionaries dbc = Application.dictionaries.db();
     private document document = null;
     private InvoiceTypeAdapter adapterType = null;
     private ClientAdapter adapterClient = null;
@@ -51,7 +51,7 @@ public class InvoiceCreateActivity extends Activity {
         onSpinnerInit(spinSelector, onTypeSelection);
 
         adapterClient = new ClientAdapter(this, android.R.layout.simple_list_item_activated_1);
-        adapterClient.setDataSet(new PagingList<client>(clients.load()));
+        adapterClient.setDataSet(new PagingList<client>(dbc.clients().load()));
         adapterClient.setOnItemSelectionListener(onClientSelection);
 
         final Spinner spinContragent = findViewById(R.id.spinContragent);

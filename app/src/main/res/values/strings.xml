@@ -20,7 +20,7 @@
     <string name="success">Успешно</string>
 
     <string-array name="document_filters">
-        <item>|Документы и инвентариз.</item>
+        <item>*|Документы и инвентариз.</item>
         <item>Inv,InvIntroduce,InvMarks,Inventory|Инвентаризации</item>
         <item>Introduce,UTD,IntPurchWB,IntSalesWB,ExtPurchWB,ExtSalesWB|Документы</item>
         <item>IntPurchWB,IntSalesWB,ExtPurchWB,ExtSalesWB|Накладные</item>

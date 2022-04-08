@@ -1,10 +1,13 @@
 package com.expertek.tradehouse.dictionaries.sqlite;
 
+import android.database.sqlite.SQLiteDatabase;
+
 import androidx.paging.DataSource;
 
-import com.common.extensions.database.SQLiteDatabase;
 import com.common.extensions.database.SQLitePager;
 import com.expertek.tradehouse.dictionaries.entity.barcode;
+
+import java.util.List;
 
 public class Barcodes {
     private final SQLiteDatabase db;
@@ -17,19 +20,11 @@ public class Barcodes {
         return new SQLitePager.Factory<>(db, barcode.class, "SELECT * FROM TH_barcodes");
     }
 
-    public DataSource.Factory<Integer, barcode> get(String... ident) {
-        return new SQLitePager.Factory<>(db, barcode.class, "SELECT * FROM TH_barcodes WHERE BC IN (:ident)", ident);
-    }
-
-    //@Query("SELECT * FROM TH_barcodes WHERE first_name LIKE :first AND " +
-    //        "last_name LIKE :last LIMIT 1")
-    //barcode findByName(String first, String last);
-
-    public void insert(barcode... objects) {
-
-    }
-
-    public void delete(barcode... objects) {
-
+    public barcode get(String ident) {
+        final DataSource<Integer, barcode> source = new SQLitePager.Factory<>(db, barcode.class,
+                "SELECT * FROM TH_barcodes WHERE BC = :ident", ident).create();
+        final List<barcode> result = ((SQLitePager<barcode>) source).loadRange(0, 1);
+        if (result.isEmpty()) return null;
+        return result.get(0);
     }
 }

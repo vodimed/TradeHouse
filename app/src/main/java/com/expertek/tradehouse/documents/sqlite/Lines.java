@@ -1,13 +1,15 @@
 package com.expertek.tradehouse.documents.sqlite;
 
 import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 
 import androidx.paging.DataSource;
 
-import com.common.extensions.database.SQLiteDatabase;
 import com.common.extensions.database.SQLitePager;
 import com.expertek.tradehouse.documents.entity.line;
+
+import java.util.List;
 
 public class Lines {
     private final SQLiteDatabase db;
@@ -20,25 +22,21 @@ public class Lines {
         return new SQLitePager.Factory<>(db, line.class, "SELECT * FROM MT_lines");
     }
 
-    public DataSource.Factory<Integer, line> get(int... ident) {
-        return new SQLitePager.Factory<>(db, line.class, "SELECT * FROM MT_lines WHERE LineID IN (:ident)", ident);
-    }
-
-    //@Query("SELECT * FROM MT_lines WHERE first_name LIKE :first AND " +
-    //        "last_name LIKE :last LIMIT 1")
-    //line findByName(String first, String last);
-
-    public long getNextId() {
-        final SQLiteStatement stmt = db.compileStatement("SELECT MAX(LineID) + 1 FROM MT_lines");
-        return stmt.simpleQueryForLong();
-    }
-
     public DataSource.Factory<Integer, line> loadByDocument(String docName) {
         return new SQLitePager.Factory<>(db, line.class, "SELECT * FROM MT_lines WHERE DocName = :docName", docName);
     }
 
-    public DataSource.Factory<Integer, line> findBarCode(String BC) {
-        return new SQLitePager.Factory<>(db, line.class, "SELECT * FROM MT_lines WHERE BC = :BC", BC);
+    public line get(int ident) {
+        final DataSource<Integer, line> source = new SQLitePager.Factory<>(db, line.class,
+                "SELECT * FROM MT_lines WHERE LineID = :ident", ident).create();
+        final List<line> result = ((SQLitePager<line>) source).loadRange(0, 1);
+        if (result.isEmpty()) return null;
+        return result.get(0);
+    }
+
+    public long getNextId() {
+        final SQLiteStatement stmt = db.compileStatement("SELECT IFNULL(MAX(LineID), 0) + 1 FROM MT_lines");
+        return stmt.simpleQueryForLong();
     }
 
     public void insert(line... objects) {

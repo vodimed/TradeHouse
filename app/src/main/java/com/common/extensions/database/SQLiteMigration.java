@@ -1,5 +1,7 @@
 package com.common.extensions.database;
 
+import android.database.sqlite.SQLiteDatabase;
+
 import androidx.annotation.NonNull;
 
 /**

@@ -1,16 +1,18 @@
 package com.expertek.tradehouse.dictionaries;
 
+import android.database.sqlite.SQLiteDatabase;
+
 import androidx.annotation.NonNull;
 
-import com.common.extensions.database.SQLiteDatabase;
 import com.common.extensions.database.SQLiteMigration;
+import com.common.extensions.database.SQLiteSchema;
 import com.expertek.tradehouse.dictionaries.sqlite.Barcodes;
 import com.expertek.tradehouse.dictionaries.sqlite.Clients;
 import com.expertek.tradehouse.dictionaries.sqlite.Goods;
 import com.expertek.tradehouse.dictionaries.sqlite.Objects;
 import com.expertek.tradehouse.dictionaries.sqlite.Users;
 
-public class Dictionaries_v1Sqlite extends SQLiteDatabase implements DbDictionaries {
+public class Dictionaries_v1Sqlite extends SQLiteSchema.DB implements DbDictionaries {
     private final Barcodes barcodes;
     private final Clients clients;
     private final Goods goods;
@@ -19,11 +21,11 @@ public class Dictionaries_v1Sqlite extends SQLiteDatabase implements DbDictionar
 
     public Dictionaries_v1Sqlite(@NonNull String path) {
         super(path, 1);
-        barcodes = new Barcodes(this);
-        clients = new Clients(this);
-        goods = new Goods(this);
-        objects = new Objects(this);
-        users = new Users(this);
+        barcodes = new Barcodes(db);
+        clients = new Clients(db);
+        goods = new Goods(db);
+        objects = new Objects(db);
+        users = new Users(db);
     }
 
     public Barcodes barcodes() {
