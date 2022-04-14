@@ -12,6 +12,7 @@ import androidx.paging.DataSource;
 import com.common.extensions.Logger;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -34,8 +35,8 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
      * Commit Listener Interface
      */
     public interface Commit<Value> {
-        void renew(Value objects);
-        void delete(Value objects);
+        void renew(Value[] objects);
+        void delete(Value[] objects);
     }
 
     @SuppressLint("RestrictedApi")
@@ -159,17 +160,29 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
     }
 
     public void commit(Commit<Value> listener) {
-        for (int i = delete.size() - 1; i >= 0; i--) {
-            listener.delete(retrieve(delete.keyAt(i)));
+        if (delete.size() > 0) {
+            @SuppressWarnings("unchecked")
+            final Value[] deletes = (Value[]) Array.newInstance(
+                    retrieve(delete.keyAt(0)).getClass(), delete.size());
+            for (int i = 0, j = delete.size() - 1; j >= 0; i++, j--) {
+                deletes[i] = retrieve(delete.keyAt(j));
+            }
+            listener.delete(deletes);
+            delete.clear();
         }
 
-        for (int i = update.size() - 1; i >= 0; i--) {
-            listener.renew(update.valueAt(i));
+        if (update.size() > 0) {
+            @SuppressWarnings("unchecked")
+            final Value[] updates = (Value[]) Array.newInstance(
+                    update.valueAt(0).getClass(), update.size());
+            for (int i = 0, j = update.size() - 1; j >= 0; i++, j--) {
+                updates[i] = update.valueAt(j);
+            }
+            listener.renew(updates);
+            update.clear();
         }
 
         Arrays.fill(cache, null);
-        update.clear();
-        delete.clear();
         reloadList();
     }
 

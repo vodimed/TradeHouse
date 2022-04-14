@@ -40,6 +40,7 @@ public class InvoicesActivity extends Activity {
     protected DocumentAdapter adapterDocument = null;
     private String[] filtertype = null;
     private int position = AdapterInterface.INVALID_POSITION;
+    private ListView listDocument = null;
     private TextView editSummary = null;
     protected Button buttonCreate = null;
     private Button buttonEdit = null;
@@ -67,9 +68,9 @@ public class InvoicesActivity extends Activity {
         adapterDocument = new DocumentAdapter(this, R.layout.invoice_document);
         adapterDocument.setOnItemSelectionListener(onDocumentSelection);
 
-        final ListView listDocument = findViewById(R.id.listDocument);
+        listDocument = findViewById(R.id.listDocument);
         adapterDocument.setChoiceMode(listDocument, ListView.CHOICE_MODE_SINGLE);
-         listDocument.setAdapter(adapterDocument);
+        listDocument.setAdapter(adapterDocument);
 
         buttonCreate = findViewById(R.id.buttonCreate);
         buttonEdit = findViewById(R.id.buttonEdit);
@@ -122,34 +123,40 @@ public class InvoicesActivity extends Activity {
                     position = documents.indexOf(document);
                     if (position < 0) {
                         Dialogue.Duplicate(InvoicesActivity.this, document, null);
-                        onDocumentSelection.onNothingSelected(null);
                         return; // not in selection
                     }
                 }
-                actionEdit(position);
                 break;
             case InvoiceEditActivity.REQUEST_EDIT_DOCUMENT:
                 documents.set(position, document);
                 break;
             case InvoiceEditActivity.REQUEST_DELETE_DOCUMENT:
                 documents.remove(position);
-                onDocumentSelection.onNothingSelected(null);
                 break;
         }
 
-        documents.commit(new PagingList.Commit<document>() {
-            @Override
-            public void renew(document objects) {
-                dbd.documents().insert(objects);
-            }
+        try {
+            documents.commit(new PagingList.Commit<document>() {
+                @Override
+                public void renew(document[] objects) {
+                    dbd.documents().insert(objects);
+                }
 
-            @Override
-            public void delete(document objects) {
-                dbd.documents().delete(objects);
-            }
-        });
+                @Override
+                public void delete(document[] objects) {
+                    dbd.documents().delete(objects);
+                }
+            });
 
-        refreshActivityControls();
+            if (requestCode == InvoiceEditActivity.REQUEST_ADD_DOCUMENT) {
+                actionEdit(position);
+            } else {
+                refreshActivityControls();
+            }
+        } catch (Exception e) {
+            documents.rollback();
+            Dialogue.Error(this, e);
+        }
     }
 
     protected void actionCreate(int position) {
@@ -168,7 +175,7 @@ public class InvoicesActivity extends Activity {
 
     protected void actionEdit(int position) {
         final Intent intent = new Intent(InvoicesActivity.this, InvoiceEditActivity.class);
-        intent.putExtra(document.class.getName(), adapterDocument.getItem(position));
+        intent.putExtra(document.class.getName(), documents.get(position));
         startActivityForResult(intent, InvoiceEditActivity.REQUEST_EDIT_DOCUMENT);
     }
 
@@ -189,7 +196,7 @@ public class InvoicesActivity extends Activity {
         public void onClick(DialogInterface dialog, int which) {
             if (which != DialogInterface.BUTTON_POSITIVE) return;
             final Intent intent = new Intent();
-            intent.putExtra(line.class.getName(), adapterDocument.getItem(position));
+            intent.putExtra(line.class.getName(), documents.get(position));
             onActivityResult(InvoiceEditActivity.REQUEST_DELETE_DOCUMENT, RESULT_OK, intent);
         }
     };
@@ -197,7 +204,7 @@ public class InvoicesActivity extends Activity {
     private void refreshActivityControls() {
         final String selectedKey = TextUtils.join(",", filtertype);
         editSummary.setText(Formatter.Currency.format(dbd.documents().sumAllDocs(filtertype)));
-        buttonCreate.setEnabled(selectedKey.length() <= 0 || selectedKey.contains("WB"));
+        buttonCreate.setEnabled(selectedKey.equals("*") || selectedKey.contains("WB"));
     }
 
     private final AdapterInterface.OnItemSelectionListener onTypeSelection =
@@ -209,15 +216,15 @@ public class InvoicesActivity extends Activity {
             filtertype = selectedKey.split(",");
             documents = new PagingList<document>(dbd.documents().loadByDocType(filtertype));
             adapterDocument.setDataSet(documents);
-            refreshActivityControls();
             onDocumentSelection.onNothingSelected(parent);
+            refreshActivityControls();
         }
 
         @Override
         public void onNothingSelected(ViewGroup parent) {
             filtertype = null;
-            buttonCreate.setEnabled(false);
             onDocumentSelection.onNothingSelected(parent);
+            buttonCreate.setEnabled(false);
         }
     };
 

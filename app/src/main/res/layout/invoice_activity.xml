@@ -4,13 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <EditText
+    <AutoCompleteTextView
         android:id="@+id/editName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="textImeMultiLine"
-        android:maxLines="3"
-        android:minLines="2" />
+        android:inputType="number"
+        android:completionThreshold="@integer/barcode_autocompletion" />
 
     <LinearLayout
         android:id="@+id/layoutPrice"

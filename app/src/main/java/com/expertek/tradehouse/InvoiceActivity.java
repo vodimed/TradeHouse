@@ -1,24 +1,38 @@
 package com.expertek.tradehouse;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import com.common.extensions.Dialogue;
+import com.common.extensions.database.AdapterInterface;
+import com.common.extensions.database.AdapterTemplate;
 import com.common.extensions.database.Formatter;
+import com.common.extensions.database.PagingList;
+import com.expertek.tradehouse.dictionaries.DbDictionaries;
+import com.expertek.tradehouse.dictionaries.entity.BarInfo;
 import com.expertek.tradehouse.documents.entity.line;
 
 import java.text.ParseException;
+import java.util.List;
 
 public class InvoiceActivity extends Activity {
     public static final int REQUEST_ADD_POSITION = 1;
     public static final int REQUEST_EDIT_POSITION = 2;
+    private final DbDictionaries dbc = Application.dictionaries.db();
     private line line = null;
-    private TextView editName = null;
+    private AutoCompleteTextView editName = null;
     protected EditText editPrice = null;
     private EditText editAmountDoc = null;
     private EditText editAmountFact = null;
@@ -33,8 +47,13 @@ public class InvoiceActivity extends Activity {
         // Retrieve Activity parameters
         line = (line) getIntent().getSerializableExtra(line.class.getName());
 
+        // Initiialize Barcode Reader
+        detector.Initialize(this);
+
         editName = findViewById(R.id.editName);
         editName.setText(line.GoodsName);
+        editName.setAdapter(new BarcodeAdapter(this, R.layout.barcode_lookup));
+        editName.setOnItemClickListener(onClickBarcode);
 
         editPrice = findViewById(R.id.buttonPrice);
         editPrice.setText(Formatter.Currency.format(line.Price));
@@ -51,6 +70,31 @@ public class InvoiceActivity extends Activity {
         buttonOk.setOnClickListener(onClickAction);
         buttonCancel.setOnClickListener(onClickAction);
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        detector.Resume();
+    }
+
+    @Override
+    protected void onPause() {
+        detector.Pause();
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        detector.Finalize();
+        super.onDestroy();
+    }
+
+    private final BarcodeDetector detector = new BarcodeDetector() {
+        @Override
+        protected void onBarcodeDetect(String scanned) {
+            editName.setText(scanned);
+        }
+    };
 
     private final View.OnClickListener onClickAction = new View.OnClickListener() {
         @Override
@@ -84,5 +128,76 @@ public class InvoiceActivity extends Activity {
     protected void actionCancel() {
         setResult(RESULT_CANCELED);
         finish();
+    }
+
+    private final AdapterView.OnItemClickListener onClickBarcode = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            editName.setText(((BarInfo) parent.getItemAtPosition(position)).BC);
+        }
+    };
+
+    /**
+     * ListView data Adapter: list of Barcodes
+     */
+    protected static class BarcodeAdapter extends AdapterTemplate<BarInfo> implements Filterable {
+        private final DbDictionaries dbc = Application.dictionaries.db();
+        private final BarcodeFilter filter = new BarcodeFilter();
+
+        public BarcodeAdapter(Context context, @NonNull int... layout) {
+            super(context, layout);
+            setHasStableIds(false);
+        }
+
+        @SafeVarargs
+        public BarcodeAdapter(Context context, @NonNull Class<? extends View>... layer) {
+            super(context, layer);
+            setHasStableIds(false);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull AdapterInterface.Holder holder, int position) {
+            final View owner = holder.getView();
+            final BarInfo barinfo = getItem(position);
+
+            final TextView textBC = owner.findViewById(R.id.textBC);
+            final TextView textName = owner.findViewById(R.id.textName);
+
+            textBC.setText(barinfo.BC);
+            textName.setText(barinfo.Name);
+        }
+
+        @Override
+        public BarInfo getItem(int position) {
+            final Object dataset = getDataSet();
+            if (dataset instanceof List<?>) {
+                return (BarInfo) ((List<?>) dataset).get(position);
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        public Filter getFilter() {
+            return filter;
+        }
+
+        private class BarcodeFilter extends Filter {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                final FilterResults results = new FilterResults();
+                if (constraint != null) {
+                    final PagingList<BarInfo> barinfo = new PagingList<BarInfo>(dbc.barcodes().loadInfo(constraint.toString()));
+                    results.count = barinfo.size();
+                    results.values = barinfo;
+                }
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                BarcodeAdapter.this.setDataSet(results.values);
+            }
+        }
     }
 }

@@ -7,8 +7,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.common.extensions.database.SQLitePager;
 import com.expertek.tradehouse.dictionaries.DbDictionaries;
+import com.expertek.tradehouse.dictionaries.entity.BarInfo;
 
+import java.util.List;
 import java.util.Locale;
 
 public class BarcodeActivity extends Activity {
@@ -74,11 +77,12 @@ public class BarcodeActivity extends Activity {
         @Override
         public void onBarcodeDetect(String scanned) {
             editBarcode.setText(scanned);
-            final BarcodeResolver.Position position = BarcodeResolver.search(scanned);
+            final List<BarInfo> barinfo = ((SQLitePager<BarInfo>) dbc.barcodes()
+                    .loadInfo(scanned).create()).loadRange(0, 1);
 
-            if (position != null) {
-                editName.setText(position.good.Name);
-                buttonPrice.setText(String.format(Locale.getDefault(), "%.2f", position.barcode.PriceBC));
+            if (!barinfo.isEmpty()) {
+                editName.setText(barinfo.get(0).Name);
+                buttonPrice.setText(String.format(Locale.getDefault(), "%.2f", barinfo.get(0).PriceBC));
                 buttonPrice.setTextSize(getResources().getDimension(R.dimen.barc_normal));
             } else {
                 editName.setText("");

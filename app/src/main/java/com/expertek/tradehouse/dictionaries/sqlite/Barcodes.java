@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import androidx.paging.DataSource;
 
 import com.common.extensions.database.SQLitePager;
+import com.expertek.tradehouse.dictionaries.entity.BarInfo;
 import com.expertek.tradehouse.dictionaries.entity.barcode;
 
 import java.util.List;
@@ -26,5 +27,11 @@ public class Barcodes {
         final List<barcode> result = ((SQLitePager<barcode>) source).loadRange(0, 1);
         if (result.isEmpty()) return null;
         return result.get(0);
+    }
+
+    public DataSource.Factory<Integer, BarInfo> loadInfo(String ident) {
+        return new SQLitePager.Factory<>(db, BarInfo.class,
+                "SELECT TH_barcodes.*, TH_goods.Name FROM TH_barcodes, TH_goods " +
+                        "WHERE BC LIKE :ident || '%' AND TH_barcodes.GoodsID = TH_goods.GoodsID", ident);
     }
 }

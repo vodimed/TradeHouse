@@ -19,8 +19,11 @@ import com.common.extensions.database.AdapterInterface;
 import com.common.extensions.database.AdapterTemplate;
 import com.common.extensions.database.Formatter;
 import com.common.extensions.database.PagingList;
+import com.common.extensions.database.SQLitePager;
 import com.common.extensions.exchange.ServiceConnector;
 import com.common.extensions.exchange.ServiceInterface;
+import com.expertek.tradehouse.dictionaries.DbDictionaries;
+import com.expertek.tradehouse.dictionaries.entity.BarInfo;
 import com.expertek.tradehouse.documents.DBDocuments;
 import com.expertek.tradehouse.documents.entity.document;
 import com.expertek.tradehouse.documents.entity.line;
@@ -33,6 +36,7 @@ public class InvoiceEditActivity extends Activity {
     public static final int REQUEST_ADD_DOCUMENT = 1;
     public static final int REQUEST_EDIT_DOCUMENT = 2;
     public static final int REQUEST_DELETE_DOCUMENT = 3;
+    private final DbDictionaries dbc = Application.dictionaries.db();
     private final DBDocuments dbd = Application.documents.db();
     protected PagingList<line> lines = null;
     protected LineAdapter adapterLine = null;
@@ -112,7 +116,20 @@ public class InvoiceEditActivity extends Activity {
     private final BarcodeDetector detector = new BarcodeDetector() {
         @Override
         protected void onBarcodeDetect(String scanned) {
-            Dialogue.Question(InvoiceEditActivity.this, R.string.add, null);
+            final List<BarInfo> barinfo = ((SQLitePager<BarInfo>) dbc.barcodes()
+                    .loadInfo(scanned).create()).loadRange(0, 1);
+            if (barinfo.isEmpty()) {
+                Dialogue.Question(InvoiceEditActivity.this, R.string.barcode_prompt, null);
+                return;
+            }
+
+            for (int i = 0; i < lines.size(); i++) {
+                if (lines.get(i).BC.equals(barinfo.get(0).BC)) {
+                    actionEdit(i);
+                    return;
+                }
+            }
+            actionAdd(lines.size(), barinfo.get(0));
         }
     };
 
@@ -120,7 +137,7 @@ public class InvoiceEditActivity extends Activity {
         @Override
         public void onClick(View v) {
             if (buttonAdd.equals(v)) {
-                actionAdd(AdapterInterface.INVALID_POSITION);
+                actionAdd(AdapterInterface.INVALID_POSITION, null);
             } else if (buttonSave.equals(v)) {
                 actionSave(position);
             } else if (buttonSend.equals(v)) {
@@ -154,12 +171,26 @@ public class InvoiceEditActivity extends Activity {
         editSummary.setText(Formatter.Currency.format(document.FactSum));
     }
 
-    protected void actionAdd(int position) {
+    private void actionAdd(int position, BarInfo barinfo) {
         final line line = new line();
         line.DocName = document.DocName;
         line.LineID = (int) firstLineId + lines.size();
         line.Pos = lines.size() + 1;
 
+        if (barinfo != null) {
+            line.GoodsID = barinfo.GoodsID;
+            line.GoodsName = barinfo.Name;
+            line.BC = barinfo.BC;
+            line.UnitBC = barinfo.UnitBC;
+            line.Price = barinfo.PriceBC;
+            line.DocQnty = 1;
+            line.FactQnty = 1;
+        }
+
+        actionAdd(line);
+    }
+
+    protected void actionAdd(line line) {
         final Intent intent = new Intent(InvoiceEditActivity.this, InvoiceActivity.class);
         intent.putExtra(line.class.getName(), line);
         startActivityForResult(intent, InvoiceActivity.REQUEST_ADD_POSITION);
@@ -167,22 +198,27 @@ public class InvoiceEditActivity extends Activity {
 
     protected void actionEdit(int position) {
         final Intent intent = new Intent(InvoiceEditActivity.this, InvoiceActivity.class);
-        intent.putExtra(line.class.getName(), adapterLine.getItem(position));
+        intent.putExtra(line.class.getName(), lines.get(position));
         startActivityForResult(intent, InvoiceActivity.REQUEST_EDIT_POSITION);
     }
 
     protected void actionSave(int position) {
-        lines.commit(new PagingList.Commit<line>() {
-            @Override
-            public void renew(line objects) {
-                dbd.lines().insert(objects);
-            }
+        try {
+            lines.commit(new PagingList.Commit<line>() {
+                @Override
+                public void renew(line[] objects) {
+                    dbd.lines().insert(objects);
+                }
 
-            @Override
-            public void delete(line objects) {
-                dbd.lines().delete(objects);
-            }
-        });
+                @Override
+                public void delete(line[] objects) {
+                    dbd.lines().delete(objects);
+                }
+            });
+        } catch (Exception e) {
+            Dialogue.Error(this, e);
+            return;
+        }
 
         final Intent intent = new Intent();
         intent.putExtra(document.class.getName(), document);

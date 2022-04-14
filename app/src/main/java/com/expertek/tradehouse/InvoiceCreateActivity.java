@@ -69,14 +69,14 @@ public class InvoiceCreateActivity extends Activity {
         @Override
         public void onClick(View v) {
             if (buttonCreate.equals(v)) {
-                actionCreate();
+                actionSave();
             } else if (buttonCancel.equals(v)) {
                 actionCancel();
             }
         }
     };
 
-    protected void actionCreate() {
+    protected void actionSave() {
         final EditText editNumber = findViewById(R.id.editNumber);
         final String text = editNumber.getText().toString();
         if (text.length() > 0) document.DocName = text;
@@ -157,7 +157,7 @@ public class InvoiceCreateActivity extends Activity {
             int count = 0;
             for (int i = 0; i < dataset.length; i++) {
                 final String code = dataset[i].split("\\|")[0];
-                if (code.endsWith("WB") && (filter.length() <= 0 || filter.contains(code))) {
+                if (code.endsWith("WB") && (filter.equals("*") || filter.contains(code))) {
                     dataset[count++] = dataset[i];
                 }
             }

@@ -6,12 +6,7 @@ import com.expertek.tradehouse.documents.entity.line;
 
 public class InventoryEditActivity extends InvoiceEditActivity {
     @Override
-    protected void actionAdd(int position) {
-        final line line = new line();
-        line.DocName = document.DocName;
-        line.LineID = (int) firstLineId + lines.size();
-        line.Pos = lines.size() + 1;
-
+    protected void actionAdd(line line) {
         final Intent intent = new Intent(InventoryEditActivity.this, InventoryActivity.class);
         intent.putExtra(line.class.getName(), line);
         startActivityForResult(intent, InventoryActivity.REQUEST_ADD_POSITION);
