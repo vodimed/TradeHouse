@@ -22,6 +22,8 @@ import com.common.extensions.database.Formatter;
 import com.common.extensions.database.PagingList;
 import com.expertek.tradehouse.dictionaries.DbDictionaries;
 import com.expertek.tradehouse.dictionaries.entity.BarInfo;
+import com.expertek.tradehouse.dictionaries.entity.barcode;
+import com.expertek.tradehouse.dictionaries.entity.good;
 import com.expertek.tradehouse.documents.entity.line;
 
 import java.text.ParseException;
@@ -56,13 +58,13 @@ public class InvoiceActivity extends Activity {
         editName.setOnItemClickListener(onClickBarcode);
 
         editPrice = findViewById(R.id.buttonPrice);
-        editPrice.setText(Formatter.Currency.format(line.Price));
+        if (line.Price != 0) editPrice.setText(Formatter.Currency.format(line.Price));
 
         editAmountDoc = findViewById(R.id.editAmountDoc);
-        editAmountDoc.setText(Formatter.Number.format(line.DocQnty));
+        if (line.DocQnty != 0) editAmountDoc.setText(Formatter.Number.format(line.DocQnty));
 
         editAmountFact = findViewById(R.id.editAmountFact);
-        editAmountFact.setText(Formatter.Number.format(line.FactQnty));
+        if (line.FactQnty != 0) editAmountFact.setText(Formatter.Number.format(line.FactQnty));
 
         buttonOk = findViewById(R.id.buttonOk);
         buttonCancel = findViewById(R.id.buttonCancel);
@@ -89,10 +91,22 @@ public class InvoiceActivity extends Activity {
         super.onDestroy();
     }
 
+    private void applyBarcode(barcode barcode, String name) {
+        line.applyBC(barcode, name);
+        editName.setText(line.GoodsName);
+        editPrice.setText(Formatter.Currency.format(line.Price));
+    }
+
     private final BarcodeDetector detector = new BarcodeDetector() {
         @Override
         protected void onBarcodeDetect(String scanned) {
-            editName.setText(scanned);
+            final barcode barcode = dbc.barcodes().get(scanned);
+            if (barcode == null) {
+                Dialogue.Error(InvoiceActivity.this, R.string.barcode_prompt);
+                return;
+            }
+            final good good = dbc.goods().get(barcode.GoodsID);
+            applyBarcode(barcode, good.Name);
         }
     };
 
@@ -108,7 +122,6 @@ public class InvoiceActivity extends Activity {
     };
 
     protected void actionOk() {
-        line.GoodsName = editName.getText().toString();
         try {
             line.Price = Formatter.Currency.parse(editPrice.getText().toString());
             line.DocQnty = Formatter.Number.parse(editAmountDoc.getText().toString());
@@ -133,7 +146,8 @@ public class InvoiceActivity extends Activity {
     private final AdapterView.OnItemClickListener onClickBarcode = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            editName.setText(((BarInfo) parent.getItemAtPosition(position)).BC);
+            final BarInfo barinfo = (BarInfo) parent.getItemAtPosition(position);
+            applyBarcode(barinfo, barinfo.Name);
         }
     };
 

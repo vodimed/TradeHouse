@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import com.common.extensions.database.Entity;
 import com.common.extensions.database.Index;
 import com.common.extensions.database.PrimaryKey;
+import com.expertek.tradehouse.dictionaries.entity.barcode;
 
 import java.io.Serializable;
 
@@ -35,5 +36,13 @@ public class line implements Serializable {
     @NonNull
     public String toString() {
         return "Позиция: " + GoodsName + ", " + FactQnty + " " + UnitBC;
+    }
+
+    public void applyBC(barcode barcode, String name) {
+        GoodsName = name;
+        GoodsID = barcode.GoodsID;
+        BC = barcode.BC;
+        UnitBC = barcode.UnitBC;
+        Price = barcode.PriceBC;
     }
 }

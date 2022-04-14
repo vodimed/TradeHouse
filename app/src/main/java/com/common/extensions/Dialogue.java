@@ -18,6 +18,13 @@ public class Dialogue {
         display2(dialog, listener);
     }
 
+    public static void Delete(Context context, Serializable record, DialogInterface.OnClickListener listener) {
+        final AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+        dialog.setTitle(R.string.deletion);
+        dialog.setMessage(record.toString());
+        display2(dialog, listener);
+    }
+
     public static void Duplicate(Context context, Serializable record, DialogInterface.OnClickListener listener) {
         final AlertDialog.Builder dialog = new AlertDialog.Builder(context);
         dialog.setTitle(R.string.duplicate);
@@ -26,17 +33,18 @@ public class Dialogue {
     }
 
     public static void Error(Context context, Throwable e) {
-        final AlertDialog.Builder dialog = new AlertDialog.Builder(context);
-        dialog.setTitle(R.string.exception);
-        dialog.setMessage(e.getMessage());
-        display1(dialog, null);
+        Error(context, e.getMessage());
     }
 
-    public static void Delete(Context context, Serializable record, DialogInterface.OnClickListener listener) {
+    public static void Error(Context context, @StringRes int res, Object... args) {
+        Error(context, context.getString(res, args));
+    }
+
+    public static void Error(Context context, String message) {
         final AlertDialog.Builder dialog = new AlertDialog.Builder(context);
-        dialog.setTitle(R.string.deletion);
-        dialog.setMessage(record.toString());
-        display2(dialog, listener);
+        dialog.setTitle(R.string.exception);
+        dialog.setMessage(message);
+        display1(dialog, null);
     }
 
     public static String format(Context context, @StringRes int message, Object... formatArgs) {

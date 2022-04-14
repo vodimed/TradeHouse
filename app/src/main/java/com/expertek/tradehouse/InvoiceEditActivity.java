@@ -19,11 +19,11 @@ import com.common.extensions.database.AdapterInterface;
 import com.common.extensions.database.AdapterTemplate;
 import com.common.extensions.database.Formatter;
 import com.common.extensions.database.PagingList;
-import com.common.extensions.database.SQLitePager;
 import com.common.extensions.exchange.ServiceConnector;
 import com.common.extensions.exchange.ServiceInterface;
 import com.expertek.tradehouse.dictionaries.DbDictionaries;
-import com.expertek.tradehouse.dictionaries.entity.BarInfo;
+import com.expertek.tradehouse.dictionaries.entity.barcode;
+import com.expertek.tradehouse.dictionaries.entity.good;
 import com.expertek.tradehouse.documents.DBDocuments;
 import com.expertek.tradehouse.documents.entity.document;
 import com.expertek.tradehouse.documents.entity.line;
@@ -116,20 +116,19 @@ public class InvoiceEditActivity extends Activity {
     private final BarcodeDetector detector = new BarcodeDetector() {
         @Override
         protected void onBarcodeDetect(String scanned) {
-            final List<BarInfo> barinfo = ((SQLitePager<BarInfo>) dbc.barcodes()
-                    .loadInfo(scanned).create()).loadRange(0, 1);
-            if (barinfo.isEmpty()) {
-                Dialogue.Question(InvoiceEditActivity.this, R.string.barcode_prompt, null);
+            final barcode barcode = dbc.barcodes().get(scanned);
+            if (barcode == null) {
+                Dialogue.Error(InvoiceEditActivity.this, R.string.barcode_prompt);
                 return;
             }
 
             for (int i = 0; i < lines.size(); i++) {
-                if (lines.get(i).BC.equals(barinfo.get(0).BC)) {
+                if (lines.get(i).BC.equals(barcode.BC)) {
                     actionEdit(i);
                     return;
                 }
             }
-            actionAdd(lines.size(), barinfo.get(0));
+            actionAdd(lines.size(), barcode);
         }
     };
 
@@ -171,22 +170,16 @@ public class InvoiceEditActivity extends Activity {
         editSummary.setText(Formatter.Currency.format(document.FactSum));
     }
 
-    private void actionAdd(int position, BarInfo barinfo) {
+    private void actionAdd(int position, barcode barcode) {
         final line line = new line();
         line.DocName = document.DocName;
         line.LineID = (int) firstLineId + lines.size();
         line.Pos = lines.size() + 1;
 
-        if (barinfo != null) {
-            line.GoodsID = barinfo.GoodsID;
-            line.GoodsName = barinfo.Name;
-            line.BC = barinfo.BC;
-            line.UnitBC = barinfo.UnitBC;
-            line.Price = barinfo.PriceBC;
-            line.DocQnty = 1;
-            line.FactQnty = 1;
+        if (barcode != null) {
+            final good good = dbc.goods().get(barcode.GoodsID);
+            line.applyBC(barcode, good.Name);
         }
-
         actionAdd(line);
     }
 
