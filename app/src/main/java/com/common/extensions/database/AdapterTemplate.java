@@ -296,6 +296,28 @@ public abstract class AdapterTemplate<Item>
         }
     }
 
+    @Override
+    public void setItemChecked(ViewGroup parent, int position, boolean value) {
+        if (parent instanceof AbsListView) {
+            final AbsListView abslist = (AbsListView) parent;
+            abslist.setItemChecked(position, value);
+        } else {
+            final Choicer choicer = getChoicerInternal(parent);
+            if (choicer != null) choicer.setItemChecked(position, getItemId(position), value);
+        }
+    }
+
+    @Override
+    public void clearChoices(ViewGroup parent) {
+        if (parent instanceof AbsListView) {
+            final AbsListView abslist = (AbsListView) parent;
+            abslist.clearChoices();
+        } else {
+            final Choicer choicer = getChoicerInternal(parent);
+            if (choicer != null) choicer.clearSelectionMarkers();
+        }
+    }
+
     // Unable to return Choicer for AbsListView
     @Nullable protected Choicer getChoicerInternal(ViewGroup parent) {
         if (parent.getTag() instanceof Choicer) {

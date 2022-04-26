@@ -6,6 +6,8 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Checkable;
 
+import com.expertek.tradehouse.components.Logger;
+
 import java.lang.reflect.Method;
 
 /**

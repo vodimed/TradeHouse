@@ -21,7 +21,7 @@
 
     <string-array name="document_filters">
         <item>*|Документы и инвентариз.</item>
-        <item>Inv,InvIntroduce,InvMarks,Inventory|Инвентаризации</item>
+        <item>Inv,InvIntroduce,InvMarks|Инвентаризации</item>
         <item>Introduce,UTD,IntPurchWB,IntSalesWB,ExtPurchWB,ExtSalesWB|Документы</item>
         <item>IntPurchWB,IntSalesWB,ExtPurchWB,ExtSalesWB|Накладные</item>
         <item>IntPurchWB|Внутренние приходные н.</item>
@@ -35,7 +35,6 @@
         <item>Introduce|Первоначальный ввод</item>
         <item>UTD|Приход УТД</item>
         -->
-        
     </string-array>
 
     <!--MainActivity-->
@@ -56,16 +55,112 @@
     <string name="invoice_amount_fact">Фактически</string>
 
     <string-array name="document_types">
-        <item>Inv|Инвентаризация</item>
-        <item>InvMarks|Инвентаризация с маркировкой</item>
-        <item>InvIntroduce|Инвентар. первоначальный ввод</item>
-        <item>IntPurchWB|Накладная внутренняя приходная</item>
-        <item>IntSalesWB|Накладная внутренняя расходная</item>
-        <item>ExtPurchWB|Накладная внешняя приходная</item>
-        <item>ExtSalesWB|Накладная внешняя расходная</item>
-        <item>Introduce|Первоначальный ввод</item>
-        <item>UTD|Приход УТД</item>
+        <item>Inv|Инвентаризация|и</item>
+        <item>InvMarks|Инвентаризация с маркировкой|И</item>
+        <item>InvIntroduce|Инвентар. первоначальный ввод|i</item>
+        <item>IntPurchWB|Накладная внутренняя приходная|п</item>
+        <item>IntSalesWB|Накладная внутренняя расходная|р</item>
+        <item>ExtPurchWB|Накладная внешняя приходная|П</item>
+        <item>ExtSalesWB|Накладная внешняя расходная|Р</item>
+        <item>Introduce|Первоначальный ввод|I</item>
+        <item>UTD|Приход УТД|U</item>
     </string-array>
+    
+<!--
+    <integer-array name="document_types_drawable">
+        <item>@android:drawable/presence_video_online</item>
+        <item>@android:drawable/presence_video_busy</item>
+        <item>@android:drawable/presence_video_away</item>
+        <item>@android:drawable/presence_audio_online</item>
+        <item>@android:drawable/presence_audio_busy</item>
+        <item>@android:drawable/presence_audio_away</item>
+        <item>@android:drawable/ic_notification_overlay</item>
+        <item>@android:drawable/presence_online</item>
+        <item>@android:drawable/presence_busy</item>
+        <item>@android:drawable/presence_away</item>
+        <item>@android:drawable/btn_star_big_on</item>
+        <item>@android:drawable/stat_sys_phone_call_on_hold</item>
+        <item>@android:drawable/stat_sys_vp_phone_call_on_hold</item>
+        <item>@android:drawable/stat_sys_phone_call_forward</item>
+        <item>@android:drawable/stat_sys_vp_phone_call</item>
+        <item>@android:drawable/stat_notify_missed_call</item>
+        <item>@android:drawable/sym_call_outgoing</item>
+        <item>@android:drawable/sym_call_missed</item>
+        <item>@android:drawable/sym_call_incoming</item>
+        <item>@android:drawable/sym_action_call</item>
+        <item>@android:drawable/checkbox_on_background</item>
+        <item>@android:drawable/checkbox_off_background</item>
+        <item>@android:drawable/radiobutton_on_background</item>
+        <item>@android:drawable/radiobutton_off_background</item>
+        <item>@android:drawable/picture_frame</item>
+        <item>@android:drawable/ic_secure</item>
+        <item>@android:drawable/ic_search_category_default</item>
+        <item>@android:drawable/ic_popup_reminder</item>
+        <item>@android:drawable/ic_popup_disk_full</item>
+        <item>@android:drawable/ic_partial_secure</item>
+        <item>@android:drawable/stat_sys_download_done</item>
+        <item>@android:drawable/stat_sys_data_bluetooth</item>
+        <item>@android:drawable/stat_notify_voicemail</item>
+        <item>@android:drawable/stat_notify_sync</item>
+        <item>@android:drawable/stat_notify_sync_noanim</item>
+        <item>@android:drawable/stat_notify_sdcard_usb</item>
+        <item>@android:drawable/stat_notify_sdcard_prepare</item>
+        <item>@android:drawable/stat_notify_more</item>
+        <item>@android:drawable/stat_notify_chat</item>
+        <item>@android:drawable/stat_notify_error</item>
+        <item>@android:drawable/stat_sys_warning</item>
+        <item>@android:drawable/stat_sys_upload_done</item>
+        <item>@android:drawable/presence_offline</item>
+        <item>@android:drawable/presence_invisible</item>
+        <item>@android:drawable/ic_notification_clear_all</item>
+        <item>@android:drawable/ic_menu_zoom</item>
+        <item>@android:drawable/ic_menu_week</item>
+        <item>@android:drawable/ic_menu_view</item>
+        <item>@android:drawable/ic_menu_upload_you_tube</item>
+        <item>@android:drawable/ic_menu_today</item>
+        <item>@android:drawable/ic_menu_sort_by_size</item>
+        <item>@android:drawable/ic_menu_sort_alphabetically</item>
+        <item>@android:drawable/ic_menu_slideshow</item>
+        <item>@android:drawable/ic_menu_share</item>
+        <item>@android:drawable/ic_menu_set_as</item>
+        <item>@android:drawable/ic_menu_send</item>
+        <item>@android:drawable/ic_menu_search</item>
+        <item>@android:drawable/ic_menu_save</item>
+        <item>@android:drawable/ic_menu_rotate</item>
+        <item>@android:drawable/ic_menu_revert</item>
+        <item>@android:drawable/ic_menu_report_image</item>
+        <item>@android:drawable/ic_menu_recent_history</item>
+        <item>@android:drawable/ic_menu_preferences</item>
+        <item>@android:drawable/ic_menu_myplaces</item>
+        <item>@android:drawable/ic_menu_mylocation</item>
+        <item>@android:drawable/ic_menu_my_calendar</item>
+        <item>@android:drawable/ic_menu_more</item>
+        <item>@android:drawable/ic_menu_month</item>
+        <item>@android:drawable/ic_menu_mapmode</item>
+        <item>@android:drawable/ic_menu_manage</item>
+        <item>@android:drawable/ic_menu_info_details</item>
+        <item>@android:drawable/ic_menu_help</item>
+        <item>@android:drawable/ic_menu_gallery</item>
+        <item>@android:drawable/ic_menu_edit</item>
+        <item>@android:drawable/ic_menu_directions</item>
+        <item>@android:drawable/ic_menu_delete</item>
+        <item>@android:drawable/ic_menu_day</item>
+        <item>@android:drawable/ic_menu_crop</item>
+        <item>@android:drawable/ic_menu_compass</item>
+        <item>@android:drawable/ic_menu_close_clear_cancel</item>
+        <item>@android:drawable/ic_menu_camera</item>
+        <item>@android:drawable/ic_menu_call</item>
+        <item>@android:drawable/ic_menu_always_landscape_portrait</item>
+        <item>@android:drawable/ic_menu_agenda</item>
+        <item>@android:drawable/ic_menu_add</item>
+        <item>@android:drawable/ic_media_rew</item>
+        <item>@android:drawable/ic_media_ff</item>
+        <item>@android:drawable/ic_media_previous</item>
+        <item>@android:drawable/ic_media_next</item>
+        <item>@android:drawable/ic_media_play</item>
+        <item>@android:drawable/ic_media_pause</item>
+    </integer-array>
+-->
 
     <!--BarcodeActivity-->
     <string name="barcode_prompt">Сканируйте или введите штрих-код</string>

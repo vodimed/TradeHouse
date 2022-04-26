@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import androidx.annotation.NonNull;
 
-import com.common.extensions.Logger;
+import com.expertek.tradehouse.components.Logger;
 
 import java.io.File;
 import java.lang.ref.WeakReference;

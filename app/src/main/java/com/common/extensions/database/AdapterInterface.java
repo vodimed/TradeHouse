@@ -23,6 +23,8 @@ public interface AdapterInterface<Item> extends ListAdapter, SpinnerAdapter {
     @Override Item getItem(int position);
     long getItemId(int position);
     void setChoiceMode(ViewGroup parent, int choiceMode);
+    void setItemChecked(ViewGroup parent, int position, boolean value);
+    void clearChoices(ViewGroup parent);
 
     interface Holder {
         View getView();

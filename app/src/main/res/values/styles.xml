@@ -2,6 +2,7 @@
     <style name="AppTheme"> <!--parent="android:Theme"-->
         <!--https://developer.android.com/guide/topics/manifest/activity-element-->
         <item name="android:windowSoftInputMode">adjustResize|stateAlwaysHidden</item>
+        <!--<item name="android:windowNoTitle">true</item>-->
 
         <item name="android:colorBackground">@android:color/holo_orange_light</item>
         <item name="android:disabledAlpha">0.5</item>

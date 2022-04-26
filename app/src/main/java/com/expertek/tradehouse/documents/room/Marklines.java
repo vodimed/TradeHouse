@@ -19,6 +19,9 @@ public interface Marklines {
     @Query("SELECT * FROM MT_MarkLines WHERE LineID = :ident")
     markline get(int ident);
 
+    @Query("SELECT IFNULL(MAX(LineID), 0) + 1 FROM MT_MarkLines")
+    long getNextId();
+
     @Insert
     void insert(markline... objects);
 

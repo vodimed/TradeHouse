@@ -1,6 +1,6 @@
 package com.expertek.tradehouse.tradehouse;
 
-import com.common.extensions.Logger;
+import com.expertek.tradehouse.components.Logger;
 import com.common.extensions.exchange.ServiceActivity;
 import com.common.extensions.exchange.ServiceEngine;
 import com.expertek.tradehouse.R;

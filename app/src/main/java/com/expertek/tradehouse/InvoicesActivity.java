@@ -6,8 +6,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -15,14 +17,14 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.common.extensions.Dialogue;
-import com.common.extensions.Logger;
 import com.common.extensions.database.AdapterInterface;
 import com.common.extensions.database.AdapterTemplate;
 import com.common.extensions.database.Formatter;
 import com.common.extensions.database.PagingList;
 import com.common.extensions.exchange.ServiceConnector;
 import com.common.extensions.exchange.ServiceInterface;
+import com.expertek.tradehouse.components.Dialogue;
+import com.expertek.tradehouse.components.Logger;
 import com.expertek.tradehouse.documents.DBDocuments;
 import com.expertek.tradehouse.documents.entity.document;
 import com.expertek.tradehouse.documents.entity.line;
@@ -38,8 +40,8 @@ public class InvoicesActivity extends Activity {
     private PagingList<document> documents = null;
     private DocTypeAdapter adapterType = null;
     protected DocumentAdapter adapterDocument = null;
+    ///*TODO*/protected DocumentAdapter1 adapterDocument = null;
     private String[] filtertype = null;
-    private int position = AdapterInterface.INVALID_POSITION;
     private ListView listDocument = null;
     private TextView editSummary = null;
     protected Button buttonCreate = null;
@@ -66,10 +68,12 @@ public class InvoicesActivity extends Activity {
         spinSelector.setAdapter(adapterType);
 
         adapterDocument = new DocumentAdapter(this, R.layout.invoice_document);
+        ///*TODO*/adapterDocument = new DocumentAdapter1(this, R.layout.invoice_document);
         adapterDocument.setOnItemSelectionListener(onDocumentSelection);
 
         listDocument = findViewById(R.id.listDocument);
         adapterDocument.setChoiceMode(listDocument, ListView.CHOICE_MODE_SINGLE);
+        ///*TODO*/listDocument.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         listDocument.setAdapter(adapterDocument);
 
         buttonCreate = findViewById(R.id.buttonCreate);
@@ -95,6 +99,7 @@ public class InvoicesActivity extends Activity {
     private final View.OnClickListener onClickAction = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            final int position = onDocumentSelection.getPosition();
             if (buttonCreate.equals(v)) {
                 actionCreate(AdapterInterface.INVALID_POSITION);
             } else if (position == AdapterInterface.INVALID_POSITION) {
@@ -118,20 +123,17 @@ public class InvoicesActivity extends Activity {
             case InvoiceEditActivity.REQUEST_ADD_DOCUMENT:
                 if (!dbd.documents().hasDuplicate(document.DocName)) {
                     documents.add(document);
-                    position = documents.size() - 1;
-                } else {
-                    position = documents.indexOf(document);
-                    if (position < 0) {
-                        Dialogue.Duplicate(InvoicesActivity.this, document, null);
-                        return; // not in selection
-                    }
+                    onDocumentSelection.setPosition(documents.size() - 1);
+                } else if (onDocumentSelection.setPosition(documents.indexOf(document)) < 0) {
+                    Dialogue.Duplicate(InvoicesActivity.this, document, null);
+                    return; // not in selection
                 }
                 break;
             case InvoiceEditActivity.REQUEST_EDIT_DOCUMENT:
-                documents.set(position, document);
+                documents.set(onDocumentSelection.getPosition(), document);
                 break;
             case InvoiceEditActivity.REQUEST_DELETE_DOCUMENT:
-                documents.remove(position);
+                documents.remove(onDocumentSelection.getPosition());
                 break;
         }
 
@@ -148,10 +150,14 @@ public class InvoicesActivity extends Activity {
                 }
             });
 
-            if (requestCode == InvoiceEditActivity.REQUEST_ADD_DOCUMENT) {
-                actionEdit(position);
-            } else {
-                refreshActivityControls();
+            switch (requestCode) {
+                case InvoiceEditActivity.REQUEST_ADD_DOCUMENT:
+                    actionEdit(onDocumentSelection.getPosition());
+                    break;
+                case InvoiceEditActivity.REQUEST_DELETE_DOCUMENT:
+                    onDocumentSelection.setPosition(AdapterInterface.INVALID_POSITION);
+                case InvoiceEditActivity.REQUEST_EDIT_DOCUMENT:
+                    refreshActivityControls();
             }
         } catch (Exception e) {
             documents.rollback();
@@ -175,7 +181,7 @@ public class InvoicesActivity extends Activity {
 
     protected void actionEdit(int position) {
         final Intent intent = new Intent(InvoicesActivity.this, InvoiceEditActivity.class);
-        intent.putExtra(document.class.getName(), documents.get(position));
+        intent.putExtra(document.class.getName(), adapterDocument.getItem(position));
         startActivityForResult(intent, InvoiceEditActivity.REQUEST_EDIT_DOCUMENT);
     }
 
@@ -196,7 +202,7 @@ public class InvoicesActivity extends Activity {
         public void onClick(DialogInterface dialog, int which) {
             if (which != DialogInterface.BUTTON_POSITIVE) return;
             final Intent intent = new Intent();
-            intent.putExtra(line.class.getName(), documents.get(position));
+            intent.putExtra(line.class.getName(), documents.get(onDocumentSelection.getPosition()));
             onActivityResult(InvoiceEditActivity.REQUEST_DELETE_DOCUMENT, RESULT_OK, intent);
         }
     };
@@ -228,12 +234,21 @@ public class InvoicesActivity extends Activity {
         }
     };
 
-    private final AdapterInterface.OnItemSelectionListener onDocumentSelection =
-            new AdapterInterface.OnItemSelectionListener()
-    {
+    private class ItemSelectionListener implements AdapterInterface.OnItemSelectionListener {
+        public int getPosition() {
+            return listDocument.getCheckedItemPosition();
+        }
+
+        public int setPosition(int position) {
+            listDocument.setItemChecked(position, true);
+            listDocument.requestFocusFromTouch();
+            listDocument.clearFocus();
+            listDocument.setSelection(position);
+            return getPosition();
+        }
+
         @Override
         public void onItemSelected(ViewGroup parent, View view, int position, long id) {
-            InvoicesActivity.this.position = position;
             buttonEdit.setEnabled(true);
             buttonDelete.setEnabled(true);
             buttonSend.setEnabled(documents.get(position).Complete);
@@ -241,12 +256,12 @@ public class InvoicesActivity extends Activity {
 
         @Override
         public void onNothingSelected(ViewGroup parent) {
-            InvoicesActivity.this.position = AdapterInterface.INVALID_POSITION;
             buttonEdit.setEnabled(false);
             buttonDelete.setEnabled(false);
             buttonSend.setEnabled(false);
         }
     };
+    private final ItemSelectionListener onDocumentSelection = new ItemSelectionListener();
 
     /**
      * Spinner data Adapter: list of DocTypes
@@ -302,7 +317,7 @@ public class InvoicesActivity extends Activity {
      * ListView data Adapter: list of documents by DocType
      */
     protected static class DocumentAdapter extends AdapterTemplate<document> {
-        private static final HashMap<String, String> shortype = fillDocTypes();
+        private static final HashMap<String, Character> shortype = fillDocTypes();
 
         public DocumentAdapter(Context context, @NonNull int... layout) {
             super(context, layout);
@@ -315,22 +330,14 @@ public class InvoicesActivity extends Activity {
             setHasStableIds(true);
         }
 
-        private static HashMap<String, String> fillDocTypes() {
+        private static HashMap<String, Character> fillDocTypes() {
             final String[] document_types = Application.app().
                     getResources().getStringArray(R.array.document_types);
-            final HashMap<String, String> result =
-                    new HashMap<String, String>(document_types.length);
-            final char[] buffer = new char[5];
-
+            final HashMap<String, Character> result =
+                    new HashMap<String, Character>(document_types.length);
             for (String doctype : document_types) {
                 final String[] keyval = doctype.split("\\|");
-
-                for (int i = 0, j = 0; i < buffer.length; i++) {
-                    buffer[i] = keyval[1].charAt(j);
-                    j = keyval[1].indexOf(' ', j);
-                    if (++j <= 0) break;
-                }
-                result.put(keyval[0], new String(buffer));
+                result.put(keyval[0], keyval[2].charAt(0));
             }
             return result;
         }
@@ -347,7 +354,7 @@ public class InvoicesActivity extends Activity {
             final TextView textStartDate = owner.findViewById(R.id.textStartDate);
 
             textDocName.setText(document.DocName);
-            textDocType.setText(shortype.get(document.DocType));
+            textDocType.setText(shortype.get(document.DocType).toString());
             textStatus.setText(document.Status);
             textFactSum.setText(Formatter.Currency.format(document.FactSum));
             textStartDate.setText(Formatter.Date.format(document.StartDate));
@@ -372,13 +379,85 @@ public class InvoicesActivity extends Activity {
         }
     }
 
+    protected static class DocumentAdapter1 extends BaseAdapter {
+        private final document[] array = new document[30];
+        private final LayoutInflater inflater;
+        private final int layout;
+
+        public DocumentAdapter1(Context context, @NonNull int layout) {
+            super();
+            this.inflater = LayoutInflater.from(context);
+            this.layout = layout;
+            for (int i = 0; i < array.length; i++) {
+                array[i] = new document();
+                array[i].DocName = String.valueOf(i);
+                array[i].DocType = "IntPurchWB";
+                array[i].FactSum = 0.0;
+                array[i].StartDate = Calendar.getInstance().getTime();
+                array[i].Complete = true;
+            }
+        }
+
+        public void setDataSet(Object object) {
+        }
+
+        public Object getDataSet() {
+            return array;
+        }
+
+        @Override
+        public boolean hasStableIds() {
+            return true;
+        }
+
+        @Override
+        public int getCount() {
+            return array.length;
+        }
+
+        @Override
+        public document getItem(int position) {
+            return array[position];
+        }
+
+        @Override
+        public long getItemId(int position) {
+            if (position < 0 || position >= getCount()) return AdapterInterface.INVALID_ROW_ID;
+            final document item = getItem(position);
+            if (item == null) return AdapterInterface.INVALID_ROW_ID;
+            return item.DocName.hashCode() * 31 + item.DocType.hashCode();
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if (convertView == null) convertView = inflater.inflate(layout, parent, false);
+
+            final View owner = convertView;
+            final document document = (document) getItem(position);
+
+            final TextView textDocName = owner.findViewById(R.id.textDocName);
+            final TextView textDocType = owner.findViewById(R.id.textDocType);
+            final TextView textStatus = owner.findViewById(R.id.textStatus);
+            final TextView textFactSum = owner.findViewById(R.id.textFactSum);
+            final TextView textStartDate = owner.findViewById(R.id.textStartDate);
+
+            textDocName.setText(document.DocName);
+            textDocType.setText("WB");
+            textStatus.setText(document.Status);
+            textFactSum.setText(Formatter.Currency.format(document.FactSum));
+            textStartDate.setText(Formatter.Date.format(document.StartDate));
+
+            return convertView;
+        }
+    }
+
     private final ServiceConnector tradehouse = new ServiceConnector(this, TradeHouseService.class) {
         @Override
         public void onJobResult(@NonNull ServiceInterface.JobInfo work, Bundle result) {
             final Intent intent = new Intent();
             intent.putExtras(result);
             final document export = (document) result.getSerializable(document.class.getName());
-            position = documents.indexOf(export);
+            onDocumentSelection.setPosition(documents.indexOf(export));
             onActivityResult(InvoiceEditActivity.REQUEST_EDIT_DOCUMENT, RESULT_OK, intent);
         }
 

@@ -6,8 +6,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
 
-import com.common.extensions.Logger;
-import com.expertek.tradehouse.MainSettings;
+import com.expertek.tradehouse.components.Logger;
+import com.expertek.tradehouse.components.MainSettings;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

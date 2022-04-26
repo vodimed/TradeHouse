@@ -15,16 +15,19 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.common.extensions.Dialogue;
 import com.common.extensions.database.AdapterInterface;
 import com.common.extensions.database.AdapterTemplate;
 import com.common.extensions.database.Formatter;
 import com.common.extensions.database.PagingList;
+import com.expertek.tradehouse.components.BarcodeScanner;
+import com.expertek.tradehouse.components.Dialogue;
+import com.expertek.tradehouse.components.Marker;
 import com.expertek.tradehouse.dictionaries.DbDictionaries;
-import com.expertek.tradehouse.dictionaries.entity.BarInfo;
 import com.expertek.tradehouse.dictionaries.entity.barcode;
 import com.expertek.tradehouse.dictionaries.entity.good;
+import com.expertek.tradehouse.documents.DBDocuments;
 import com.expertek.tradehouse.documents.entity.line;
+import com.expertek.tradehouse.documents.entity.markline;
 
 import java.text.ParseException;
 import java.util.List;
@@ -32,7 +35,10 @@ import java.util.List;
 public class InvoiceActivity extends Activity {
     public static final int REQUEST_ADD_POSITION = 1;
     public static final int REQUEST_EDIT_POSITION = 2;
+    private final DBDocuments dbd = Application.documents.db();
     private final DbDictionaries dbc = Application.dictionaries.db();
+    protected final long firstLineId = dbd.marklines().getNextId();
+    private PagingList<markline> marklines = null;
     private line line = null;
     private AutoCompleteTextView editName = null;
     protected EditText editPrice = null;
@@ -48,9 +54,11 @@ public class InvoiceActivity extends Activity {
 
         // Retrieve Activity parameters
         line = (line) getIntent().getSerializableExtra(line.class.getName());
+        marklines = new PagingList<markline>(dbd.marklines().loadByDocument(line.DocName));
+        createMarkline((Marker) getIntent().getSerializableExtra(Marker.class.getName()));
 
-        // Initiialize Barcode Reader
-        detector.Initialize(this);
+        // Initialize Barcode Reader
+        scanner.Initialize(this);
 
         editName = findViewById(R.id.editName);
         editName.setText(line.GoodsName);
@@ -76,37 +84,45 @@ public class InvoiceActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        detector.Resume();
+        scanner.Resume();
     }
 
     @Override
     protected void onPause() {
-        detector.Pause();
+        scanner.Pause();
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
-        detector.Finalize();
+        scanner.Finalize();
         super.onDestroy();
     }
 
-    private void applyBarcode(barcode barcode, String name) {
-        line.applyBC(barcode, name);
+    private void updateLine(barcode barcode) {
+        final good good = dbc.goods().get(barcode.GoodsID);
+        line.GoodsName = (good != null ? good.Name : null);
+        line.GoodsID = barcode.GoodsID;
+        line.BC = barcode.BC;
+        line.UnitBC = barcode.UnitBC;
+        line.Price = barcode.PriceBC;
+
         editName.setText(line.GoodsName);
         editPrice.setText(Formatter.Currency.format(line.Price));
     }
 
-    private final BarcodeDetector detector = new BarcodeDetector() {
+    private void createMarkline(Marker marker) {
+    }
+
+    private final BarcodeScanner scanner = new BarcodeScanner() {
         @Override
         protected void onBarcodeDetect(String scanned) {
-            final barcode barcode = dbc.barcodes().get(scanned);
-            if (barcode == null) {
+            final Marker marker = new Marker(scanned);
+            if (marker.isValid()) {
+                createMarkline(marker);
+            } else {
                 Dialogue.Error(InvoiceActivity.this, R.string.barcode_prompt);
-                return;
             }
-            final good good = dbc.goods().get(barcode.GoodsID);
-            applyBarcode(barcode, good.Name);
         }
     };
 
@@ -146,15 +162,15 @@ public class InvoiceActivity extends Activity {
     private final AdapterView.OnItemClickListener onClickBarcode = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            final BarInfo barinfo = (BarInfo) parent.getItemAtPosition(position);
-            applyBarcode(barinfo, barinfo.Name);
+            final barcode barcode = (barcode) parent.getItemAtPosition(position);
+            updateLine(barcode);
         }
     };
 
     /**
      * ListView data Adapter: list of Barcodes
      */
-    protected static class BarcodeAdapter extends AdapterTemplate<BarInfo> implements Filterable {
+    protected static class BarcodeAdapter extends AdapterTemplate<barcode> implements Filterable {
         private final DbDictionaries dbc = Application.dictionaries.db();
         private final BarcodeFilter filter = new BarcodeFilter();
 
@@ -172,20 +188,21 @@ public class InvoiceActivity extends Activity {
         @Override
         public void onBindViewHolder(@NonNull AdapterInterface.Holder holder, int position) {
             final View owner = holder.getView();
-            final BarInfo barinfo = getItem(position);
+            final barcode barcode = getItem(position);
 
             final TextView textBC = owner.findViewById(R.id.textBC);
             final TextView textName = owner.findViewById(R.id.textName);
 
-            textBC.setText(barinfo.BC);
-            textName.setText(barinfo.Name);
+            textBC.setText(barcode.BC);
+            final good good = dbc.goods().get(barcode.GoodsID);
+            textName.setText(good != null ? good.Name : null);
         }
 
         @Override
-        public BarInfo getItem(int position) {
+        public barcode getItem(int position) {
             final Object dataset = getDataSet();
             if (dataset instanceof List<?>) {
-                return (BarInfo) ((List<?>) dataset).get(position);
+                return (barcode) ((List<?>) dataset).get(position);
             } else {
                 return null;
             }
@@ -201,7 +218,7 @@ public class InvoiceActivity extends Activity {
             protected FilterResults performFiltering(CharSequence constraint) {
                 final FilterResults results = new FilterResults();
                 if (constraint != null) {
-                    final PagingList<BarInfo> barinfo = new PagingList<BarInfo>(dbc.barcodes().loadInfo(constraint.toString()));
+                    final PagingList<barcode> barinfo = new PagingList<barcode>(dbc.barcodes().load(constraint.toString()));
                     results.count = barinfo.size();
                     results.values = barinfo;
                 }

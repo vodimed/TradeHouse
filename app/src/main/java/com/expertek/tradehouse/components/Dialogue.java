@@ -1,4 +1,4 @@
-package com.common.extensions;
+package com.expertek.tradehouse.components;
 
 import android.app.AlertDialog;
 import android.content.Context;

@@ -13,17 +13,16 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.common.extensions.Dialogue;
-import com.common.extensions.Logger;
 import com.common.extensions.database.AdapterInterface;
 import com.common.extensions.database.AdapterTemplate;
 import com.common.extensions.database.Formatter;
 import com.common.extensions.database.PagingList;
 import com.common.extensions.exchange.ServiceConnector;
 import com.common.extensions.exchange.ServiceInterface;
-import com.expertek.tradehouse.dictionaries.DbDictionaries;
-import com.expertek.tradehouse.dictionaries.entity.barcode;
-import com.expertek.tradehouse.dictionaries.entity.good;
+import com.expertek.tradehouse.components.BarcodeScanner;
+import com.expertek.tradehouse.components.Dialogue;
+import com.expertek.tradehouse.components.Logger;
+import com.expertek.tradehouse.components.Marker;
 import com.expertek.tradehouse.documents.DBDocuments;
 import com.expertek.tradehouse.documents.entity.document;
 import com.expertek.tradehouse.documents.entity.line;
@@ -36,13 +35,13 @@ public class InvoiceEditActivity extends Activity {
     public static final int REQUEST_ADD_DOCUMENT = 1;
     public static final int REQUEST_EDIT_DOCUMENT = 2;
     public static final int REQUEST_DELETE_DOCUMENT = 3;
-    private final DbDictionaries dbc = Application.dictionaries.db();
     private final DBDocuments dbd = Application.documents.db();
+    protected final long firstLineId = dbd.lines().getNextId();
     protected PagingList<line> lines = null;
     protected LineAdapter adapterLine = null;
     protected document document = null;
-    protected final long firstLineId = dbd.lines().getNextId();
     private int position = AdapterInterface.INVALID_POSITION;
+    private ListView listLine = null;
     private TextView editSummary = null;
     private Button buttonAdd = null;
     private Button buttonEdit = null;
@@ -61,8 +60,8 @@ public class InvoiceEditActivity extends Activity {
         // Register Service
         tradehouse.registerService(false);
 
-        // Initiialize Barcode Reader
-        detector.Initialize(this);
+        // Initialize Barcode Reader
+        scanner.Initialize(this);
 
         final EditText editNumber = findViewById(R.id.editNumber);
         editNumber.setText(document.DocName);
@@ -77,7 +76,7 @@ public class InvoiceEditActivity extends Activity {
         adapterLine.setDataSet(lines);
         adapterLine.setOnItemSelectionListener(onLineSelection);
 
-        final ListView listLine = findViewById(R.id.listLine);
+        listLine = findViewById(R.id.listLine);
         adapterLine.setChoiceMode(listLine, ListView.CHOICE_MODE_SINGLE);
         listLine.setAdapter(adapterLine);
 
@@ -97,38 +96,37 @@ public class InvoiceEditActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        detector.Resume();
+        scanner.Resume();
     }
 
     @Override
     protected void onPause() {
-        detector.Pause();
+        scanner.Pause();
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
-        detector.Finalize();
+        scanner.Finalize();
         tradehouse.unregisterService();
         super.onDestroy();
     }
 
-    private final BarcodeDetector detector = new BarcodeDetector() {
+    private final BarcodeScanner scanner = new BarcodeScanner() {
         @Override
         protected void onBarcodeDetect(String scanned) {
-            final barcode barcode = dbc.barcodes().get(scanned);
-            if (barcode == null) {
-                Dialogue.Error(InvoiceEditActivity.this, R.string.barcode_prompt);
-                return;
-            }
-
-            for (int i = 0; i < lines.size(); i++) {
-                if (lines.get(i).BC.equals(barcode.BC)) {
-                    actionEdit(i);
-                    return;
+            final Marker marker = new Marker(scanned);
+            if (marker.isValid()) {
+                for (int i = 0; i < lines.size(); i++) {
+                    if (lines.get(i).BC.equals(marker.gtin)) {
+                        actionEdit(i);
+                        return;
+                    }
                 }
+                actionAdd(lines.size(), marker);
+            } else {
+                Dialogue.Error(InvoiceEditActivity.this, R.string.barcode_prompt);
             }
-            actionAdd(lines.size(), barcode);
         }
     };
 
@@ -158,6 +156,11 @@ public class InvoiceEditActivity extends Activity {
             case InvoiceActivity.REQUEST_ADD_POSITION:
                 lines.add(line);
                 position = lines.size() - 1;
+                listLine.requestFocusFromTouch();
+                listLine.clearFocus();
+                listLine.setSelection(position);
+                //TODO: https://stackoverflow.com/questions/48253761/how-do-i-clear-listview-selection
+                //TODO: https://stackoverflow.com/questions/31413571/listview-how-to-clear-selection
                 break;
             case InvoiceActivity.REQUEST_EDIT_POSITION:
                 final line oldline = lines.get(position);
@@ -170,22 +173,18 @@ public class InvoiceEditActivity extends Activity {
         editSummary.setText(Formatter.Currency.format(document.FactSum));
     }
 
-    private void actionAdd(int position, barcode barcode) {
+    private void actionAdd(int position, Marker marker) {
         final line line = new line();
         line.DocName = document.DocName;
         line.LineID = (int) firstLineId + lines.size();
         line.Pos = lines.size() + 1;
-
-        if (barcode != null) {
-            final good good = dbc.goods().get(barcode.GoodsID);
-            line.applyBC(barcode, good.Name);
-        }
-        actionAdd(line);
+        actionAdd(line, marker);
     }
 
-    protected void actionAdd(line line) {
+    protected void actionAdd(line line, Marker marker) {
         final Intent intent = new Intent(InvoiceEditActivity.this, InvoiceActivity.class);
         intent.putExtra(line.class.getName(), line);
+        intent.putExtra(Marker.class.getName(), marker);
         startActivityForResult(intent, InvoiceActivity.REQUEST_ADD_POSITION);
     }
 

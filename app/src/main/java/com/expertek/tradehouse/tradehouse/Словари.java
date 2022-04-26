@@ -3,7 +3,7 @@ package com.expertek.tradehouse.tradehouse;
 import android.os.Bundle;
 
 import com.expertek.tradehouse.Application;
-import com.expertek.tradehouse.MainSettings;
+import com.expertek.tradehouse.components.MainSettings;
 
 import java.io.File;
 import java.io.IOException;

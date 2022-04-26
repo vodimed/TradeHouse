@@ -5,7 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.common.extensions.Logger;
+import com.expertek.tradehouse.components.Logger;
 
 import java.util.ArrayList;
 import java.util.List;

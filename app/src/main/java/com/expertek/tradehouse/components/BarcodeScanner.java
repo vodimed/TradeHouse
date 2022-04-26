@@ -1,4 +1,4 @@
-package com.expertek.tradehouse;
+package com.expertek.tradehouse.components;
 
 import android.content.Context;
 import android.media.AudioManager;
@@ -6,7 +6,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.SoundEffectConstants;
 
-import com.common.extensions.Logger;
 import com.honeywell.aidc.AidcException;
 import com.honeywell.aidc.AidcManager;
 import com.honeywell.aidc.BarcodeFailureEvent;
@@ -16,7 +15,7 @@ import com.honeywell.aidc.BarcodeReader;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class BarcodeDetector implements BarcodeReader.BarcodeListener {
+public abstract class BarcodeScanner implements BarcodeReader.BarcodeListener {
     private static final Handler handler = new Handler(Looper.getMainLooper());
     private AidcManager aidcManager = null;
     private AudioManager audioManager = null;
@@ -109,9 +108,9 @@ public abstract class BarcodeDetector implements BarcodeReader.BarcodeListener {
     private final AidcManager.CreatedCallback manager = new AidcManager.CreatedCallback() {
         @Override
         public void onCreated(AidcManager aidcManager) {
-            BarcodeDetector.this.aidcManager = aidcManager;
-            BarcodeDetector.this.barcodeReader = connectReader(aidcManager);
-            if (barcodeReader != null) barcodeReader.addBarcodeListener(BarcodeDetector.this);
+            BarcodeScanner.this.aidcManager = aidcManager;
+            BarcodeScanner.this.barcodeReader = connectReader(aidcManager);
+            if (barcodeReader != null) barcodeReader.addBarcodeListener(BarcodeScanner.this);
         }
 
         private BarcodeReader connectReader(AidcManager aidcManager) {

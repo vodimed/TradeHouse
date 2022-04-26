@@ -4,11 +4,12 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
-import com.common.extensions.Logger;
 import com.common.extensions.database.SQLiteSchema;
 import com.common.extensions.exchange.ServiceActivity;
 import com.common.extensions.exchange.ServiceConnector;
 import com.common.extensions.exchange.ServiceInterface;
+import com.expertek.tradehouse.components.Logger;
+import com.expertek.tradehouse.components.MainSettings;
 import com.expertek.tradehouse.dictionaries.DbDictionaries;
 import com.expertek.tradehouse.dictionaries.Dictionaries_v1Sqlite;
 import com.expertek.tradehouse.documents.DBDocuments;

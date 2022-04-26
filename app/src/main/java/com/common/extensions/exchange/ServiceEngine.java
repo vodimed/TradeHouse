@@ -17,7 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
-import com.common.extensions.Logger;
+import com.expertek.tradehouse.components.Logger;
 
 import java.util.List;
 

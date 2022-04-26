@@ -15,10 +15,11 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.common.extensions.Logger;
+import com.expertek.tradehouse.components.Logger;
 import com.common.extensions.database.AdapterTemplate;
 import com.common.extensions.exchange.ServiceConnector;
 import com.common.extensions.exchange.ServiceInterface;
+import com.expertek.tradehouse.components.MainSettings;
 import com.expertek.tradehouse.dictionaries.DbDictionaries;
 import com.expertek.tradehouse.documents.DBDocuments;
 import com.expertek.tradehouse.tradehouse.TradeHouseService;

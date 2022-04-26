@@ -8,22 +8,22 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
 
-public class ChLayout extends LinearLayout implements Checkable {
+public class CheckableLayout extends LinearLayout implements Checkable {
     private boolean checked = false;
 
-    public ChLayout(Context context) {
+    public CheckableLayout(Context context) {
         super(context);
     }
 
-    public ChLayout(Context context, @Nullable AttributeSet attrs) {
+    public CheckableLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public ChLayout(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public CheckableLayout(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
-    public ChLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public CheckableLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 

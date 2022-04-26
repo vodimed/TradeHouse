@@ -2,6 +2,7 @@ package com.expertek.tradehouse.documents.sqlite;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 
 import androidx.paging.DataSource;
 
@@ -31,6 +32,11 @@ public class Marklines {
         final List<markline> result = ((SQLitePager<markline>) source).loadRange(0, 1);
         if (result.isEmpty()) return null;
         return result.get(0);
+    }
+
+    public long getNextId() {
+        final SQLiteStatement stmt = db.compileStatement("SELECT IFNULL(MAX(LineID), 0) + 1 FROM MT_MarkLines");
+        return stmt.simpleQueryForLong();
     }
 
     public void insert(markline... objects) {

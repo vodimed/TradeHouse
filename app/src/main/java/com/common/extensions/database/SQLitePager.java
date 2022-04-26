@@ -8,7 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.paging.DataSource;
 import androidx.paging.PositionalDataSource;
 
-import com.common.extensions.Logger;
+import com.expertek.tradehouse.components.Logger;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;

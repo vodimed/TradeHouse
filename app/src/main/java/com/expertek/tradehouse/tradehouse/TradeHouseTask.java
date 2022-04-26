@@ -4,9 +4,9 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
-import com.common.extensions.Logger;
+import com.expertek.tradehouse.components.Logger;
 import com.common.extensions.exchange.ServiceInterface;
-import com.expertek.tradehouse.MainSettings;
+import com.expertek.tradehouse.components.MainSettings;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;

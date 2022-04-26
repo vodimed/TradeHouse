@@ -1,11 +1,11 @@
-package com.expertek.tradehouse;
+package com.expertek.tradehouse.components;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.util.ArraySet;
 
-import com.common.extensions.Logger;
+import com.expertek.tradehouse.Application;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

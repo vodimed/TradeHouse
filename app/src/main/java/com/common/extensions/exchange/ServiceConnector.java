@@ -11,7 +11,7 @@ import android.os.RemoteException;
 
 import androidx.annotation.NonNull;
 
-import com.common.extensions.Logger;
+import com.expertek.tradehouse.components.Logger;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;

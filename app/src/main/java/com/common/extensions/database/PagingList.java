@@ -9,7 +9,7 @@ import android.util.SparseBooleanArray;
 import androidx.annotation.Nullable;
 import androidx.paging.DataSource;
 
-import com.common.extensions.Logger;
+import com.expertek.tradehouse.components.Logger;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Array;

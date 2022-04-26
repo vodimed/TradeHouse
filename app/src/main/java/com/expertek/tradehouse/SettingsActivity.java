@@ -17,7 +17,8 @@ import android.widget.ToggleButton;
 
 import androidx.annotation.IdRes;
 
-import com.common.extensions.Logger;
+import com.expertek.tradehouse.components.Logger;
+import com.expertek.tradehouse.components.MainSettings;
 import com.expertek.tradehouse.tradehouse.ConnectionReceiver;
 
 import java.io.IOException;

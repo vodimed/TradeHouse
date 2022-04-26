@@ -164,6 +164,16 @@ public abstract class AdapterRecycler<Item>
         template.setChoiceMode(parent, choiceMode);
     }
 
+    @Override
+    public void setItemChecked(ViewGroup parent, int position, boolean value) {
+        template.setItemChecked(parent, position, value);
+    }
+
+    @Override
+    public void clearChoices(ViewGroup parent) {
+        template.clearChoices(parent);
+    }
+
     /**
      * ViewHolder template. You should inherit your ViewHolder from this class
      */
