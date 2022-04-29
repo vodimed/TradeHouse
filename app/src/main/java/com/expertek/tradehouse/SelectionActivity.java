@@ -25,6 +25,7 @@ import com.common.extensions.exchange.ServiceConnector;
 import com.common.extensions.exchange.ServiceInterface;
 import com.expertek.tradehouse.components.Dialogue;
 import com.expertek.tradehouse.components.Logger;
+import com.expertek.tradehouse.components.MainSettings;
 import com.expertek.tradehouse.documents.DBDocuments;
 import com.expertek.tradehouse.documents.entity.document;
 import com.expertek.tradehouse.documents.entity.line;
@@ -35,7 +36,9 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
-public class InvoicesActivity extends Activity {
+public class SelectionActivity extends Activity {
+    public static final int INVENTORIES = 1; // R.strings.document_filters
+    public static final int INVOICES = 3; // R.strings.document_filters
     private final DBDocuments dbd = Application.documents.db();
     private PagingList<document> documents = null;
     private DocTypeAdapter adapterType = null;
@@ -52,7 +55,10 @@ public class InvoicesActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.invoices_activity);
+        setContentView(R.layout.selection_activity);
+
+        // Retrieve Activity parameters
+        final int filter = getIntent().getIntExtra("document_filters", 0);
 
         // Register Service
         tradehouse.registerService(false);
@@ -87,7 +93,8 @@ public class InvoicesActivity extends Activity {
         buttonSend.setOnClickListener(onClickAction);
 
         // Redraw states of Activity components
-        onTypeSelection.onItemSelected(spinSelector, null, 0, 0);
+        spinSelector.setSelection(filter);
+        onTypeSelection.onItemSelected(spinSelector, null, filter, 0);
     }
 
     @Override
@@ -101,7 +108,7 @@ public class InvoicesActivity extends Activity {
         public void onClick(View v) {
             final int position = onDocumentSelection.getPosition();
             if (buttonCreate.equals(v)) {
-                actionCreate(AdapterInterface.INVALID_POSITION);
+                actionCreate();
             } else if (position == AdapterInterface.INVALID_POSITION) {
                 // Do Nothing
             } else if (buttonEdit.equals(v)) {
@@ -120,19 +127,19 @@ public class InvoicesActivity extends Activity {
         final document document = (document) data.getSerializableExtra(document.class.getName());
 
         switch (requestCode) {
-            case InvoiceEditActivity.REQUEST_ADD_DOCUMENT:
+            case DocumentActivity.REQUEST_ADD_DOCUMENT:
                 if (!dbd.documents().hasDuplicate(document.DocName)) {
                     documents.add(document);
                     onDocumentSelection.setPosition(documents.size() - 1);
                 } else if (onDocumentSelection.setPosition(documents.indexOf(document)) < 0) {
-                    Dialogue.Duplicate(InvoicesActivity.this, document, null);
+                    Dialogue.Duplicate(SelectionActivity.this, document, null);
                     return; // not in selection
                 }
                 break;
-            case InvoiceEditActivity.REQUEST_EDIT_DOCUMENT:
+            case DocumentActivity.REQUEST_EDIT_DOCUMENT:
                 documents.set(onDocumentSelection.getPosition(), document);
                 break;
-            case InvoiceEditActivity.REQUEST_DELETE_DOCUMENT:
+            case DocumentActivity.REQUEST_DELETE_DOCUMENT:
                 documents.remove(onDocumentSelection.getPosition());
                 break;
         }
@@ -151,12 +158,12 @@ public class InvoicesActivity extends Activity {
             });
 
             switch (requestCode) {
-                case InvoiceEditActivity.REQUEST_ADD_DOCUMENT:
+                case DocumentActivity.REQUEST_ADD_DOCUMENT:
                     actionEdit(onDocumentSelection.getPosition());
                     break;
-                case InvoiceEditActivity.REQUEST_DELETE_DOCUMENT:
+                case DocumentActivity.REQUEST_DELETE_DOCUMENT:
                     onDocumentSelection.setPosition(AdapterInterface.INVALID_POSITION);
-                case InvoiceEditActivity.REQUEST_EDIT_DOCUMENT:
+                case DocumentActivity.REQUEST_EDIT_DOCUMENT:
                     refreshActivityControls();
             }
         } catch (Exception e) {
@@ -165,24 +172,28 @@ public class InvoicesActivity extends Activity {
         }
     }
 
-    protected void actionCreate(int position) {
+    protected void actionCreate() {
         assert adapterDocument.getDataSet() != null;
 
         final document document = new document();
         document.DocName = document.getNextId(dbd.documents().getMaxId());
         document.DocType = (filtertype != null ? TextUtils.join(",", filtertype) : null);
         document.StartDate = Calendar.getInstance().getTime();
+        document.ObjectType = MainSettings.TradeHouseObjType;
+        document.ObjectID = MainSettings.TradeHouseObjCode;
+        document.UserID = MainSettings.TradeHouseUserId;
+        document.UserName = MainSettings.TradeHouseUserName;
         document.Complete = true;
 
-        final Intent intent = new Intent(InvoicesActivity.this, InvoiceCreateActivity.class);
+        final Intent intent = new Intent(SelectionActivity.this, CreationActivity.class);
         intent.putExtra(document.class.getName(), document);
-        startActivityForResult(intent, InvoiceEditActivity.REQUEST_ADD_DOCUMENT);
+        startActivityForResult(intent, DocumentActivity.REQUEST_ADD_DOCUMENT);
     }
 
     protected void actionEdit(int position) {
-        final Intent intent = new Intent(InvoicesActivity.this, InvoiceEditActivity.class);
+        final Intent intent = new Intent(SelectionActivity.this, DocumentActivity.class);
         intent.putExtra(document.class.getName(), adapterDocument.getItem(position));
-        startActivityForResult(intent, InvoiceEditActivity.REQUEST_EDIT_DOCUMENT);
+        startActivityForResult(intent, DocumentActivity.REQUEST_EDIT_DOCUMENT);
     }
 
     protected void actionDelete(int position) {
@@ -191,7 +202,7 @@ public class InvoicesActivity extends Activity {
 
     protected void actionSend(int position) {
         final document export = documents.get(position);
-        if (!export.Complete) return;
+        if (!export.isComplete()) return;
         final Bundle params = new Bundle();
         params.putSerializable(document.class.getName(), export);
         tradehouse.enqueue(new ServiceInterface.JobInfo(1, Проводка.class, tradehouse.receiver()), params);
@@ -203,14 +214,14 @@ public class InvoicesActivity extends Activity {
             if (which != DialogInterface.BUTTON_POSITIVE) return;
             final Intent intent = new Intent();
             intent.putExtra(line.class.getName(), documents.get(onDocumentSelection.getPosition()));
-            onActivityResult(InvoiceEditActivity.REQUEST_DELETE_DOCUMENT, RESULT_OK, intent);
+            onActivityResult(DocumentActivity.REQUEST_DELETE_DOCUMENT, RESULT_OK, intent);
         }
     };
 
     private void refreshActivityControls() {
         final String selectedKey = TextUtils.join(",", filtertype);
         editSummary.setText(Formatter.Currency.format(dbd.documents().sumAllDocs(filtertype)));
-        buttonCreate.setEnabled(selectedKey.equals("*") || selectedKey.contains("WB"));
+        buttonCreate.setEnabled(selectedKey.equals("*") || selectedKey.endsWith("WB"));
     }
 
     private final AdapterInterface.OnItemSelectionListener onTypeSelection =
@@ -223,6 +234,7 @@ public class InvoicesActivity extends Activity {
             documents = new PagingList<document>(dbd.documents().loadByDocType(filtertype));
             adapterDocument.setDataSet(documents);
             onDocumentSelection.onNothingSelected(parent);
+            buttonCreate.setVisibility(position == INVENTORIES ? View.GONE : View.VISIBLE);
             refreshActivityControls();
         }
 
@@ -230,6 +242,7 @@ public class InvoicesActivity extends Activity {
         public void onNothingSelected(ViewGroup parent) {
             filtertype = null;
             onDocumentSelection.onNothingSelected(parent);
+            buttonCreate.setVisibility(View.VISIBLE);
             buttonCreate.setEnabled(false);
         }
     };
@@ -244,6 +257,11 @@ public class InvoicesActivity extends Activity {
             listDocument.requestFocusFromTouch();
             listDocument.clearFocus();
             listDocument.setSelection(position);
+            //TODO: https://stackoverflow.com/questions/48253761/how-do-i-clear-listview-selection
+            //TODO: https://stackoverflow.com/questions/31413571/listview-how-to-clear-selection
+            //         setNextSelectedPositionInt(position);
+            //        requestLayout();
+            //        invalidate();
             return getPosition();
         }
 
@@ -251,7 +269,7 @@ public class InvoicesActivity extends Activity {
         public void onItemSelected(ViewGroup parent, View view, int position, long id) {
             buttonEdit.setEnabled(true);
             buttonDelete.setEnabled(true);
-            buttonSend.setEnabled(documents.get(position).Complete);
+            buttonSend.setEnabled(documents.get(position).isComplete());
         }
 
         @Override
@@ -379,6 +397,7 @@ public class InvoicesActivity extends Activity {
         }
     }
 
+    //TODO
     protected static class DocumentAdapter1 extends BaseAdapter {
         private final document[] array = new document[30];
         private final LayoutInflater inflater;
@@ -458,7 +477,7 @@ public class InvoicesActivity extends Activity {
             intent.putExtras(result);
             final document export = (document) result.getSerializable(document.class.getName());
             onDocumentSelection.setPosition(documents.indexOf(export));
-            onActivityResult(InvoiceEditActivity.REQUEST_EDIT_DOCUMENT, RESULT_OK, intent);
+            onActivityResult(DocumentActivity.REQUEST_EDIT_DOCUMENT, RESULT_OK, intent);
         }
 
         @Override

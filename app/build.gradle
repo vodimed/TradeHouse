@@ -8,8 +8,8 @@ android {
         applicationId 'com.expertek.tradehouse'
         minSdkVersion 25
         targetSdkVersion 30
-        versionCode 1
-        versionName "1.0"
+        versionCode 24
+        versionName "2.4b"
 
         javaCompileOptions {
             annotationProcessorOptions {

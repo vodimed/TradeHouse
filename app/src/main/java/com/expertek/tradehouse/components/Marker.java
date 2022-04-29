@@ -94,11 +94,13 @@ public class Marker implements Serializable {
                 weight = 1;
                 break;
             default:
-                if (MainSettings.BarcodePrefixes.contains(scanned.substring(0, 2))) {
+                valid &= (scanned.length() >= 12);
+                if (valid && MainSettings.BarcodePrefixes.contains(scanned.substring(0, 2))) {
                     gtin = scanned.substring(2, 7);
                     serial = null;
                     weight = ((double) Integer.parseInt(scanned.substring(7, 12))) / 1000;
                 } else {
+                    valid &= (scanned.length() <= 68);
                     gtin = scanned;
                     serial = null;
                     weight = 1;
@@ -106,7 +108,7 @@ public class Marker implements Serializable {
         }
     }
 
-    public boolean isValid() {
+    public boolean isWellformed() {
         return valid;
     }
 }

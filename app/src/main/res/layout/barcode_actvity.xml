@@ -11,18 +11,13 @@
         android:labelFor="@+id/editBarcode"
         android:text="@string/barcode_prompt" />
 
-    <EditText
+    <AutoCompleteTextView
         android:id="@+id/editBarcode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="number" />
-
-    <TextView
-        android:id="@+id/labelName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:labelFor="@+id/editName"
-        android:text="@string/barcode_name" />
+        android:imeOptions="actionNext"
+        android:inputType="number"
+        android:completionThreshold="@integer/barcode_autocompletion" />
 
     <EditText
         android:id="@+id/editName"
@@ -31,8 +26,7 @@
         android:inputType="none"
         android:maxLines="3"
         android:minLines="2"
-        android:focusable="false"
-        android:enabled="false" />
+        android:focusable="false" />
 
     <TextView
         android:id="@+id/labelPrice"
@@ -46,8 +40,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:textSize="72sp"
+        android:textSize="@dimen/barc_price"
         android:focusable="false"
-        android:drawableBottom="@drawable/ic_launcher"
         android:text="@string/zero_value" />
 </LinearLayout>

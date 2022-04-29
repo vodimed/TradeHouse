@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -13,7 +12,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.common.extensions.database.AdapterInterface;
 import com.common.extensions.database.AdapterTemplate;
 import com.common.extensions.database.PagingList;
 import com.expertek.tradehouse.dictionaries.DbDictionaries;
@@ -23,7 +21,7 @@ import com.expertek.tradehouse.documents.entity.document;
 import java.util.Arrays;
 import java.util.List;
 
-public class InvoiceCreateActivity extends Activity {
+public class CreationActivity extends Activity {
     private final DbDictionaries dbc = Application.dictionaries.db();
     private document document = null;
     private InvoiceTypeAdapter adapterType = null;
@@ -34,29 +32,25 @@ public class InvoiceCreateActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.invoice_create_activity);
+        setContentView(R.layout.creation_activity);
 
         // Retrieve Activity parameters
         document = (document) getIntent().getSerializableExtra(document.class.getName());
 
-        adapterType = new InvoiceTypeAdapter(this, android.R.layout.simple_list_item_activated_1);
-        adapterType.setDataSet(InvoiceTypeAdapter.createDataSet(this, document.DocType));
-        adapterType.setOnItemSelectionListener(onTypeSelection);
-
         final EditText editNumber = findViewById(R.id.editNumber);
         editNumber.setText(document.DocName);
 
-        final Spinner spinSelector = findViewById(R.id.spinType);
-        spinSelector.setAdapter(adapterType);
-        onSpinnerInit(spinSelector, onTypeSelection);
+        adapterType = new InvoiceTypeAdapter(this, android.R.layout.simple_list_item_activated_1);
+        adapterType.setDataSet(InvoiceTypeAdapter.createDataSet(this, document.DocType));
+
+        final Spinner spinType = findViewById(R.id.spinType);
+        spinType.setAdapter(adapterType);
 
         adapterClient = new ClientAdapter(this, android.R.layout.simple_list_item_activated_1);
         adapterClient.setDataSet(new PagingList<client>(dbc.clients().load()));
-        adapterClient.setOnItemSelectionListener(onClientSelection);
 
         final Spinner spinContragent = findViewById(R.id.spinContragent);
         spinContragent.setAdapter(adapterClient);
-        onSpinnerInit(spinContragent, onClientSelection);
 
         buttonCreate = findViewById(R.id.buttonCreate);
         buttonCancel = findViewById(R.id.buttonCancel);
@@ -81,6 +75,14 @@ public class InvoiceCreateActivity extends Activity {
         final String text = editNumber.getText().toString();
         if (text.length() > 0) document.DocName = text;
 
+        final Spinner spinType = findViewById(R.id.spinType);
+        document.DocType = adapterType.getKey(spinType.getSelectedItemPosition());
+
+        final Spinner spinContragent = findViewById(R.id.spinContragent);
+        final client client = (client) spinContragent.getSelectedItem();
+        document.ClientType = client.cli_type;
+        document.ClientID = client.cli_code;
+
         final Intent intent = new Intent();
         intent.putExtra(document.class.getName(), document);
 
@@ -92,47 +94,6 @@ public class InvoiceCreateActivity extends Activity {
         setResult(RESULT_CANCELED);
         finish();
     }
-
-    private void onSpinnerInit(Spinner spinner, AdapterInterface.OnItemSelectionListener listener) {
-        if (listener != null) {
-            final int selected = spinner.getSelectedItemPosition();
-
-            if (selected != AdapterInterface.INVALID_POSITION) {
-                listener.onItemSelected(spinner, spinner.getSelectedView(), selected, spinner.getSelectedItemId());
-            } else {
-                listener.onNothingSelected(spinner);
-            }
-        }
-    }
-
-    private final AdapterInterface.OnItemSelectionListener onClientSelection =
-            new AdapterInterface.OnItemSelectionListener()
-    {
-        @Override
-        public void onItemSelected(ViewGroup parent, View view, int position, long id) {
-            document.ClientID = (int) id;
-            document.ClientType = adapterClient.getItem(position).cli_type;
-        }
-
-        @Override
-        public void onNothingSelected(ViewGroup parent) {
-            // Never to do
-        }
-    };
-
-    private final AdapterInterface.OnItemSelectionListener onTypeSelection =
-            new AdapterInterface.OnItemSelectionListener()
-    {
-        @Override
-        public void onItemSelected(ViewGroup parent, View view, int position, long id) {
-            document.DocType = adapterType.getKey(position);
-        }
-
-        @Override
-        public void onNothingSelected(ViewGroup parent) {
-            // Never to do
-        }
-    };
 
     /**
      * Spinner data Adapter: list of Invoice Types

@@ -1,5 +1,7 @@
 package com.expertek.tradehouse;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -67,6 +69,16 @@ public class Application extends android.app.Application {
     // Replace DBDocuments database file with new one (as a whole)
     public static <E extends DBDocuments> boolean replace_documents_db_file(@NonNull String name, @NonNull Class<E> version) {
         return documents.replace(name, version);
+    }
+
+    public static String getVersion() {
+        final PackageManager manager = app.getPackageManager();
+        try {
+            final PackageInfo info = manager.getPackageInfo(app.getPackageName(), 0);
+            return info.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            return "1.0";
+        }
     }
 
     private final ServiceConnector tradehouse = new ServiceConnector(this, TradeHouseService.class) {

@@ -66,13 +66,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".InvoiceActivity" />
-        <activity android:name=".InvoiceEditActivity" />
-        <activity android:name=".InvoiceCreateActivity" />
-        <activity android:name=".InventoryActivity" />
-        <activity android:name=".InventoryEditActivity" />
-        <activity android:name=".InvoicesActivity" />
-        <activity android:name=".InventoriesActivity" />
+        <activity android:name=".PositionActivity" />
+        <activity android:name=".DocumentActivity" />
+        <activity android:name=".CreationActivity" />
+        <activity android:name=".SelectionActivity" />
         <activity android:name=".BarcodeActivity" />
         <activity android:name=".DictionariesActivity" />
         <activity android:name=".SettingsActivity" />

@@ -31,16 +31,14 @@ import com.expertek.tradehouse.tradehouse.Проводка;
 
 import java.util.List;
 
-public class InvoiceEditActivity extends Activity {
+public class DocumentActivity extends Activity {
     public static final int REQUEST_ADD_DOCUMENT = 1;
     public static final int REQUEST_EDIT_DOCUMENT = 2;
     public static final int REQUEST_DELETE_DOCUMENT = 3;
     private final DBDocuments dbd = Application.documents.db();
     protected final long firstLineId = dbd.lines().getNextId();
     protected PagingList<line> lines = null;
-    protected LineAdapter adapterLine = null;
     protected document document = null;
-    private int position = AdapterInterface.INVALID_POSITION;
     private ListView listLine = null;
     private TextView editSummary = null;
     private Button buttonAdd = null;
@@ -51,7 +49,7 @@ public class InvoiceEditActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.invoice_edit_activity);
+        setContentView(R.layout.document_activity);
 
         // Retrieve Activity parameters
         document = (document) getIntent().getSerializableExtra(document.class.getName());
@@ -72,7 +70,7 @@ public class InvoiceEditActivity extends Activity {
         editSummary = findViewById(R.id.editSummary);
         editSummary.setText(Formatter.Currency.format(document.FactSum));
 
-        adapterLine = new LineAdapter(this, R.layout.invoice_position);
+        final LineAdapter adapterLine = new LineAdapter(this, R.layout.invoice_position);
         adapterLine.setDataSet(lines);
         adapterLine.setOnItemSelectionListener(onLineSelection);
 
@@ -90,6 +88,7 @@ public class InvoiceEditActivity extends Activity {
         buttonSave.setOnClickListener(onClickAction);
         buttonSend.setOnClickListener(onClickAction);
 
+        buttonAdd.setEnabled(document.isEditable());
         onLineSelection.onNothingSelected(null);
     }
 
@@ -116,16 +115,16 @@ public class InvoiceEditActivity extends Activity {
         @Override
         protected void onBarcodeDetect(String scanned) {
             final Marker marker = new Marker(scanned);
-            if (marker.isValid()) {
+            if (marker.isWellformed()) {
                 for (int i = 0; i < lines.size(); i++) {
                     if (lines.get(i).BC.equals(marker.gtin)) {
                         actionEdit(i);
                         return;
                     }
                 }
-                actionAdd(lines.size(), marker);
+                actionAdd(marker);
             } else {
-                Dialogue.Error(InvoiceEditActivity.this, R.string.barcode_prompt);
+                Dialogue.Error(DocumentActivity.this, R.string.barcode_prompt);
             }
         }
     };
@@ -134,15 +133,14 @@ public class InvoiceEditActivity extends Activity {
         @Override
         public void onClick(View v) {
             if (buttonAdd.equals(v)) {
-                actionAdd(AdapterInterface.INVALID_POSITION, null);
+                actionAdd(null);
             } else if (buttonSave.equals(v)) {
-                actionSave(position);
+                actionSave();
             } else if (buttonSend.equals(v)) {
-                actionSend(position);
-            } else if (position == AdapterInterface.INVALID_POSITION) {
-                // Do Nothing
+                actionSend();
             } else if (buttonEdit.equals(v)) {
-                actionEdit(position);
+                final int position = listLine.getCheckedItemPosition();
+                if (position != AdapterInterface.INVALID_POSITION) actionEdit(position);
             }
         }
     };
@@ -153,16 +151,14 @@ public class InvoiceEditActivity extends Activity {
         final line line = (line) data.getSerializableExtra(line.class.getName());
 
         switch (requestCode) {
-            case InvoiceActivity.REQUEST_ADD_POSITION:
+            case PositionActivity.REQUEST_ADD_POSITION:
                 lines.add(line);
-                position = lines.size() - 1;
                 listLine.requestFocusFromTouch();
                 listLine.clearFocus();
-                listLine.setSelection(position);
-                //TODO: https://stackoverflow.com/questions/48253761/how-do-i-clear-listview-selection
-                //TODO: https://stackoverflow.com/questions/31413571/listview-how-to-clear-selection
+                listLine.setSelection(lines.size() - 1);
                 break;
-            case InvoiceActivity.REQUEST_EDIT_POSITION:
+            case PositionActivity.REQUEST_EDIT_POSITION:
+                final int position = listLine.getCheckedItemPosition();
                 final line oldline = lines.get(position);
                 document.FactSum -= oldline.FactQnty * oldline.Price;
                 lines.set(position, line);
@@ -173,7 +169,7 @@ public class InvoiceEditActivity extends Activity {
         editSummary.setText(Formatter.Currency.format(document.FactSum));
     }
 
-    private void actionAdd(int position, Marker marker) {
+    private void actionAdd(Marker marker) {
         final line line = new line();
         line.DocName = document.DocName;
         line.LineID = (int) firstLineId + lines.size();
@@ -182,19 +178,21 @@ public class InvoiceEditActivity extends Activity {
     }
 
     protected void actionAdd(line line, Marker marker) {
-        final Intent intent = new Intent(InvoiceEditActivity.this, InvoiceActivity.class);
+        final Intent intent = new Intent(DocumentActivity.this, PositionActivity.class);
+        intent.putExtra("Inv", document.DocType.startsWith("Inv"));
         intent.putExtra(line.class.getName(), line);
         intent.putExtra(Marker.class.getName(), marker);
-        startActivityForResult(intent, InvoiceActivity.REQUEST_ADD_POSITION);
+        startActivityForResult(intent, PositionActivity.REQUEST_ADD_POSITION);
     }
 
     protected void actionEdit(int position) {
-        final Intent intent = new Intent(InvoiceEditActivity.this, InvoiceActivity.class);
+        final Intent intent = new Intent(DocumentActivity.this, PositionActivity.class);
+        intent.putExtra("Inv", document.DocType.startsWith("Inv"));
         intent.putExtra(line.class.getName(), lines.get(position));
-        startActivityForResult(intent, InvoiceActivity.REQUEST_EDIT_POSITION);
+        startActivityForResult(intent, PositionActivity.REQUEST_EDIT_POSITION);
     }
 
-    protected void actionSave(int position) {
+    protected void actionSave() {
         try {
             lines.commit(new PagingList.Commit<line>() {
                 @Override
@@ -219,9 +217,9 @@ public class InvoiceEditActivity extends Activity {
         finish();
     }
 
-    protected void actionSend(int position) {
+    protected void actionSend() {
         final document export = document;
-        if (!export.Complete) return;
+        if (!export.isComplete()) return;
         final Bundle params = new Bundle();
         params.putSerializable(document.class.getName(), export);
         tradehouse.enqueue(new ServiceInterface.JobInfo(1, Проводка.class, tradehouse.receiver()), params);
@@ -232,13 +230,11 @@ public class InvoiceEditActivity extends Activity {
     {
         @Override
         public void onItemSelected(ViewGroup parent, View view, int position, long id) {
-            InvoiceEditActivity.this.position = position;
             buttonEdit.setEnabled(true);
         }
 
         @Override
         public void onNothingSelected(ViewGroup parent) {
-            InvoiceEditActivity.this.position = AdapterInterface.INVALID_POSITION;
             buttonEdit.setEnabled(false);
         }
     };
@@ -301,7 +297,7 @@ public class InvoiceEditActivity extends Activity {
         @Override
         public void onJobResult(@NonNull ServiceInterface.JobInfo work, Bundle result) {
             document = (document) result.getSerializable(document.class.getName());
-            actionSave(position);
+            actionSave();
         }
 
         @Override

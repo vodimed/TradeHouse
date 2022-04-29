@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
+import com.expertek.tradehouse.Application;
 import com.expertek.tradehouse.components.Logger;
 import com.common.extensions.exchange.ServiceInterface;
 import com.expertek.tradehouse.components.MainSettings;
@@ -105,21 +106,20 @@ public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
         // Start document
         serializer.startDocument(Charset.defaultCharset().name(), true);
         serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
-        final String[] magheader = parseMagHeader(MainSettings.TradeHouseObject);
 
         // Open Tag <TSD>
         serializer.startTag("", "TSD");
         serializer.attribute("", "item", qualifier);
         serializer.attribute("", "from", MainSettings.SerialNumber);
-        serializer.attribute("", "to", MainSettings.TradeHouseObject);
+        serializer.attribute("", "to", MainSettings.TradeHouseObjType + MainSettings.TradeHouseObjCode);
         serializer.attribute("", "user", "1-1");
         serializer.attribute("", "tstamp", String.valueOf(System.currentTimeMillis()));
-        serializer.attribute("", "version", "2.4b");
+        serializer.attribute("", "version", Application.getVersion());
         serializer.attribute("", "currDecSeparator", ".");
         serializer.attribute("", "shortDatePattern", "M/d/yy");
         serializer.attribute("", "longTimePattern", "h:mm:ss tt");
         serializer.attribute("", "MarksReg", "True");
-        serializer.attribute("", "user-agent", String.format("%s?%s?True?,?True", magheader[0], magheader[1]));
+        serializer.attribute("", "user-agent", String.format(Locale.getDefault(), "%s?%d?True?,?True", MainSettings.TradeHouseObjType, MainSettings.TradeHouseObjCode));
 
         if (REQ_SETTINGS.equals(qualifier)) {
             serializer.startTag("", "SN");
@@ -128,8 +128,8 @@ public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
             serializer.endTag("", "SN");
 
             serializer.startTag("", "OBJ");
-            serializer.attribute("", "obj_type", magheader[0]);
-            serializer.attribute("", "obj_code", magheader[1]);
+            serializer.attribute("", "obj_type", MainSettings.TradeHouseObjType);
+            serializer.attribute("", "obj_code", String.valueOf(MainSettings.TradeHouseObjCode));
             serializer.endTag("", "OBJ");
         }
 
@@ -218,20 +218,6 @@ public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
 
     public static File temporary(File original) {
         return new File(original.getPath() + "_");
-    }
-
-    protected static String[] parseMagHeader(String thObject) {
-        final String[] result = new String[2];
-        for (int i = 0; i < thObject.length(); i++) {
-            if (thObject.charAt(i) <= '9') {
-                result[0] = thObject.substring(0, i);
-                result[1] = thObject.substring(i);
-                return result;
-            }
-        }
-        result[0] = thObject;
-        result[1] = "";
-        return result;
     }
 
     // Correct Java error with encoding marker

@@ -8,14 +8,14 @@ import com.expertek.tradehouse.components.MainSettings;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.util.Locale;
 
 public class Документы extends TradeHouseTask {
     @Override
     protected void setRequestHeaders() {
         connection.setRequestProperty("Content-Type", "raw");
-        final String[] magheader = parseMagHeader(MainSettings.TradeHouseObject);
-        magheader[0] = magheader[0].replace("маг", "shop"); // encoding "windows-1251"
-        connection.setRequestProperty("user-Agent", String.format("%s?%s?True?.", magheader[0], magheader[1]));
+        final String TradeHouseObjType = MainSettings.TradeHouseObjType.replace("маг", "shop"); // encoding "windows-1251"
+        connection.setRequestProperty("user-Agent", String.format(Locale.getDefault(), "%s?%d?True?.", TradeHouseObjType, MainSettings.TradeHouseObjCode));
         connection.setDoOutput(true);
     }
 

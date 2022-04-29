@@ -1,7 +1,6 @@
 package com.expertek.tradehouse.documents.entity;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.common.extensions.database.Entity;
 import com.common.extensions.database.Index;
@@ -10,7 +9,9 @@ import com.expertek.tradehouse.Application;
 import com.expertek.tradehouse.R;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 @Entity(tableName = "MT_documents", indices = {
         @Index(name = "docNameDoc", value = {"DocName", "DocType"}, unique = true)})
@@ -23,19 +24,13 @@ public class document implements Serializable {
     public int ClientID; // Код контрагента (cli-code из таблицы спр. клиентов)
     public String ClientType; // Тип контрагента (cli-type из таблицы спр. клиентов)
     public int ObjectID; // Код объекта (obj-code из таблицы спр. объектов)
-    //public String ObjectType; // Тип объекта (obj-type из таблицы спр. объектов)
+    public String ObjectType; // Тип объекта (obj-type из таблицы спр. объектов)
     public String UserID; // Ид пользователя из TH
     public String UserName; // Имя пользователя в ТН
     public double FactSum; // Сумма фактическая по документу
     //@TypeConverters({DateTime.RoomConverter.class}) -- moved to database definition
     public Date StartDate; // Дата документа
     public int Flags; // Битовый флаги означающие различные свойства документа в формате int
-
-    @Override
-    public boolean equals(@Nullable Object obj) {
-        if (!(obj instanceof document)) return super.equals(obj);
-        return DocName.equals(((document) obj).DocName);
-    }
 
     @Override
     @NonNull
@@ -56,5 +51,15 @@ public class document implements Serializable {
             }
         }
         return "1" + (new String(nextId));
+    }
+
+    public boolean isComplete() {
+        return Complete;
+    }
+
+    public boolean isEditable() {
+        final List<String> editabletype = Arrays.asList("UTD", "InvMarks", "InvIntroduce");
+        final List<String> editablestat = Arrays.asList("разрешен+", "накл+");
+        return (editabletype.contains(DocType) || editablestat.contains(Status)) || true;
     }
 }

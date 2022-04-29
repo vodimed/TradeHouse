@@ -12,7 +12,7 @@
     <string name="save">Записать</string>
     <string name="send">Отослать</string>
     <string name="close">Закрыть</string>
-    <string name="zero_value">0.00</string>
+    <string name="zero_value">0,00 ₽</string>
     <string name="confirmation">Подтвердите</string>
     <string name="deletion">Удаляется</string>
     <string name="duplicate">Дубликат</string>
@@ -164,7 +164,6 @@
 
     <!--BarcodeActivity-->
     <string name="barcode_prompt">Сканируйте или введите штрих-код</string>
-    <string name="barcode_name">Наименование товара</string>
     <string name="barcode_price">Цена (нажмите для сканирования)</string>
 
     <!--SettingsActivity-->
@@ -173,6 +172,7 @@
     <string name="setting_timeouts">Таймауты</string>
 
     <string name="setting_serial">Серийный номер</string>
+    <string name="setting_user">Оператор</string>
     <string name="setting_object">Объект</string>
     <string name="setting_connect">Параметры подключения</string>
     <string name="setting_tethering">USB соединение</string>

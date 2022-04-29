@@ -1,6 +1,7 @@
 package com.expertek.tradehouse;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
@@ -11,25 +12,35 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
 
+import com.common.extensions.database.AdapterInterface;
+import com.common.extensions.database.AdapterTemplate;
+import com.common.extensions.database.PagingList;
 import com.expertek.tradehouse.components.Logger;
 import com.expertek.tradehouse.components.MainSettings;
+import com.expertek.tradehouse.dictionaries.DbDictionaries;
+import com.expertek.tradehouse.dictionaries.entity.object;
+import com.expertek.tradehouse.dictionaries.entity.user;
 import com.expertek.tradehouse.tradehouse.ConnectionReceiver;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class SettingsActivity extends Activity {
+    private final DbDictionaries dbc = Application.dictionaries.db();
     private final TabController tabcontrol = new TabController(3);
     private final SeekController seekcontrol = new SeekController();
     private final ConnectionHandler conhandler = new ConnectionHandler();
@@ -49,11 +60,23 @@ public class SettingsActivity extends Activity {
         seekcontrol.register(this, R.id.seekLoadDelay, R.id.textLoadDelay, MainSettings.LoadTimeout / 1000);
         seekcontrol.register(this, R.id.seekSendDelay, R.id.textSendDelay, MainSettings.SendTimeout / 1000);
 
+        final TextView label = findViewById(R.id.labelSerial);
+        label.setText(String.format("%s v%s", label.getText(), Application.getVersion()));
+
         final TextView serial = findViewById(R.id.editSerial);
         serial.setText(MainSettings.SerialNumber);
 
-        final TextView object = findViewById(R.id.editObject);
-        object.setText(MainSettings.TradeHouseObject);
+        final ObjectAdapter objectAdapter = new ObjectAdapter(this, android.R.layout.simple_list_item_activated_1);
+        objectAdapter.setDataSet(new PagingList<object>(dbc.objects().load()));
+        final Spinner spinObject = findViewById(R.id.spinObject);
+        spinObject.setAdapter(objectAdapter);
+        spinObject.setSelection(objectAdapter.findItem(MainSettings.TradeHouseObjType, MainSettings.TradeHouseObjCode));
+
+        final UserAdapter userAdapter = new UserAdapter(this, android.R.layout.simple_list_item_activated_1);
+        userAdapter.setDataSet(new PagingList<user>(dbc.users().load()));
+        final Spinner spinUser = findViewById(R.id.spinUser);
+        spinUser.setAdapter(userAdapter);
+        spinUser.setSelection(userAdapter.findItem(MainSettings.TradeHouseUserId));
 
         conhandler.editAddress = findViewById(R.id.editAddress);
         conhandler.editAddress.setText(String.format(Locale.getDefault(), "%s:%d",
@@ -104,8 +127,15 @@ public class SettingsActivity extends Activity {
         final SeekBar send = findViewById(R.id.seekSendDelay);
         MainSettings.SendTimeout = send.getProgress() * 1000;
 
-        final TextView object = findViewById(R.id.editObject);
-        MainSettings.TradeHouseObject = object.getText().toString();
+        final Spinner spinObject = findViewById(R.id.spinObject);
+        final object object = (object) spinObject.getSelectedItem();
+        MainSettings.TradeHouseObjType = object.obj_type;
+        MainSettings.TradeHouseObjCode = object.obj_code;
+
+        final Spinner spinUser = findViewById(R.id.spinUser);
+        final user user = (user) spinUser.getSelectedItem();
+        MainSettings.TradeHouseUserId = user.userID;
+        MainSettings.TradeHouseUserName = user.userName;
 
         MainSettings.Tethering = conhandler.checkTethering.isChecked();
 
@@ -348,6 +378,109 @@ public class SettingsActivity extends Activity {
                     }
                 };
             }
+        }
+    }
+
+    /**
+     * Spinner data Adapter: list of Objects
+     */
+    protected static class ObjectAdapter extends AdapterTemplate<object> {
+        public ObjectAdapter(Context context, @NonNull int... layout) {
+            super(context, layout);
+            setHasStableIds(true);
+        }
+
+        @SafeVarargs
+        public ObjectAdapter(Context context, @NonNull Class<? extends View>... layer) {
+            super(context, layer);
+            setHasStableIds(true);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull AdapterInterface.Holder holder, int position) {
+            final TextView text1 = holder.getView().findViewById(android.R.id.text1);
+            text1.setText(getItem(position).Name);
+        }
+
+        @Override
+        public object getItem(int position) {
+            final Object dataset = getDataSet();
+            if (dataset instanceof List<?>) {
+                return (object) ((List<?>) dataset).get(position);
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        public long getItemId(int position) {
+            if (position < 0 || position >= getCount()) return INVALID_ROW_ID;
+            final object item = getItem(position);
+            if (item == null) return INVALID_ROW_ID;
+            return item.obj_type.hashCode() * 31 + item.obj_code;
+        }
+
+        public int findItem(String obj_type, int obj_code) {
+            final Object dataset = getDataSet();
+            if (dataset instanceof List<?>) {
+                for (int i = 0; i < ((List<?>) dataset).size(); i++) {
+                    final object object = (object) ((List<?>) dataset).get(i);
+                    if ((object.obj_code == obj_code) && object.obj_type.equals(obj_type))
+                        return i;
+                }
+            }
+            return INVALID_POSITION;
+        }
+    }
+
+    /**
+     * Spinner data Adapter: list of Users
+     */
+    protected static class UserAdapter extends AdapterTemplate<user> {
+        public UserAdapter(Context context, @NonNull int... layout) {
+            super(context, layout);
+            setHasStableIds(true);
+        }
+
+        @SafeVarargs
+        public UserAdapter(Context context, @NonNull Class<? extends View>... layer) {
+            super(context, layer);
+            setHasStableIds(true);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull AdapterInterface.Holder holder, int position) {
+            final TextView text1 = holder.getView().findViewById(android.R.id.text1);
+            text1.setText(getItem(position).userName);
+        }
+
+        @Override
+        public user getItem(int position) {
+            final Object dataset = getDataSet();
+            if (dataset instanceof List<?>) {
+                return (user) ((List<?>) dataset).get(position);
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        public long getItemId(int position) {
+            if (position < 0 || position >= getCount()) return INVALID_ROW_ID;
+            final user item = getItem(position);
+            if (item == null) return INVALID_ROW_ID;
+            return item.userID.hashCode();
+        }
+
+        public int findItem(String userId) {
+            final Object dataset = getDataSet();
+            if (dataset instanceof List<?>) {
+                for (int i = 0; i < ((List<?>) dataset).size(); i++) {
+                    final user user = (user) ((List<?>) dataset).get(i);
+                    if (user.userID.equals(userId)) return i;
+                }
+            }
+            return INVALID_POSITION;
         }
     }
 }

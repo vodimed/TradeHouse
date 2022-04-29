@@ -9,7 +9,7 @@
         android:id="@+id/textBC"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="4sp"
+        android:layout_marginStart="4sp"
         android:layout_weight="1" />
 
     <TextView
