@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import androidx.paging.DataSource;
 
 import com.common.extensions.database.SQLitePager;
-import com.expertek.tradehouse.dictionaries.entity.barcode;
+import com.expertek.tradehouse.dictionaries.entity.Barcode;
 
 import java.util.List;
 
@@ -16,15 +16,15 @@ public class Barcodes {
         this.db = db;
     }
 
-    public DataSource.Factory<Integer, barcode> load(String ident) {
-        return new SQLitePager.Factory<>(db, barcode.class, "SELECT * FROM TH_barcodes " +
+    public DataSource.Factory<Integer, Barcode> load(String ident) {
+        return new SQLitePager.Factory<>(db, Barcode.class, "SELECT * FROM TH_barcodes " +
                 "WHERE BC LIKE :ident || '%' OR :ident IS NULL", ident);
     }
 
-    public barcode get(String ident) {
-        final DataSource<Integer, barcode> source = new SQLitePager.Factory<>(db, barcode.class,
+    public Barcode get(String ident) {
+        final DataSource<Integer, Barcode> source = new SQLitePager.Factory<>(db, Barcode.class,
                 "SELECT * FROM TH_barcodes WHERE BC = :ident", ident).create();
-        final List<barcode> result = ((SQLitePager<barcode>) source).loadRange(0, 1);
+        final List<Barcode> result = ((SQLitePager<Barcode>) source).loadRange(0, 1);
         if (result.isEmpty()) return null;
         return result.get(0);
     }

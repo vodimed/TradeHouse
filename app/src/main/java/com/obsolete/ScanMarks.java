@@ -3,7 +3,7 @@ package com.obsolete;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Point;
 
-import com.expertek.tradehouse.dictionaries.entity.object;
+import com.expertek.tradehouse.dictionaries.entity.Obj;
 
 public class ScanMarks {
     public event EventHandler
@@ -47,7 +47,7 @@ public class ScanMarks {
 
     // TODO: make all write-to-DB related actions in handlers in parent widget!
     // not make private functions public!
-    public void btnAccept_Click(object sender, EventArgs e) {
+    public void btnAccept_Click(Obj sender, EventArgs e) {
         double newPrice = 0;
         double newFactQnty = 0;
         double newDocQnty = 0;
@@ -114,7 +114,7 @@ public class ScanMarks {
         if (WidgetClosed != null) WidgetClosed(this, EventArgs.Empty);
     }
 
-    private void btnCancel_Click(object sender, EventArgs e) {
+    private void btnCancel_Click(Obj sender, EventArgs e) {
         TAMarksLinesTrans.Rollback();
         TAMarksLines.Connection = null;
         TAMarksLinesTrans = null;
@@ -216,7 +216,7 @@ public class ScanMarks {
 
         if (DEditor.IsGrayZone) {
             try {
-                object tmp = TAMarksLines.CountMarkChild(DEditor.ParentMark, currDoc.DocName);
+                Obj tmp = TAMarksLines.CountMarkChild(DEditor.ParentMark, currDoc.DocName);
                 double qntyMC = (tmp == DBNull.Value ? 0.0 : (long) tmp);
                 textBoxWithPromptDoc.Text = qntyMC.ToString();
             } catch (SQLiteException myException) {

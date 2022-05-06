@@ -28,26 +28,38 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
     private int size;
     @SuppressWarnings("unchecked") // Java generic restrictions
     private final PagingCache<Value>[] cache = new PagingCache[PagingCache.base];
-    private final SparseArray<Value> update = new SparseArray<Value>(pagesize);
-    private final SparseBooleanArray delete = new SparseBooleanArray(pagesize);
+    protected final SparseArray<Value> update = new SparseArray<Value>(pagesize);
+    protected final SparseBooleanArray delete = new SparseBooleanArray(pagesize);
 
     /**
      * Commit Listener Interface
      */
     public interface Commit<Value> {
         void renew(Value[] objects);
+
         void delete(Value[] objects);
+    }
+
+    @SuppressLint("RestrictedApi")
+    public PagingList() {
+        this.factory = null;
+        initialize();
     }
 
     @SuppressLint("RestrictedApi")
     public PagingList(DataSource.Factory<Integer, Value> factory) {
         this.factory = factory;
-        reloadList();
+        initialize();
     }
 
-    private void reloadList() {
-        source = factory.create();
-        size = count = countItems(source);
+    private void initialize() {
+        if (factory == null) {
+            source = null;
+            size = count = 0;
+        } else {
+            source = factory.create();
+            size = count = countItems(source);
+        }
     }
 
     // Restore original index in the DataSet
@@ -75,9 +87,8 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
         final int slot = PagingCache.slot(identifier);
         ArrayList<Value> page = (cache[slot] != null ? cache[slot].page(header) : null);
 
-        if (page == null) {
-            @SuppressLint("RestrictedApi")
-            final ArrayList<Value> data = loadRange(source, header, pagesize);
+        if ((page == null) && (source != null)) {
+            @SuppressLint("RestrictedApi") final ArrayList<Value> data = loadRange(source, header, pagesize);
             cache[slot] = new PagingCache<Value>(header, data);
             page = cache[slot].page(header);
         }
@@ -161,29 +172,36 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
 
     public void commit(Commit<Value> listener) {
         if (delete.size() > 0) {
-            @SuppressWarnings("unchecked")
-            final Value[] deletes = (Value[]) Array.newInstance(
-                    retrieve(delete.keyAt(0)).getClass(), delete.size());
-            for (int i = 0, j = delete.size() - 1; j >= 0; i++, j--) {
-                deletes[i] = retrieve(delete.keyAt(j));
-            }
-            listener.delete(deletes);
+            listener.delete(getDeletes());
             delete.clear();
         }
 
         if (update.size() > 0) {
-            @SuppressWarnings("unchecked")
-            final Value[] updates = (Value[]) Array.newInstance(
-                    update.valueAt(0).getClass(), update.size());
-            for (int i = 0, j = update.size() - 1; j >= 0; i++, j--) {
-                updates[i] = update.valueAt(j);
-            }
-            listener.renew(updates);
+            listener.renew(getUpdates());
             update.clear();
         }
 
         Arrays.fill(cache, null);
-        reloadList();
+        initialize();
+    }
+
+    protected Value[] getDeletes() {
+        @SuppressWarnings("unchecked") final Value[] deletes = (Value[]) Array.newInstance(
+                retrieve(delete.keyAt(0)).getClass(), delete.size());
+        for (int i = 0, j = delete.size() - 1; j >= 0; i++, j--) {
+            deletes[i] = retrieve(delete.keyAt(j));
+        }
+        return deletes;
+    }
+
+    protected Value[] getUpdates() {
+        @SuppressWarnings("unchecked")
+        final Value[] updates = (Value[]) Array.newInstance(
+                update.valueAt(0).getClass(), update.size());
+        for (int i = 0, j = update.size() - 1; j >= 0; i++, j--) {
+            updates[i] = update.valueAt(j);
+        }
+        return updates;
     }
 
     public void rollback() {

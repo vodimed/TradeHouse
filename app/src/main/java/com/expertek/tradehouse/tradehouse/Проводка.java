@@ -6,9 +6,9 @@ import com.common.extensions.database.Formatter;
 import com.common.extensions.database.PagingList;
 import com.expertek.tradehouse.Application;
 import com.expertek.tradehouse.documents.DBDocuments;
-import com.expertek.tradehouse.documents.entity.document;
-import com.expertek.tradehouse.documents.entity.line;
-import com.expertek.tradehouse.documents.entity.markline;
+import com.expertek.tradehouse.documents.entity.Document;
+import com.expertek.tradehouse.documents.entity.Line;
+import com.expertek.tradehouse.documents.entity.Markline;
 
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlSerializer;
@@ -20,13 +20,13 @@ import java.net.HttpURLConnection;
 
 public class Проводка extends TradeHouseTask {
     private final DBDocuments dbd = Application.documents.db();
-    private document export = null;
+    private Document export = null;
 
     @Override
     public Bundle call() throws Exception {
         final Bundle result = new Bundle();
 
-        export = (document) params.getSerializable(document.class.getName());
+        export = (Document) params.getSerializable(Document.class.getName());
 
         connection.connect();
         request(connection.getOutputStream(), export.DocType.startsWith("Inv") ? REQ_INVENTORY : REQ_WAYBILL);
@@ -39,7 +39,7 @@ public class Проводка extends TradeHouseTask {
             response(connection.getInputStream(), result);
         }
         export.Complete = false;
-        result.putSerializable(document.class.getName(), export);
+        result.putSerializable(Document.class.getName(), export);
         return result;
     }
 
@@ -49,15 +49,15 @@ public class Проводка extends TradeHouseTask {
         serialize(export, serializer);
         serializer.endTag("", "header");
 
-        final PagingList<line> lines = new PagingList<line>(dbd.lines().loadByDocument(export.DocName));
-        for (line line : lines) {
+        final PagingList<Line> lines = new PagingList<Line>(dbd.lines().load(export.DocName));
+        for (Line line : lines) {
             serializer.startTag("", "line");
             serialize(line, serializer);
             serializer.endTag("", "line");
         }
 
-        final PagingList<markline> marklines = new PagingList<markline>(dbd.marklines().loadByDocument(export.DocName));
-        for (markline markline : marklines) {
+        final PagingList<Markline> marklines = new PagingList<Markline>(dbd.marklines().load(export.DocName, null));
+        for (Markline markline : marklines) {
             serializer.startTag("", "MarkLines");
             serialize(markline, serializer);
             serializer.endTag("", "MarkLines");

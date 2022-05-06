@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteStatement;
 import androidx.paging.DataSource;
 
 import com.common.extensions.database.SQLitePager;
-import com.expertek.tradehouse.documents.entity.line;
+import com.expertek.tradehouse.documents.entity.Line;
 
 import java.util.List;
 
@@ -18,18 +18,18 @@ public class Lines {
         this.db = db;
     }
 
-    public DataSource.Factory<Integer, line> load() {
-        return new SQLitePager.Factory<>(db, line.class, "SELECT * FROM MT_lines");
+    public DataSource.Factory<Integer, Line> load() {
+        return new SQLitePager.Factory<>(db, Line.class, "SELECT * FROM MT_lines");
     }
 
-    public DataSource.Factory<Integer, line> loadByDocument(String docName) {
-        return new SQLitePager.Factory<>(db, line.class, "SELECT * FROM MT_lines WHERE DocName = :docName", docName);
+    public DataSource.Factory<Integer, Line> load(String docName) {
+        return new SQLitePager.Factory<>(db, Line.class, "SELECT * FROM MT_lines WHERE DocName = :docName", docName);
     }
 
-    public line get(int ident) {
-        final DataSource<Integer, line> source = new SQLitePager.Factory<>(db, line.class,
+    public Line get(int ident) {
+        final DataSource<Integer, Line> source = new SQLitePager.Factory<>(db, Line.class,
                 "SELECT * FROM MT_lines WHERE LineID = :ident", ident).create();
-        final List<line> result = ((SQLitePager<line>) source).loadRange(0, 1);
+        final List<Line> result = ((SQLitePager<Line>) source).loadRange(0, 1);
         if (result.isEmpty()) return null;
         return result.get(0);
     }
@@ -39,9 +39,9 @@ public class Lines {
         return stmt.simpleQueryForLong();
     }
 
-    public void insert(line... objects) {
+    public void insert(Line... objects) {
         final ContentValues map = new ContentValues();
-        for (line line : objects) {
+        for (Line line : objects) {
             map.clear();
             map.put("LineID", line.LineID);
             map.put("DocName", line.DocName);
@@ -60,9 +60,9 @@ public class Lines {
         }
     }
 
-    public void delete(line... objects) {
+    public void delete(Line... objects) {
         final String[] LineID = new String[1];
-        for (line line : objects) {
+        for (Line line : objects) {
             LineID[0] = String.valueOf(line.LineID);
             db.delete("MT_lines", "LineID = :LineID", LineID);
         }

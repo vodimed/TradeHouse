@@ -19,13 +19,15 @@ import com.common.extensions.database.Formatter;
 import com.common.extensions.database.PagingList;
 import com.common.extensions.exchange.ServiceConnector;
 import com.common.extensions.exchange.ServiceInterface;
+import com.expertek.tradehouse.components.BarcodeMarker;
+import com.expertek.tradehouse.components.BarcodeProcessor;
 import com.expertek.tradehouse.components.BarcodeScanner;
 import com.expertek.tradehouse.components.Dialogue;
 import com.expertek.tradehouse.components.Logger;
-import com.expertek.tradehouse.components.Marker;
 import com.expertek.tradehouse.documents.DBDocuments;
-import com.expertek.tradehouse.documents.entity.document;
-import com.expertek.tradehouse.documents.entity.line;
+import com.expertek.tradehouse.documents.entity.Document;
+import com.expertek.tradehouse.documents.entity.Line;
+import com.expertek.tradehouse.documents.entity.Markline;
 import com.expertek.tradehouse.tradehouse.TradeHouseService;
 import com.expertek.tradehouse.tradehouse.Проводка;
 
@@ -36,9 +38,8 @@ public class DocumentActivity extends Activity {
     public static final int REQUEST_EDIT_DOCUMENT = 2;
     public static final int REQUEST_DELETE_DOCUMENT = 3;
     private final DBDocuments dbd = Application.documents.db();
-    protected final long firstLineId = dbd.lines().getNextId();
-    protected PagingList<line> lines = null;
-    protected document document = null;
+    private BarcodeProcessor processor = null;
+    protected Document document = null;
     private ListView listLine = null;
     private TextView editSummary = null;
     private Button buttonAdd = null;
@@ -52,8 +53,9 @@ public class DocumentActivity extends Activity {
         setContentView(R.layout.document_activity);
 
         // Retrieve Activity parameters
-        document = (document) getIntent().getSerializableExtra(document.class.getName());
-        lines = new PagingList<line>(dbd.lines().loadByDocument(document.DocName));
+        document = (Document) getIntent().getSerializableExtra(Document.class.getName());
+        final PagingList<Line> lines = new PagingList<Line>(dbd.lines().load(document.DocName));
+        processor = new BarcodeProcessor(document, lines);
 
         // Register Service
         tradehouse.registerService(false);
@@ -88,7 +90,7 @@ public class DocumentActivity extends Activity {
         buttonSave.setOnClickListener(onClickAction);
         buttonSend.setOnClickListener(onClickAction);
 
-        buttonAdd.setEnabled(document.isEditable());
+        buttonAdd.setEnabled(!document.isReadonly());
         onLineSelection.onNothingSelected(null);
     }
 
@@ -114,17 +116,12 @@ public class DocumentActivity extends Activity {
     private final BarcodeScanner scanner = new BarcodeScanner() {
         @Override
         protected void onBarcodeDetect(String scanned) {
-            final Marker marker = new Marker(scanned);
-            if (marker.isWellformed()) {
-                for (int i = 0; i < lines.size(); i++) {
-                    if (lines.get(i).BC.equals(marker.gtin)) {
-                        actionEdit(i);
-                        return;
-                    }
-                }
-                actionAdd(marker);
-            } else {
-                Dialogue.Error(DocumentActivity.this, R.string.barcode_prompt);
+            final int position = processor.add(DocumentActivity.this, new BarcodeMarker(scanned));
+            if (position == BarcodeProcessor.SINGLETON_LIST) {
+                actionAdd();
+            } else if (position != BarcodeProcessor.ERROR_VALUE) {
+                listLine.setItemChecked(position, true);
+                actionEdit();
             }
         }
     };
@@ -133,14 +130,18 @@ public class DocumentActivity extends Activity {
         @Override
         public void onClick(View v) {
             if (buttonAdd.equals(v)) {
-                actionAdd(null);
+                processor.createLine();
+                actionAdd();
             } else if (buttonSave.equals(v)) {
                 actionSave();
             } else if (buttonSend.equals(v)) {
                 actionSend();
             } else if (buttonEdit.equals(v)) {
                 final int position = listLine.getCheckedItemPosition();
-                if (position != AdapterInterface.INVALID_POSITION) actionEdit(position);
+                if (position != AdapterInterface.INVALID_POSITION) {
+                    processor.setLine((Line) listLine.getAdapter().getItem(position));
+                    actionEdit();
+                }
             }
         }
     };
@@ -148,80 +149,73 @@ public class DocumentActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != RESULT_OK) return;
-        final line line = (line) data.getSerializableExtra(line.class.getName());
-
-        switch (requestCode) {
-            case PositionActivity.REQUEST_ADD_POSITION:
-                lines.add(line);
-                listLine.requestFocusFromTouch();
-                listLine.clearFocus();
-                listLine.setSelection(lines.size() - 1);
-                break;
-            case PositionActivity.REQUEST_EDIT_POSITION:
-                final int position = listLine.getCheckedItemPosition();
-                final line oldline = lines.get(position);
-                document.FactSum -= oldline.FactQnty * oldline.Price;
-                lines.set(position, line);
-                break;
-        }
-
-        document.FactSum += line.FactQnty * line.Price;
+        processor.apply(data.getParcelableExtra(BarcodeProcessor.class.getName()));
+        final int position = processor.setLine(processor.getLine());
         editSummary.setText(Formatter.Currency.format(document.FactSum));
+
+        if (position != listLine.getCheckedItemPosition()) {
+            listLine.requestFocusFromTouch();
+            listLine.clearFocus();
+            listLine.setSelection(position);
+        }
     }
 
-    private void actionAdd(Marker marker) {
-        final line line = new line();
-        line.DocName = document.DocName;
-        line.LineID = (int) firstLineId + lines.size();
-        line.Pos = lines.size() + 1;
-        actionAdd(line, marker);
-    }
-
-    protected void actionAdd(line line, Marker marker) {
+    protected void actionAdd() {
         final Intent intent = new Intent(DocumentActivity.this, PositionActivity.class);
-        intent.putExtra("Inv", document.DocType.startsWith("Inv"));
-        intent.putExtra(line.class.getName(), line);
-        intent.putExtra(Marker.class.getName(), marker);
+        intent.putExtra(BarcodeProcessor.class.getName(), processor);
         startActivityForResult(intent, PositionActivity.REQUEST_ADD_POSITION);
     }
 
-    protected void actionEdit(int position) {
+    protected void actionEdit() {
         final Intent intent = new Intent(DocumentActivity.this, PositionActivity.class);
-        intent.putExtra("Inv", document.DocType.startsWith("Inv"));
-        intent.putExtra(line.class.getName(), lines.get(position));
+        intent.putExtra(BarcodeProcessor.class.getName(), processor);
         startActivityForResult(intent, PositionActivity.REQUEST_EDIT_POSITION);
     }
 
     protected void actionSave() {
         try {
-            lines.commit(new PagingList.Commit<line>() {
+            ((PagingList<Line>) processor.lines).commit(new PagingList.Commit<Line>() {
                 @Override
-                public void renew(line[] objects) {
+                public void renew(Line[] objects) {
                     dbd.lines().insert(objects);
                 }
 
                 @Override
-                public void delete(line[] objects) {
+                public void delete(Line[] objects) {
                     dbd.lines().delete(objects);
                 }
             });
+
+            if (processor.marklines != null) {
+                ((PagingList<Markline>) processor.marklines).commit(new PagingList.Commit<Markline>() {
+                    @Override
+                    public void renew(Markline[] objects) {
+                        dbd.marklines().insert(objects);
+                    }
+
+                    @Override
+                    public void delete(Markline[] objects) {
+                        dbd.marklines().delete(objects);
+                    }
+                });
+            }
         } catch (Exception e) {
             Dialogue.Error(this, e);
             return;
         }
 
         final Intent intent = new Intent();
-        intent.putExtra(document.class.getName(), document);
+        intent.putExtra(Document.class.getName(), document);
 
         setResult(RESULT_OK, intent);
         finish();
     }
 
     protected void actionSend() {
-        final document export = document;
+        final Document export = document;
         if (!export.isComplete()) return;
         final Bundle params = new Bundle();
-        params.putSerializable(document.class.getName(), export);
+        params.putSerializable(Document.class.getName(), export);
         tradehouse.enqueue(new ServiceInterface.JobInfo(1, Проводка.class, tradehouse.receiver()), params);
     }
 
@@ -242,7 +236,7 @@ public class DocumentActivity extends Activity {
     /**
      * ListView data Adapter: list of Invoice entries
      */
-    protected static class LineAdapter extends AdapterTemplate<line> {
+    protected static class LineAdapter extends AdapterTemplate<Line> {
         public LineAdapter(Context context, @NonNull int... layout) {
             super(context, layout);
             setHasStableIds(true);
@@ -257,7 +251,7 @@ public class DocumentActivity extends Activity {
         @Override
         public void onBindViewHolder(@NonNull Holder holder, int position) {
             final View owner = holder.getView();
-            final line line = getItem(position);
+            final Line line = getItem(position);
 
             final TextView textPos = owner.findViewById(R.id.textPos);
             final TextView textGoodsName = owner.findViewById(R.id.textGoodsName);
@@ -275,10 +269,10 @@ public class DocumentActivity extends Activity {
         }
 
         @Override
-        public line getItem(int position) {
+        public Line getItem(int position) {
             final Object dataset = getDataSet();
             if (dataset instanceof List<?>) {
-                return (line) ((List<?>) dataset).get(position);
+                return (Line) ((List<?>) dataset).get(position);
             } else {
                 return null;
             }
@@ -287,7 +281,7 @@ public class DocumentActivity extends Activity {
         @Override
         public long getItemId(int position) {
             if (position < 0 || position >= getCount()) return INVALID_ROW_ID;
-            final line item = getItem(position);
+            final Line item = getItem(position);
             if (item == null) return INVALID_ROW_ID;
             return getItem(position).LineID;
         }
@@ -296,7 +290,8 @@ public class DocumentActivity extends Activity {
     private final ServiceConnector tradehouse = new ServiceConnector(this, TradeHouseService.class) {
         @Override
         public void onJobResult(@NonNull ServiceInterface.JobInfo work, Bundle result) {
-            document = (document) result.getSerializable(document.class.getName());
+            assert (result != null);
+            document = (Document) result.getSerializable(Document.class.getName());
             actionSave();
         }
 

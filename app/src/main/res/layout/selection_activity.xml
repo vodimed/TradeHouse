@@ -58,8 +58,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center_horizontal"
-            android:paddingTop="@dimen/invc_pagging"
-            android:drawablePadding="@dimen/invc_spacing"
+            android:paddingTop="@dimen/btn_pagging"
+            android:drawablePadding="@dimen/btn_spacing"
             android:text="@string/create"
             android:drawableTop="@drawable/wb_new_1_create" />
         <Button
@@ -68,8 +68,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center_horizontal"
-            android:paddingTop="@dimen/invc_pagging"
-            android:drawablePadding="@dimen/invc_spacing"
+            android:paddingTop="@dimen/btn_pagging"
+            android:drawablePadding="@dimen/btn_spacing"
             android:text="@string/edit"
             android:drawableTop="@drawable/saved_1_edit" />
         <Button
@@ -78,8 +78,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center_horizontal"
-            android:paddingTop="@dimen/invc_pagging"
-            android:drawablePadding="@dimen/invc_spacing"
+            android:paddingTop="@dimen/btn_pagging"
+            android:drawablePadding="@dimen/btn_spacing"
             android:text="@string/delete"
             android:drawableTop="@drawable/saved_2_delete" />
         <Button
@@ -88,8 +88,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center_horizontal"
-            android:paddingTop="@dimen/invc_pagging"
-            android:drawablePadding="@dimen/invc_spacing"
+            android:paddingTop="@dimen/btn_pagging"
+            android:drawablePadding="@dimen/btn_spacing"
             android:text="@string/send"
             android:drawableTop="@drawable/saved_3_repeat" />
     </LinearLayout>

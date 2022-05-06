@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!--Application-->
     <string name="app_name">Терминал сбора данных</string>
     <string name="service_tradehouse">Сервис обмена с TradeHouse</string>
     <string name="CHANNEL_ID">tradehouse.notification.service</string>
-    <string name="msgServiceNotification">Открыть менеджер обмена с TradeHouse</string>
+    <string name="serviceNotification">Открыть менеджер обмена с TradeHouse</string>
+
     <string name="create">Создать</string>
     <string name="add">Ещё</string>
     <string name="edit">Править</string>
@@ -161,6 +163,31 @@
         <item>@android:drawable/ic_media_pause</item>
     </integer-array>
 -->
+
+    <!--PositionActivity-->
+    <string name="msg_data_incorrect">Некорректный формат введенных данных</string>
+    <string name="msg_quantity_mismatch">Фактическое количество не должно быть больше документарного</string>
+    <string name="msg_bar_incorrect">Сканирован неверный штрих-код</string>
+    <string name="msg_bar_not_found">Штрих-код не найден в справочнике товаров. Обновите справочники</string>
+    <string name="msg_bar_line_wrong">Штрих-код не соответствует выбранной линии</string>
+    <string name="msg_good_absent">Товар отсутствует в документе</string>
+    <string name="msg_mark_absent">Марка отсутствует в документе</string>
+    <string name="msg_scan_pack">Сканируйте упаковку</string>
+    <string name="msg_already_scanned">Марка уже просканирована</string>
+    <string name="msg_ungroupped">Упаковка разгруппирована</string>
+    <string name="msg_not_allowed">Товар не подлежит приемке, т.к. не прошел проверку на корректность</string>
+    <!--    <string name="_msg_gtin_not_found">GTIN не найден в справочнике товаров. Обновите справочники</string>-->
+<!--    <string name="_msg_goodmark_absent">Товар c GTIN: %s отсутствует в документе</string>-->
+    <string name="_msg_scan_item">Сканируйте пачку блока</string>
+    <string name="_msg_pack_only">Допустимо только полное сканирование блока</string>
+    <string name="_msg_mark_line_absent">Марка отсутствует в документе по выбранной линии</string>
+<!--    <string name="_msg_choose_line">Выберите линию товара на изменение</string>-->
+<!--    <string name="_msg_select_line">Выберите линию по товару для редактирования</string>-->
+    <string name="_msg_already_accepted">Марка уже присутствует в документе</string>
+    <string name="_msg_pack_unable">Невозможно распределить пачку в блоке</string>
+    <string name="_msg_pack_wrong">Пачка принадлежит другому блоку</string>
+    <string name="_msg_grayzone_item">Маркировка пачки серой зоны. Вначале сканируйте блок</string>
+    <string name="_msg_grayzone">Маркировка серой зоны. Сканируйте в режиме редактирования документа</string>
 
     <!--BarcodeActivity-->
     <string name="barcode_prompt">Сканируйте или введите штрих-код</string>

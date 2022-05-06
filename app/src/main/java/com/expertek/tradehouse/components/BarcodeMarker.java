@@ -1,19 +1,20 @@
 package com.expertek.tradehouse.components;
 
-import android.util.ArraySet;
-
 import java.io.Serializable;
-import java.util.Set;
+import java.util.Arrays;
+import java.util.List;
 
-public class Marker implements Serializable {
-    private static final Set<String> pref = new ArraySet<String>(new String[]{"01", "02"});
+public class BarcodeMarker implements Serializable {
+    private static final List<String> pref = Arrays.asList("01", "02");
     public final String scanned;
     public final String gtin;
     public final String serial;
     public final double weight;
     private boolean valid = true;
 
-    public Marker(String scanned) {
+    public BarcodeMarker(String scanned) {
+        if ((scanned.length() > 4) && (scanned.charAt(0) == '('))
+            scanned = scanned.substring(1, 3) + scanned.substring(4);
         this.scanned = scanned;
 
         switch (scanned.length()) {
@@ -96,13 +97,14 @@ public class Marker implements Serializable {
             default:
                 valid &= (scanned.length() >= 12);
                 if (valid && MainSettings.BarcodePrefixes.contains(scanned.substring(0, 2))) {
-                    gtin = scanned.substring(2, 7);
-                    serial = null;
+                    gtin = scanned.substring(2, 7); // Storage::GetBCInfo
+                    serial = "";
                     weight = ((double) Integer.parseInt(scanned.substring(7, 12))) / 1000;
                 } else {
+                    //TODO: Storage::GetCodeIdent (?)
                     valid &= (scanned.length() <= 68);
                     gtin = scanned;
-                    serial = null;
+                    serial = "";
                     weight = 1;
                 }
         }

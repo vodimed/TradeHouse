@@ -6,25 +6,25 @@ import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 
-import com.expertek.tradehouse.documents.entity.markline;
+import com.expertek.tradehouse.documents.entity.Markline;
 
 @Dao
 public interface Marklines {
     @Query("SELECT * FROM MT_MarkLines")
-    DataSource.Factory<Integer, markline> load();
+    DataSource.Factory<Integer, Markline> load();
 
-    @Query("SELECT * FROM MT_MarkLines WHERE DocName = :docName")
-    DataSource.Factory<Integer, markline> loadByDocument(String docName);
+    @Query("SELECT * FROM MT_MarkLines WHERE DocName = :docName AND (PartIDTH = :partIDTH OR :partIDTH IS NULL)")
+    DataSource.Factory<Integer, Markline> load(String docName, String partIDTH);
 
     @Query("SELECT * FROM MT_MarkLines WHERE LineID = :ident")
-    markline get(int ident);
+    Markline get(int ident);
 
     @Query("SELECT IFNULL(MAX(LineID), 0) + 1 FROM MT_MarkLines")
     long getNextId();
 
     @Insert
-    void insert(markline... objects);
+    void insert(Markline... objects);
 
     @Delete
-    void delete(markline... objects);
+    void delete(Markline... objects);
 }

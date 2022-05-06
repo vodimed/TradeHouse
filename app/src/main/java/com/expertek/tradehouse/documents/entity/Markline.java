@@ -1,6 +1,7 @@
 package com.expertek.tradehouse.documents.entity;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.common.extensions.database.Entity;
 import com.common.extensions.database.Index;
@@ -17,7 +18,7 @@ import java.io.Serializable;
         @Index(name = "markline", value = {"LineID", "MarkCode"}, unique = true),
         @Index(name = "pi", value = {"DocName", "MarkCode"}) // redundant
 })
-public class markline implements Serializable {
+public class Markline implements Serializable {
     @PrimaryKey(autoGenerate = true)
     public @NonNull int LineID; // Уникальный счетчик
     public @NonNull String DocName = ""; // Идентификатор-имя документа
@@ -26,4 +27,10 @@ public class markline implements Serializable {
     public String Sts; // Статус марки
     public String MarkParent; // Родительская марка
     public int BoxQnty; // Кол-во дочерних марок (кол-во в бл., упаков.)
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        assert (obj instanceof Markline);
+        return (LineID == ((Markline) obj).LineID);
+    }
 }

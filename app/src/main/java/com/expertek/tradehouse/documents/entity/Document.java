@@ -1,6 +1,7 @@
 package com.expertek.tradehouse.documents.entity;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.common.extensions.database.Entity;
 import com.common.extensions.database.Index;
@@ -15,7 +16,7 @@ import java.util.List;
 
 @Entity(tableName = "MT_documents", indices = {
         @Index(name = "docNameDoc", value = {"DocName", "DocType"}, unique = true)})
-public class document implements Serializable {
+public class Document implements Serializable {
     @PrimaryKey
     public @NonNull String DocName = ""; // Идентификатор-имя документа
     public String DocType; // Тип документа (приход, расход, возврат)
@@ -32,6 +33,15 @@ public class document implements Serializable {
     public Date StartDate; // Дата документа
     public int Flags; // Битовый флаги означающие различные свойства документа в формате int
 
+    public static final String INV = "Inv";
+    public static final String INV_MARKS = "InvMarks";
+    public static final String INV_INTRODUCE = "InvIntroduce";
+    public static final String INTRODUCE = "Introduce";
+    public static final String UTD = "UTD";
+    private static final List<String> readonlytype = Arrays.asList(UTD, INV_MARKS, INV_INTRODUCE);
+    private static final List<String> readonlystat = Arrays.asList("разрешен+", "накл+");
+    private static final List<String> thousestat = Arrays.asList("НАКЛ+", "РАЗР+", "накл+", "накл-", "разр+");
+
     @Override
     @NonNull
     public String toString() {
@@ -40,6 +50,12 @@ public class document implements Serializable {
             if (doctype.startsWith(documentType)) documentType = doctype.split("\\|")[1];
         }
         return "Документ: " + DocName + ", " + documentType;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        assert (obj instanceof Document);
+        return DocName.equals(((Document) obj).DocName);
     }
 
     public String getNextId(String lastId) {
@@ -57,9 +73,19 @@ public class document implements Serializable {
         return Complete;
     }
 
-    public boolean isEditable() {
-        final List<String> editabletype = Arrays.asList("UTD", "InvMarks", "InvIntroduce");
-        final List<String> editablestat = Arrays.asList("разрешен+", "накл+");
-        return (editabletype.contains(DocType) || editablestat.contains(Status)) || true;
+    public boolean isMarkline() {
+        return ((Flags & 0x1) == 0x1);
+    }
+
+    public boolean isInventory() {
+        return DocType.startsWith(INV);
+    }
+
+    public boolean isReadonly() {
+        return (readonlytype.contains(DocType) || readonlystat.contains(Status));
+    }
+
+    public boolean isTreadHouse() {
+        return (DocType.equals(INV) || thousestat.contains(Status));
     }
 }

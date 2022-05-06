@@ -8,7 +8,7 @@ import androidx.paging.DataSource;
 
 import com.common.extensions.database.SQLitePager;
 import com.common.extensions.database.SQLiteSchema;
-import com.expertek.tradehouse.documents.entity.document;
+import com.expertek.tradehouse.documents.entity.Document;
 
 import java.util.Arrays;
 import java.util.List;
@@ -21,25 +21,25 @@ public class Documents {
         this.db = db;
     }
 
-    public DataSource.Factory<Integer, document> load() {
-        return new SQLitePager.Factory<>(db, document.class, "SELECT * FROM MT_documents");
+    public DataSource.Factory<Integer, Document> load() {
+        return new SQLitePager.Factory<>(db, Document.class, "SELECT * FROM MT_documents");
     }
 
-    public DataSource.Factory<Integer, document> loadByDocType(String... docType) {
+    public DataSource.Factory<Integer, Document> load(String... docType) {
         if ((docType == null) || (docType.length <= 0) || docType[0].equals("*")) return load();
 
         final String[] docParams = new String[maxpar];
         Arrays.fill(docParams, docType[0]);
         System.arraycopy(docType, 0, docParams, 0, docType.length);
 
-        return new SQLitePager.Factory<>(db, document.class, "SELECT * FROM MT_documents " +
-                "WHERE DocType IN (:t0,:t1,:t2,:t3,:t4,:t5,:t6,:t7,:t8,:t9)", docParams);
+        return new SQLitePager.Factory<>(db, Document.class, "SELECT * FROM MT_documents " +
+                "WHERE DocType IN (:t0,:t1,:t2,:t3,:t4,:t5,:t6,:t7,:t8,:t9)", (Object[]) docParams);
     }
 
-    public document get(String ident) {
-        final DataSource<Integer, document> source = new SQLitePager.Factory<>(db, document.class,
+    public Document get(String ident) {
+        final DataSource<Integer, Document> source = new SQLitePager.Factory<>(db, Document.class,
                 "SELECT * FROM MT_documents WHERE DocName = :ident", ident).create();
-        final List<document> result = ((SQLitePager<document>) source).loadRange(0, 1);
+        final List<Document> result = ((SQLitePager<Document>) source).loadRange(0, 1);
         if (result.isEmpty()) return null;
         return result.get(0);
     }
@@ -73,9 +73,9 @@ public class Documents {
         }
     }
 
-    public void insert(document... objects) {
+    public void insert(Document... objects) {
         final ContentValues map = new ContentValues();
-        for (document document : objects) {
+        for (Document document : objects) {
             map.clear();
             map.put("DocName", document.DocName);
             map.put("DocType", document.DocType);
@@ -94,9 +94,9 @@ public class Documents {
         }
     }
 
-    public void delete(document... objects) {
+    public void delete(Document... objects) {
         final String[] DocName = new String[1];
-        for (document document : objects) {
+        for (Document document : objects) {
             DocName[0] = document.DocName;
             db.delete("MT_documents", "DocName = :DocName", DocName);
         }

@@ -4,7 +4,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Color;
 
-import com.expertek.tradehouse.dictionaries.entity.object;
+import com.expertek.tradehouse.dictionaries.entity.Obj;
 
 public class DocEditor {
     // Replace current DGTS with new one with Custom DGCS.
@@ -18,8 +18,8 @@ public class DocEditor {
     WidgetClosed =null;
     public DocumentsDataSet.MT_documentsRow CurrentDocument
     private DocumentsDataSet.MT_linesRow slctdLine = null;
-    private DocumentsDataSet.MT_MarkLinesRow markRow = null;
-    //private ArrayList marksWrite = new ArrayList();
+    private DocumentsDat.MT_MarkLinesRow markRow = null;
+    //private AtaSerrayList marksWrite = new ArrayList();
     private long pos = 1;
     private int NumLines = 0;
     private bool isMarksReg;
@@ -135,7 +135,7 @@ public class DocEditor {
     // TODO: cut off
     private long NextPos() // calculate next "Pos" for inserting
     {
-        object tmp = dv.Table.Compute("Max(Pos)",
+        Obj tmp = dv.Table.Compute("Max(Pos)",
                 "DocName = '" + currDoc.DocName + "'"
         );
         return (tmp == DBNull.Value ? 1 : (long) tmp + 1);
@@ -144,7 +144,7 @@ public class DocEditor {
     private double RefreshSum() // calculate current sum and store it
     {
         double sum;
-        object tmp = 0;
+        Obj tmp = 0;
         if (currDocType == "Inv") {
             using(MT_linesTableAdapter TA = new MT_linesTableAdapter())
             try {
@@ -351,6 +351,7 @@ public class DocEditor {
         bool isExists = false;
         vMarkShort = Storage.GetCodeIdent(bc);
 
+        // isEditable
         if (currDocType == Storage.DocTypes.UTD || currDocType == Storage.DocTypes.InvMarks || currDocType == Storage.DocTypes.InvIntro) {
             if (vMarkShort != "") {
                 bc = vMarkShort;
@@ -475,7 +476,7 @@ public class DocEditor {
                     return;
                 } else {
                     if (bc.Trim().Length == 68) {
-                        object tmp = null;
+                        Obj tmp = null;
                         using(MT_MarkLinesTableAdapter
                                 TA = new MT_MarkLinesTableAdapter())
                         try {
@@ -630,12 +631,12 @@ public class DocEditor {
         }
     }
 
-    private void buttonManualInput_Click(object sender, EventArgs e) // manInpBC
+    private void buttonManualInput_Click(Obj sender, EventArgs e) // manInpBC
     {
         manualBCInput1.ShowWidget();
     }
 
-    private void buttonEdit_Click(object sender, EventArgs e) // editCurr
+    private void buttonEdit_Click(Obj sender, EventArgs e) // editCurr
     {
         if (slctdLine == null) {
             return;
@@ -659,12 +660,12 @@ public class DocEditor {
         }
     }
 
-    private void buttonSave_Click(object sender, EventArgs e) // exit and save without sending
+    private void buttonSave_Click(Obj sender, EventArgs e) // exit and save without sending
     {
         CloseWidget();
     }
 
-    private void buttonFinish_Click(object sender, EventArgs e) // exit and send document
+    private void buttonFinish_Click(Obj sender, EventArgs e) // exit and send document
     {
         currDoc.Complete = true;
         using(MT_documentsTableAdapter TA = new MT_documentsTableAdapter(Program.storage.ConStrDoc)) {
@@ -677,67 +678,67 @@ public class DocEditor {
         CloseWidget();
     }
 
-    private void docLineEditor1_WidgetOpening(object sender, EventArgs e) {
+    private void docLineEditor1_WidgetOpening(Obj sender, EventArgs e) {
         SetModal(true);
         if (currDocType != Storage.DocTypes.Inv)
             Program.tsd.ScannerEnabled = false;
     }
 
-    private void docLineEditor1_WidgetClosed(object sender, EventArgs e) {
+    private void docLineEditor1_WidgetClosed(Obj sender, EventArgs e) {
         SetModal(false);
         Program.tsd.ScannerEnabled = true;
     }
 
-    private void docLineEditor1_LineDeleted(object sender, EventArgs e) {
+    private void docLineEditor1_LineDeleted(Obj sender, EventArgs e) {
         this.LoadDataInit();
         RefreshSum();
         TrySetCurLine(0);
     }
 
-    private void docLineEditor1_LineEdited(object sender, LineEditedEventArgs e) {
+    private void docLineEditor1_LineEdited(Obj sender, LineEditedEventArgs e) {
         RefreshSum();
     }
 
-    private void scanMarks1_WidgetClosed(object sender, EventArgs e) {
+    private void scanMarks1_WidgetClosed(Obj sender, EventArgs e) {
         isWaitMarks = false;
     }
 
-    private void scanMarks1_WidgetOpening(object sender, EventArgs e) {
+    private void scanMarks1_WidgetOpening(Obj sender, EventArgs e) {
         isWaitMarks = true;
     }
 
-    private void manualBCInput1_WidgetOpening(object sender, EventArgs e) {
+    private void manualBCInput1_WidgetOpening(Obj sender, EventArgs e) {
         SetModal(true);
     }
 
-    private void manualBCInput1_WidgetClosed(object sender, EventArgs e) {
+    private void manualBCInput1_WidgetClosed(Obj sender, EventArgs e) {
         SetModal(false);
         manualBCInput1.HideBtn = false;
         manualBCInput1.Option = "Введите штрих-код";
         //alcCode = "";
     }
 
-    private void manualBCInput1_InputAccepted(object o, InputEventArgs e) {
+    private void manualBCInput1_InputAccepted(Obj o, InputEventArgs e) {
         BC_processing(e.inputStr);
     }
 
     // hack for .net cf (replacement for "DataGrid.SelectionMode = FullRowMode" option)
-    private void dataGrid1_CurrentCellChanged(object sender, EventArgs e) {
+    private void dataGrid1_CurrentCellChanged(Obj sender, EventArgs e) {
         slctdLine = dv[dataGrid1.CurrentRowIndex].Row as DocumentsDataSet.MT_linesRow;
         dataGrid1.SelectOnlyRow(dataGrid1.CurrentRowIndex); // select whole line instead of cell
     }
 
-    private void docLineEditor1_Click(object sender, EventArgs e) {
+    private void docLineEditor1_Click(Obj sender, EventArgs e) {
     }
 
     private void msgshow(string arg) {
         MessageBox.Show(arg);
     }
 
-    private void lblTotalLabel_ParentChanged(object sender, EventArgs e) {
+    private void lblTotalLabel_ParentChanged(Obj sender, EventArgs e) {
     }
 
-    private void PageUpDown_ValueChanged(object sender, EventArgs e) {
+    private void PageUpDown_ValueChanged(Obj sender, EventArgs e) {
         this.LoadData();
     }
 
@@ -784,7 +785,7 @@ public class DocEditor {
         }
         RefreshSum();
         dataGrid1.ForceCurrentCellChangedEvent(
-                dv.Find(new object[]{editLineRow.DocName, editLineRow.Pos})
+                dv.Find(new Obj[]{editLineRow.DocName, editLineRow.Pos})
         ); // focus on just affected row
     }
 
@@ -867,7 +868,7 @@ public class DocEditor {
             TA.Connection = SQLConn;
 
             try {
-                object tmp = TA.CountMarkChild(ParentMark, currDoc.DocName);
+                Obj tmp = TA.CountMarkChild(ParentMark, currDoc.DocName);
                 double qntyMC = (tmp == DBNull.Value ? 0.0 : (long) tmp);
                 if (qntyMC >= 10) {
                     Program.tsd.ScannerEnabled = false;

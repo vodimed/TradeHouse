@@ -20,11 +20,11 @@ import com.common.extensions.database.AdapterInterface;
 import com.common.extensions.database.AdapterTemplate;
 import com.common.extensions.database.Formatter;
 import com.common.extensions.database.PagingList;
+import com.expertek.tradehouse.components.BarcodeMarker;
 import com.expertek.tradehouse.components.BarcodeScanner;
-import com.expertek.tradehouse.components.Marker;
 import com.expertek.tradehouse.dictionaries.DbDictionaries;
-import com.expertek.tradehouse.dictionaries.entity.barcode;
-import com.expertek.tradehouse.dictionaries.entity.good;
+import com.expertek.tradehouse.dictionaries.entity.Barcode;
+import com.expertek.tradehouse.dictionaries.entity.Good;
 
 import java.util.List;
 
@@ -48,8 +48,8 @@ public class BarcodeActivity extends Activity {
         buttonPrice.setOnTouchListener(onPriceTouch);
 
         editBarcode.setAdapter(new BarcodeAdapter(this, R.layout.barcode_lookup));
-        editBarcode.setOnEditorActionListener(onEnterBarcode);
-        editBarcode.setOnItemClickListener(onClickBarcode);
+        editBarcode.setOnEditorActionListener(autoCompleteHandler);
+        editBarcode.setOnItemClickListener(autoCompleteHandler);
     }
 
     @Override
@@ -91,9 +91,9 @@ public class BarcodeActivity extends Activity {
         }
     };
 
-    private void displayBarcode(barcode barcode) {
+    private void displayBarcode(Barcode barcode) {
         if (barcode != null) {
-            final good good = dbc.goods().get(barcode.GoodsID);
+            final Good good = dbc.goods().get(barcode.GoodsID);
             editName.setText(good != null ? good.Name : null);
             buttonPrice.setText(Formatter.Currency.format(barcode.PriceBC));
         } else {
@@ -105,7 +105,7 @@ public class BarcodeActivity extends Activity {
     private final BarcodeScanner scanner = new BarcodeScanner() {
         @Override
         public void onBarcodeDetect(String scanned) {
-            final Marker marker = new Marker(scanned);
+            final BarcodeMarker marker = new BarcodeMarker(scanned);
             editBarcode.setText(marker.gtin);
             displayBarcode(dbc.barcodes().get(marker.gtin));
          }
@@ -114,7 +114,7 @@ public class BarcodeActivity extends Activity {
     /**
      * ListView data Adapter: list of Barcodes
      */
-    protected static class BarcodeAdapter extends AdapterTemplate<barcode> implements Filterable {
+    protected static class BarcodeAdapter extends AdapterTemplate<Barcode> implements Filterable {
         private final DbDictionaries dbc = Application.dictionaries.db();
         private final BarcodeAdapter.BarcodeFilter filter = new BarcodeAdapter.BarcodeFilter();
 
@@ -132,21 +132,21 @@ public class BarcodeActivity extends Activity {
         @Override
         public void onBindViewHolder(@NonNull AdapterInterface.Holder holder, int position) {
             final View owner = holder.getView();
-            final barcode barcode = getItem(position);
+            final Barcode barcode = getItem(position);
 
             final TextView textBC = owner.findViewById(R.id.textBC);
             final TextView textName = owner.findViewById(R.id.textName);
 
             textBC.setText(barcode.BC);
-            final good good = dbc.goods().get(barcode.GoodsID);
+            final Good good = dbc.goods().get(barcode.GoodsID);
             textName.setText(good != null ? good.Name : null);
         }
 
         @Override
-        public barcode getItem(int position) {
+        public Barcode getItem(int position) {
             final Object dataset = getDataSet();
             if (dataset instanceof List<?>) {
-                return (barcode) ((List<?>) dataset).get(position);
+                return (Barcode) ((List<?>) dataset).get(position);
             } else {
                 return null;
             }
@@ -162,7 +162,7 @@ public class BarcodeActivity extends Activity {
             protected FilterResults performFiltering(CharSequence constraint) {
                 final FilterResults results = new FilterResults();
                 if (constraint != null) {
-                    final PagingList<barcode> barinfo = new PagingList<barcode>(dbc.barcodes().load(constraint.toString()));
+                    final PagingList<Barcode> barinfo = new PagingList<Barcode>(dbc.barcodes().load(constraint.toString()));
                     results.count = barinfo.size();
                     results.values = barinfo;
                 }
@@ -176,26 +176,33 @@ public class BarcodeActivity extends Activity {
 
             @Override
             public CharSequence convertResultToString(Object resultValue) {
-                return ((barcode) resultValue).BC;
+                return ((Barcode) resultValue).BC;
             }
         }
     }
 
-    private final AdapterView.OnItemClickListener onClickBarcode = new AdapterView.OnItemClickListener() {
+    private static class AutoCompleteHandler implements TextView.OnEditorActionListener, AdapterView.OnItemClickListener {
+        private final BarcodeActivity context;
+        private final DbDictionaries dbc;
+
+        public AutoCompleteHandler(BarcodeActivity context, DbDictionaries dbc) {
+            this.context = context;
+            this.dbc = dbc;
+        }
+
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            displayBarcode((barcode) parent.getItemAtPosition(position));
+            context.displayBarcode((Barcode) parent.getItemAtPosition(position));
         }
-    };
 
-    private final TextView.OnEditorActionListener onEnterBarcode = new TextView.OnEditorActionListener() {
         @Override
         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
             if (actionId == KeyEvent.KEYCODE_CALL) {
-                displayBarcode(dbc.barcodes().get(v.getText().toString()));
+                context.displayBarcode(dbc.barcodes().get(v.getText().toString()));
                 return true;
             }
             return false;
         }
-    };
+    }
+    private final AutoCompleteHandler autoCompleteHandler = new AutoCompleteHandler(this, dbc);
 }

@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteStatement;
 import androidx.paging.DataSource;
 
 import com.common.extensions.database.SQLitePager;
-import com.expertek.tradehouse.documents.entity.markline;
+import com.expertek.tradehouse.documents.entity.Markline;
 
 import java.util.List;
 
@@ -18,18 +18,19 @@ public class Marklines {
         this.db = db;
     }
 
-    public DataSource.Factory<Integer, markline> load() {
-        return new SQLitePager.Factory<>(db, markline.class, "SELECT * FROM MT_MarkLines");
+    public DataSource.Factory<Integer, Markline> load() {
+        return new SQLitePager.Factory<>(db, Markline.class, "SELECT * FROM MT_MarkLines");
     }
 
-    public DataSource.Factory<Integer, markline> loadByDocument(String docName) {
-        return new SQLitePager.Factory<>(db, markline.class, "SELECT * FROM MT_MarkLines WHERE DocName = :docName", docName);
+    public DataSource.Factory<Integer, Markline> load(String docName, String partIDTH) {
+        return new SQLitePager.Factory<>(db, Markline.class, "SELECT * FROM MT_MarkLines WHERE " +
+                "DocName = :docName AND (PartIDTH = :partIDTH OR :partIDTH IS NULL)", docName, partIDTH);
     }
 
-    public markline get(int ident) {
-        final DataSource<Integer, markline> source = new SQLitePager.Factory<>(db, markline.class,
+    public Markline get(int ident) {
+        final DataSource<Integer, Markline> source = new SQLitePager.Factory<>(db, Markline.class,
                 "SELECT * FROM MT_MarkLines WHERE LineID = :ident", ident).create();
-        final List<markline> result = ((SQLitePager<markline>) source).loadRange(0, 1);
+        final List<Markline> result = ((SQLitePager<Markline>) source).loadRange(0, 1);
         if (result.isEmpty()) return null;
         return result.get(0);
     }
@@ -39,9 +40,9 @@ public class Marklines {
         return stmt.simpleQueryForLong();
     }
 
-    public void insert(markline... objects) {
+    public void insert(Markline... objects) {
         final ContentValues map = new ContentValues();
-        for (markline markline : objects) {
+        for (Markline markline : objects) {
             map.clear();
             map.put("LineID", markline.LineID);
             map.put("DocName", markline.DocName);
@@ -54,9 +55,9 @@ public class Marklines {
         }
     }
 
-    public void delete(markline... objects) {
+    public void delete(Markline... objects) {
         final String[] LineID = new String[1];
-        for (markline markline : objects) {
+        for (Markline markline : objects) {
             LineID[0] = String.valueOf(markline.LineID);
             db.delete("MT_MarkLines", "LineID = :LineID", LineID);
         }

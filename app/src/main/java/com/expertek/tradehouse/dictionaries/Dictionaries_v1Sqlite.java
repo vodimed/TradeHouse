@@ -9,14 +9,14 @@ import com.common.extensions.database.SQLiteSchema;
 import com.expertek.tradehouse.dictionaries.sqlite.Barcodes;
 import com.expertek.tradehouse.dictionaries.sqlite.Clients;
 import com.expertek.tradehouse.dictionaries.sqlite.Goods;
-import com.expertek.tradehouse.dictionaries.sqlite.Objects;
+import com.expertek.tradehouse.dictionaries.sqlite.Objs;
 import com.expertek.tradehouse.dictionaries.sqlite.Users;
 
 public class Dictionaries_v1Sqlite extends SQLiteSchema.DB implements DbDictionaries {
     private final Barcodes barcodes;
     private final Clients clients;
     private final Goods goods;
-    private final Objects objects;
+    private final Objs objects;
     private final Users users;
 
     public Dictionaries_v1Sqlite(@NonNull String path) {
@@ -24,7 +24,7 @@ public class Dictionaries_v1Sqlite extends SQLiteSchema.DB implements DbDictiona
         barcodes = new Barcodes(db);
         clients = new Clients(db);
         goods = new Goods(db);
-        objects = new Objects(db);
+        objects = new Objs(db);
         users = new Users(db);
     }
 
@@ -37,7 +37,7 @@ public class Dictionaries_v1Sqlite extends SQLiteSchema.DB implements DbDictiona
     public Goods goods() {
         return goods;
     }
-    public Objects objects() {
+    public Objs objects() {
         return objects;
     }
     public Users users() {

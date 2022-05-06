@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="com.expertek.tradehouse"
     android:versionCode="197000026"
     android:versionName="1.97.00.0026">
@@ -69,7 +68,7 @@
         <activity android:name=".PositionActivity" />
         <activity android:name=".DocumentActivity" />
         <activity android:name=".CreationActivity" />
-        <activity android:name=".SelectionActivity" />
+        <activity android:name=".InvoicesActivity" />
         <activity android:name=".BarcodeActivity" />
         <activity android:name=".DictionariesActivity" />
         <activity android:name=".SettingsActivity" />

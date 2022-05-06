@@ -15,15 +15,15 @@ import androidx.annotation.NonNull;
 import com.common.extensions.database.AdapterTemplate;
 import com.common.extensions.database.PagingList;
 import com.expertek.tradehouse.dictionaries.DbDictionaries;
-import com.expertek.tradehouse.dictionaries.entity.client;
-import com.expertek.tradehouse.documents.entity.document;
+import com.expertek.tradehouse.dictionaries.entity.Client;
+import com.expertek.tradehouse.documents.entity.Document;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class CreationActivity extends Activity {
     private final DbDictionaries dbc = Application.dictionaries.db();
-    private document document = null;
+    private Document document = null;
     private InvoiceTypeAdapter adapterType = null;
     private ClientAdapter adapterClient = null;
     private Button buttonCreate = null;
@@ -35,7 +35,7 @@ public class CreationActivity extends Activity {
         setContentView(R.layout.creation_activity);
 
         // Retrieve Activity parameters
-        document = (document) getIntent().getSerializableExtra(document.class.getName());
+        document = (Document) getIntent().getSerializableExtra(Document.class.getName());
 
         final EditText editNumber = findViewById(R.id.editNumber);
         editNumber.setText(document.DocName);
@@ -47,7 +47,7 @@ public class CreationActivity extends Activity {
         spinType.setAdapter(adapterType);
 
         adapterClient = new ClientAdapter(this, android.R.layout.simple_list_item_activated_1);
-        adapterClient.setDataSet(new PagingList<client>(dbc.clients().load()));
+        adapterClient.setDataSet(new PagingList<Client>(dbc.clients().load()));
 
         final Spinner spinContragent = findViewById(R.id.spinContragent);
         spinContragent.setAdapter(adapterClient);
@@ -79,12 +79,12 @@ public class CreationActivity extends Activity {
         document.DocType = adapterType.getKey(spinType.getSelectedItemPosition());
 
         final Spinner spinContragent = findViewById(R.id.spinContragent);
-        final client client = (client) spinContragent.getSelectedItem();
+        final Client client = (Client) spinContragent.getSelectedItem();
         document.ClientType = client.cli_type;
         document.ClientID = client.cli_code;
 
         final Intent intent = new Intent();
-        intent.putExtra(document.class.getName(), document);
+        intent.putExtra(Document.class.getName(), document);
 
         setResult(RESULT_OK, intent);
         finish();
@@ -161,7 +161,7 @@ public class CreationActivity extends Activity {
     /**
      * Spinner data Adapter: list of Contragents
      */
-    private static class ClientAdapter extends AdapterTemplate<client> {
+    private static class ClientAdapter extends AdapterTemplate<Client> {
         public ClientAdapter(Context context, @NonNull int... layout) {
             super(context, layout);
             setHasStableIds(true);
@@ -180,10 +180,10 @@ public class CreationActivity extends Activity {
         }
 
         @Override
-        public client getItem(int position) {
+        public Client getItem(int position) {
             final Object dataset = getDataSet();
             if (dataset instanceof List<?>) {
-                return (client) ((List<?>) dataset).get(position);
+                return (Client) ((List<?>) dataset).get(position);
             } else {
                 return null;
             }
@@ -192,7 +192,7 @@ public class CreationActivity extends Activity {
         @Override
         public long getItemId(int position) {
             if (position < 0 || position >= getCount()) return INVALID_ROW_ID;
-            final client item = getItem(position);
+            final Client item = getItem(position);
             if (item == null) return INVALID_ROW_ID;
             return getItem(position).cli_code;
         }

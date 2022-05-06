@@ -40,11 +40,11 @@ public class MainActivity extends Activity {
             final Intent intent;
 
             if (buttonInvoices.equals(v)) {
-                intent = new Intent(MainActivity.this, SelectionActivity.class);
-                intent.putExtra("document_filters", SelectionActivity.INVOICES);
+                intent = new Intent(MainActivity.this, InvoicesActivity.class);
+                intent.putExtra("document_filters", InvoicesActivity.INVOICES);
             } else if (buttonInventories.equals(v)) {
-                intent = new Intent(MainActivity.this, SelectionActivity.class);
-                intent.putExtra("document_filters", SelectionActivity.INVENTORIES);
+                intent = new Intent(MainActivity.this, InvoicesActivity.class);
+                intent.putExtra("document_filters", InvoicesActivity.INVENTORIES);
             } else if (buttonPricecontrol.equals(v)) {
                 intent = new Intent(MainActivity.this, BarcodeActivity.class);
             } else if (buttonDictionaries.equals(v)) {

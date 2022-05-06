@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="zero_padding">0dp</dimen>
+    <dimen name="btn_pagging">16dp</dimen>
+    <dimen name="btn_spacing">0dp</dimen>
 
     <!--MainActivity-->
     <dimen name="main_padding">24dp</dimen>
@@ -8,8 +10,4 @@
 
     <!--BarcodeActivity-->
     <dimen name="barc_price">48sp</dimen>
-
-    <!--InvoicesActivity-->
-    <dimen name="invc_pagging">16dp</dimen>
-    <dimen name="invc_spacing">0dp</dimen>
 </resources>

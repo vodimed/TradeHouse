@@ -5,13 +5,13 @@ import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
 import com.common.extensions.database.RoomSchema;
-import com.expertek.tradehouse.documents.entity.document;
-import com.expertek.tradehouse.documents.entity.line;
-import com.expertek.tradehouse.documents.entity.markline;
+import com.expertek.tradehouse.documents.entity.Document;
+import com.expertek.tradehouse.documents.entity.Line;
+import com.expertek.tradehouse.documents.entity.Markline;
 
 @TypeConverters({RoomSchema.DateConverter.class})
 @Database(version = 1,
-        entities = {document.class, line.class, markline.class},
+        entities = {Document.class, Line.class, Markline.class},
         autoMigrations = {
         //@AutoMigration(from = -0, to = 0, spec = Documents_v1Room.AutoMigration.class)
 })

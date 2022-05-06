@@ -8,7 +8,7 @@ import com.common.extensions.database.PrimaryKey;
 import java.io.Serializable;
 
 @Entity(tableName = "TH_barcodes")
-public class barcode implements Serializable {
+public class Barcode implements Serializable {
     public @NonNull int GoodsID; // идентификатор товара из TH
     @PrimaryKey
     public @NonNull String BC = ""; // бар-код из TH

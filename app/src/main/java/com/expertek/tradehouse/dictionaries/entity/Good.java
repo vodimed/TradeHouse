@@ -8,7 +8,7 @@ import com.common.extensions.database.PrimaryKey;
 import java.io.Serializable;
 
 @Entity(tableName = "TH_goods")
-public class good implements Serializable {
+public class Good implements Serializable {
     @PrimaryKey
     public @NonNull int GoodsID; // идентификатор товара из TH
     public String Name; // название

@@ -27,8 +27,8 @@ import com.expertek.tradehouse.components.Dialogue;
 import com.expertek.tradehouse.components.Logger;
 import com.expertek.tradehouse.components.MainSettings;
 import com.expertek.tradehouse.documents.DBDocuments;
-import com.expertek.tradehouse.documents.entity.document;
-import com.expertek.tradehouse.documents.entity.line;
+import com.expertek.tradehouse.documents.entity.Document;
+import com.expertek.tradehouse.documents.entity.Line;
 import com.expertek.tradehouse.tradehouse.TradeHouseService;
 import com.expertek.tradehouse.tradehouse.Проводка;
 
@@ -36,11 +36,11 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
-public class SelectionActivity extends Activity {
+public class InvoicesActivity extends Activity {
     public static final int INVENTORIES = 1; // R.strings.document_filters
     public static final int INVOICES = 3; // R.strings.document_filters
     private final DBDocuments dbd = Application.documents.db();
-    private PagingList<document> documents = null;
+    private PagingList<Document> documents = null;
     private DocTypeAdapter adapterType = null;
     protected DocumentAdapter adapterDocument = null;
     ///*TODO*/protected DocumentAdapter1 adapterDocument = null;
@@ -124,7 +124,7 @@ public class SelectionActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != RESULT_OK) return;
-        final document document = (document) data.getSerializableExtra(document.class.getName());
+        final Document document = (Document) data.getSerializableExtra(Document.class.getName());
 
         switch (requestCode) {
             case DocumentActivity.REQUEST_ADD_DOCUMENT:
@@ -132,7 +132,7 @@ public class SelectionActivity extends Activity {
                     documents.add(document);
                     onDocumentSelection.setPosition(documents.size() - 1);
                 } else if (onDocumentSelection.setPosition(documents.indexOf(document)) < 0) {
-                    Dialogue.Duplicate(SelectionActivity.this, document, null);
+                    Dialogue.Duplicate(InvoicesActivity.this, document, null);
                     return; // not in selection
                 }
                 break;
@@ -145,14 +145,14 @@ public class SelectionActivity extends Activity {
         }
 
         try {
-            documents.commit(new PagingList.Commit<document>() {
+            documents.commit(new PagingList.Commit<Document>() {
                 @Override
-                public void renew(document[] objects) {
+                public void renew(Document[] objects) {
                     dbd.documents().insert(objects);
                 }
 
                 @Override
-                public void delete(document[] objects) {
+                public void delete(Document[] objects) {
                     dbd.documents().delete(objects);
                 }
             });
@@ -175,7 +175,7 @@ public class SelectionActivity extends Activity {
     protected void actionCreate() {
         assert adapterDocument.getDataSet() != null;
 
-        final document document = new document();
+        final Document document = new Document();
         document.DocName = document.getNextId(dbd.documents().getMaxId());
         document.DocType = (filtertype != null ? TextUtils.join(",", filtertype) : null);
         document.StartDate = Calendar.getInstance().getTime();
@@ -183,16 +183,17 @@ public class SelectionActivity extends Activity {
         document.ObjectID = MainSettings.TradeHouseObjCode;
         document.UserID = MainSettings.TradeHouseUserId;
         document.UserName = MainSettings.TradeHouseUserName;
+        document.Status = "НОВ";
         document.Complete = true;
 
-        final Intent intent = new Intent(SelectionActivity.this, CreationActivity.class);
-        intent.putExtra(document.class.getName(), document);
+        final Intent intent = new Intent(InvoicesActivity.this, CreationActivity.class);
+        intent.putExtra(Document.class.getName(), document);
         startActivityForResult(intent, DocumentActivity.REQUEST_ADD_DOCUMENT);
     }
 
     protected void actionEdit(int position) {
-        final Intent intent = new Intent(SelectionActivity.this, DocumentActivity.class);
-        intent.putExtra(document.class.getName(), adapterDocument.getItem(position));
+        final Intent intent = new Intent(InvoicesActivity.this, DocumentActivity.class);
+        intent.putExtra(Document.class.getName(), adapterDocument.getItem(position));
         startActivityForResult(intent, DocumentActivity.REQUEST_EDIT_DOCUMENT);
     }
 
@@ -201,10 +202,10 @@ public class SelectionActivity extends Activity {
     }
 
     protected void actionSend(int position) {
-        final document export = documents.get(position);
+        final Document export = documents.get(position);
         if (!export.isComplete()) return;
         final Bundle params = new Bundle();
-        params.putSerializable(document.class.getName(), export);
+        params.putSerializable(Document.class.getName(), export);
         tradehouse.enqueue(new ServiceInterface.JobInfo(1, Проводка.class, tradehouse.receiver()), params);
     }
 
@@ -213,7 +214,7 @@ public class SelectionActivity extends Activity {
         public void onClick(DialogInterface dialog, int which) {
             if (which != DialogInterface.BUTTON_POSITIVE) return;
             final Intent intent = new Intent();
-            intent.putExtra(line.class.getName(), documents.get(onDocumentSelection.getPosition()));
+            intent.putExtra(Line.class.getName(), documents.get(onDocumentSelection.getPosition()));
             onActivityResult(DocumentActivity.REQUEST_DELETE_DOCUMENT, RESULT_OK, intent);
         }
     };
@@ -231,7 +232,7 @@ public class SelectionActivity extends Activity {
         public void onItemSelected(ViewGroup parent, View view, int position, long id) {
             final String selectedKey = adapterType.getKey(position);
             filtertype = selectedKey.split(",");
-            documents = new PagingList<document>(dbd.documents().loadByDocType(filtertype));
+            documents = new PagingList<Document>(dbd.documents().load(filtertype));
             adapterDocument.setDataSet(documents);
             onDocumentSelection.onNothingSelected(parent);
             buttonCreate.setVisibility(position == INVENTORIES ? View.GONE : View.VISIBLE);
@@ -278,7 +279,7 @@ public class SelectionActivity extends Activity {
             buttonDelete.setEnabled(false);
             buttonSend.setEnabled(false);
         }
-    };
+    }
     private final ItemSelectionListener onDocumentSelection = new ItemSelectionListener();
 
     /**
@@ -334,7 +335,7 @@ public class SelectionActivity extends Activity {
     /**
      * ListView data Adapter: list of documents by DocType
      */
-    protected static class DocumentAdapter extends AdapterTemplate<document> {
+    protected static class DocumentAdapter extends AdapterTemplate<Document> {
         private static final HashMap<String, Character> shortype = fillDocTypes();
 
         public DocumentAdapter(Context context, @NonNull int... layout) {
@@ -363,7 +364,7 @@ public class SelectionActivity extends Activity {
         @Override
         public void onBindViewHolder(@NonNull Holder holder, int position) {
             final View owner = holder.getView();
-            final document document = getItem(position);
+            final Document document = getItem(position);
 
             final TextView textDocName = owner.findViewById(R.id.textDocName);
             final TextView textDocType = owner.findViewById(R.id.textDocType);
@@ -379,10 +380,10 @@ public class SelectionActivity extends Activity {
         }
 
         @Override
-        public document getItem(int position) {
+        public Document getItem(int position) {
             final Object dataset = getDataSet();
             if (dataset instanceof List<?>) {
-                return (document) ((List<?>) dataset).get(position);
+                return (Document) ((List<?>) dataset).get(position);
             } else {
                 return null;
             }
@@ -391,7 +392,7 @@ public class SelectionActivity extends Activity {
         @Override
         public long getItemId(int position) {
             if (position < 0 || position >= getCount()) return INVALID_ROW_ID;
-            final document item = getItem(position);
+            final Document item = getItem(position);
             if (item == null) return INVALID_ROW_ID;
             return item.DocName.hashCode() * 31 + item.DocType.hashCode();
         }
@@ -399,7 +400,7 @@ public class SelectionActivity extends Activity {
 
     //TODO
     protected static class DocumentAdapter1 extends BaseAdapter {
-        private final document[] array = new document[30];
+        private final Document[] array = new Document[30];
         private final LayoutInflater inflater;
         private final int layout;
 
@@ -408,7 +409,7 @@ public class SelectionActivity extends Activity {
             this.inflater = LayoutInflater.from(context);
             this.layout = layout;
             for (int i = 0; i < array.length; i++) {
-                array[i] = new document();
+                array[i] = new Document();
                 array[i].DocName = String.valueOf(i);
                 array[i].DocType = "IntPurchWB";
                 array[i].FactSum = 0.0;
@@ -435,14 +436,14 @@ public class SelectionActivity extends Activity {
         }
 
         @Override
-        public document getItem(int position) {
+        public Document getItem(int position) {
             return array[position];
         }
 
         @Override
         public long getItemId(int position) {
             if (position < 0 || position >= getCount()) return AdapterInterface.INVALID_ROW_ID;
-            final document item = getItem(position);
+            final Document item = getItem(position);
             if (item == null) return AdapterInterface.INVALID_ROW_ID;
             return item.DocName.hashCode() * 31 + item.DocType.hashCode();
         }
@@ -452,7 +453,7 @@ public class SelectionActivity extends Activity {
             if (convertView == null) convertView = inflater.inflate(layout, parent, false);
 
             final View owner = convertView;
-            final document document = (document) getItem(position);
+            final Document document = getItem(position);
 
             final TextView textDocName = owner.findViewById(R.id.textDocName);
             final TextView textDocType = owner.findViewById(R.id.textDocType);
@@ -475,7 +476,7 @@ public class SelectionActivity extends Activity {
         public void onJobResult(@NonNull ServiceInterface.JobInfo work, Bundle result) {
             final Intent intent = new Intent();
             intent.putExtras(result);
-            final document export = (document) result.getSerializable(document.class.getName());
+            final Document export = (Document) result.getSerializable(Document.class.getName());
             onDocumentSelection.setPosition(documents.indexOf(export));
             onActivityResult(DocumentActivity.REQUEST_EDIT_DOCUMENT, RESULT_OK, intent);
         }

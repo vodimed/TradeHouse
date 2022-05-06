@@ -69,8 +69,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center_horizontal"
-            android:paddingTop="@dimen/invc_pagging"
-            android:drawablePadding="@dimen/invc_spacing"
+            android:paddingTop="@dimen/btn_pagging"
+            android:drawablePadding="@dimen/btn_spacing"
             android:text="@string/add"
             android:drawableTop="@drawable/creating_1_add" />
         <Button
@@ -79,8 +79,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center_horizontal"
-            android:paddingTop="@dimen/invc_pagging"
-            android:drawablePadding="@dimen/invc_spacing"
+            android:paddingTop="@dimen/btn_pagging"
+            android:drawablePadding="@dimen/btn_spacing"
             android:text="@string/edit"
             android:drawableTop="@drawable/creating_2_edit" />
         <Button
@@ -89,8 +89,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center_horizontal"
-            android:paddingTop="@dimen/invc_pagging"
-            android:drawablePadding="@dimen/invc_spacing"
+            android:paddingTop="@dimen/btn_pagging"
+            android:drawablePadding="@dimen/btn_spacing"
             android:text="@string/save"
             android:drawableTop="@drawable/creating_3_save" />
         <Button
@@ -99,8 +99,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center_horizontal"
-            android:paddingTop="@dimen/invc_pagging"
-            android:drawablePadding="@dimen/invc_spacing"
+            android:paddingTop="@dimen/btn_pagging"
+            android:drawablePadding="@dimen/btn_spacing"
             android:text="@string/send"
             android:drawableTop="@drawable/creating_4_finish" />
     </LinearLayout>

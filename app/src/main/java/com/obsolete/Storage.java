@@ -141,48 +141,24 @@ public class Storage
 
     public static string GetCodeIdent(string iDm)
     {
-
         string Velement = "first";
         string oCodeIdent = "";
 
-        if (iDm.Length == 29
-                && iDm.StartsWith("01") == false
-                && iDm.StartsWith("02") == false )
+        if (iDm.Length == 29 && iDm.StartsWith("01") == false && iDm.StartsWith("02") == false) {
+            oCodeIdent = iDm.Substring(0, 21);
+
+        } else if ((iDm.Length == 25 || iDm.Length == 29 || iDm.Length == 21)
+                && ((!iDm.StartsWith("01") && !iDm.StartsWith("02")) || iDm.Substring(16,2) != "21"))
         {
             oCodeIdent = iDm.Substring(0, 21);
-        }
-        else
-        {
-            if (
-                    (iDm.Length == 25
-                            || iDm.Length == 29
-                            || iDm.Length == 21)
-                            &&
-                            (
-                                    (!iDm.StartsWith("01")
-                                            && !iDm.StartsWith("02"))
-                                            || iDm.Substring(16,2) != "21")
 
-            )
-            {
-                oCodeIdent = iDm.Substring(0, 21);
+        } else if (getGtinByDM(iDm) == "") {
+            oCodeIdent = iDm.Substring(0, 21);
 
-            }
-            else
-            {
-                if (getGtinByDM(iDm) == "")
-                {
-                    oCodeIdent = iDm.Substring(0, 21);
-                }
-                else
-                {
-                    while (Velement != "" && iDm != "")
-                    {
-                        Velement = GetNextElement(ref iDm);
-                        oCodeIdent = oCodeIdent + Velement;
-
-                    }
-                }
+        } else {
+            while (Velement != "" && iDm != "") {
+                Velement = GetNextElement(ref iDm);
+                oCodeIdent = oCodeIdent + Velement;
             }
         }
         return oCodeIdent;

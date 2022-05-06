@@ -7,18 +7,18 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
-import com.expertek.tradehouse.documents.entity.document;
+import com.expertek.tradehouse.documents.entity.Document;
 
 @Dao
 public interface Documents {
     @Query("SELECT * FROM MT_documents")
-    DataSource.Factory<Integer, document> load();
+    DataSource.Factory<Integer, Document> load();
 
     @Query("SELECT * FROM MT_documents WHERE DocType IN (:docType) OR :docType = '*'")
-    DataSource.Factory<Integer, document> loadByDocType(String... docType);
+    DataSource.Factory<Integer, Document> load(String... docType);
 
     @Query("SELECT * FROM MT_documents WHERE DocName = :ident")
-    document get(String ident);
+    Document get(String ident);
 
     @Query("SELECT IFNULL(MAX(DocName), '0000') FROM MT_documents")
     String getMaxId();
@@ -30,8 +30,8 @@ public interface Documents {
     double sumAllDocs(String... docType);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insert(document... objects);
+    void insert(Document... objects);
 
     @Delete
-    void delete(document... objects);
+    void delete(Document... objects);
 }

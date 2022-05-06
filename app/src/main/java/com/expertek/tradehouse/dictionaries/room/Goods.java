@@ -4,13 +4,13 @@ import androidx.paging.DataSource;
 import androidx.room.Dao;
 import androidx.room.Query;
 
-import com.expertek.tradehouse.dictionaries.entity.good;
+import com.expertek.tradehouse.dictionaries.entity.Good;
 
 @Dao
 public interface Goods {
     @Query("SELECT * FROM TH_goods")
-    DataSource.Factory<Integer, good> load();
+    DataSource.Factory<Integer, Good> load();
 
     @Query("SELECT * FROM TH_goods WHERE GoodsID = :ident")
-    good get(int ident);
+    Good get(int ident);
 }

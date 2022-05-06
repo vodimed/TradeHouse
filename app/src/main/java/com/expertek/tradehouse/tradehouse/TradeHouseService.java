@@ -15,7 +15,7 @@ public class TradeHouseService extends ServiceEngine {
             // <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
             startForeground(R.string.service_tradehouse, ServiceActivity.createNotification(
                     ServiceActivity.class, this, R.string.CHANNEL_ID, R.drawable.ic_launcher,
-                    R.string.service_tradehouse, R.string.msgServiceNotification));
+                    R.string.service_tradehouse, R.string.serviceNotification));
         } catch (Exception e) {
             Logger.e(e);
         }

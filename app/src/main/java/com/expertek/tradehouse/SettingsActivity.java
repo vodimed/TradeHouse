@@ -26,8 +26,8 @@ import com.common.extensions.database.PagingList;
 import com.expertek.tradehouse.components.Logger;
 import com.expertek.tradehouse.components.MainSettings;
 import com.expertek.tradehouse.dictionaries.DbDictionaries;
-import com.expertek.tradehouse.dictionaries.entity.object;
-import com.expertek.tradehouse.dictionaries.entity.user;
+import com.expertek.tradehouse.dictionaries.entity.Obj;
+import com.expertek.tradehouse.dictionaries.entity.User;
 import com.expertek.tradehouse.tradehouse.ConnectionReceiver;
 
 import java.io.IOException;
@@ -67,13 +67,13 @@ public class SettingsActivity extends Activity {
         serial.setText(MainSettings.SerialNumber);
 
         final ObjectAdapter objectAdapter = new ObjectAdapter(this, android.R.layout.simple_list_item_activated_1);
-        objectAdapter.setDataSet(new PagingList<object>(dbc.objects().load()));
+        objectAdapter.setDataSet(new PagingList<Obj>(dbc.objects().load()));
         final Spinner spinObject = findViewById(R.id.spinObject);
         spinObject.setAdapter(objectAdapter);
         spinObject.setSelection(objectAdapter.findItem(MainSettings.TradeHouseObjType, MainSettings.TradeHouseObjCode));
 
         final UserAdapter userAdapter = new UserAdapter(this, android.R.layout.simple_list_item_activated_1);
-        userAdapter.setDataSet(new PagingList<user>(dbc.users().load()));
+        userAdapter.setDataSet(new PagingList<User>(dbc.users().load()));
         final Spinner spinUser = findViewById(R.id.spinUser);
         spinUser.setAdapter(userAdapter);
         spinUser.setSelection(userAdapter.findItem(MainSettings.TradeHouseUserId));
@@ -128,12 +128,12 @@ public class SettingsActivity extends Activity {
         MainSettings.SendTimeout = send.getProgress() * 1000;
 
         final Spinner spinObject = findViewById(R.id.spinObject);
-        final object object = (object) spinObject.getSelectedItem();
+        final Obj object = (Obj) spinObject.getSelectedItem();
         MainSettings.TradeHouseObjType = object.obj_type;
         MainSettings.TradeHouseObjCode = object.obj_code;
 
         final Spinner spinUser = findViewById(R.id.spinUser);
-        final user user = (user) spinUser.getSelectedItem();
+        final User user = (User) spinUser.getSelectedItem();
         MainSettings.TradeHouseUserId = user.userID;
         MainSettings.TradeHouseUserName = user.userName;
 
@@ -384,7 +384,7 @@ public class SettingsActivity extends Activity {
     /**
      * Spinner data Adapter: list of Objects
      */
-    protected static class ObjectAdapter extends AdapterTemplate<object> {
+    protected static class ObjectAdapter extends AdapterTemplate<Obj> {
         public ObjectAdapter(Context context, @NonNull int... layout) {
             super(context, layout);
             setHasStableIds(true);
@@ -403,10 +403,10 @@ public class SettingsActivity extends Activity {
         }
 
         @Override
-        public object getItem(int position) {
+        public Obj getItem(int position) {
             final Object dataset = getDataSet();
             if (dataset instanceof List<?>) {
-                return (object) ((List<?>) dataset).get(position);
+                return (Obj) ((List<?>) dataset).get(position);
             } else {
                 return null;
             }
@@ -415,7 +415,7 @@ public class SettingsActivity extends Activity {
         @Override
         public long getItemId(int position) {
             if (position < 0 || position >= getCount()) return INVALID_ROW_ID;
-            final object item = getItem(position);
+            final Obj item = getItem(position);
             if (item == null) return INVALID_ROW_ID;
             return item.obj_type.hashCode() * 31 + item.obj_code;
         }
@@ -424,7 +424,7 @@ public class SettingsActivity extends Activity {
             final Object dataset = getDataSet();
             if (dataset instanceof List<?>) {
                 for (int i = 0; i < ((List<?>) dataset).size(); i++) {
-                    final object object = (object) ((List<?>) dataset).get(i);
+                    final Obj object = (Obj) ((List<?>) dataset).get(i);
                     if ((object.obj_code == obj_code) && object.obj_type.equals(obj_type))
                         return i;
                 }
@@ -436,7 +436,7 @@ public class SettingsActivity extends Activity {
     /**
      * Spinner data Adapter: list of Users
      */
-    protected static class UserAdapter extends AdapterTemplate<user> {
+    protected static class UserAdapter extends AdapterTemplate<User> {
         public UserAdapter(Context context, @NonNull int... layout) {
             super(context, layout);
             setHasStableIds(true);
@@ -455,10 +455,10 @@ public class SettingsActivity extends Activity {
         }
 
         @Override
-        public user getItem(int position) {
+        public User getItem(int position) {
             final Object dataset = getDataSet();
             if (dataset instanceof List<?>) {
-                return (user) ((List<?>) dataset).get(position);
+                return (User) ((List<?>) dataset).get(position);
             } else {
                 return null;
             }
@@ -467,7 +467,7 @@ public class SettingsActivity extends Activity {
         @Override
         public long getItemId(int position) {
             if (position < 0 || position >= getCount()) return INVALID_ROW_ID;
-            final user item = getItem(position);
+            final User item = getItem(position);
             if (item == null) return INVALID_ROW_ID;
             return item.userID.hashCode();
         }
@@ -476,7 +476,7 @@ public class SettingsActivity extends Activity {
             final Object dataset = getDataSet();
             if (dataset instanceof List<?>) {
                 for (int i = 0; i < ((List<?>) dataset).size(); i++) {
-                    final user user = (user) ((List<?>) dataset).get(i);
+                    final User user = (User) ((List<?>) dataset).get(i);
                     if (user.userID.equals(userId)) return i;
                 }
             }

@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import androidx.paging.DataSource;
 
 import com.common.extensions.database.SQLitePager;
-import com.expertek.tradehouse.dictionaries.entity.user;
+import com.expertek.tradehouse.dictionaries.entity.User;
 
 import java.util.List;
 
@@ -16,14 +16,14 @@ public class Users {
         this.db = db;
     }
 
-    public DataSource.Factory<Integer, user> load() {
-        return new SQLitePager.Factory<>(db, user.class, "SELECT * FROM TH_users");
+    public DataSource.Factory<Integer, User> load() {
+        return new SQLitePager.Factory<>(db, User.class, "SELECT * FROM TH_users");
     }
 
-    public user get(String ident) {
-        final DataSource<Integer, user> source = new SQLitePager.Factory<>(db, user.class,
+    public User get(String ident) {
+        final DataSource<Integer, User> source = new SQLitePager.Factory<>(db, User.class,
                 "SELECT * FROM TH_users WHERE userID = :ident", ident).create();
-        final List<user> result = ((SQLitePager<user>) source).loadRange(0, 1);
+        final List<User> result = ((SQLitePager<User>) source).loadRange(0, 1);
         if (result.isEmpty()) return null;
         return result.get(0);
     }

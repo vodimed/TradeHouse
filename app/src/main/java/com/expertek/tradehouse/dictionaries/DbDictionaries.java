@@ -7,6 +7,6 @@ public interface DbDictionaries {
     Barcodes barcodes();
     Clients clients();
     Goods goods();
-    Objects objects();
+    Objs objects();
     Users users();
 }

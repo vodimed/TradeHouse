@@ -26,7 +26,7 @@ public abstract class SQLitePager<Value extends Serializable> extends Positional
     private final String pager;
     private final String[] args;
 
-    protected SQLitePager(@NonNull SQLiteDatabase db, @NonNull String query, Object[] args) {
+    protected SQLitePager(@NonNull SQLiteDatabase db, @NonNull String query, Object... args) {
         this.db = db;
         this.pager = "SELECT * FROM ( " + query + " ) LIMIT ? OFFSET ?";
         this.counter = db.compileStatement("SELECT COUNT(*) FROM ( " + query + " )");
@@ -139,15 +139,7 @@ public abstract class SQLitePager<Value extends Serializable> extends Positional
         private final String query;
         private final Object[] args;
 
-        public Factory(@NonNull SQLiteDatabase db, @NonNull Class<Value> cls, @NonNull String query) {
-            this(db, cls, query, null);
-        }
-
-        public Factory(@NonNull SQLiteDatabase db, @NonNull Class<Value> cls, @NonNull String query, Object args) {
-            this(db, cls, query, new Object[]{args});
-        }
-
-        public Factory(@NonNull SQLiteDatabase db, @NonNull Class<Value> cls, @NonNull String query, Object[] args) {
+        public Factory(@NonNull SQLiteDatabase db, @NonNull Class<Value> cls, @NonNull String query, Object... args) {
             this.db = db;
             this.cls = cls;
             this.query = query;
