@@ -11,10 +11,10 @@ import com.expertek.tradehouse.documents.entity.Line;
 
 @Dao
 public interface Lines {
-    @Query("SELECT * FROM MT_lines")
+    @Query("SELECT * FROM MT_lines ORDER BY LineID")
     DataSource.Factory<Integer, Line> load();
 
-    @Query("SELECT * FROM MT_lines WHERE DocName = :docName")
+    @Query("SELECT * FROM MT_lines WHERE DocName = :docName ORDER BY LineID")
     DataSource.Factory<Integer, Line> load(String docName);
 
     @Query("SELECT * FROM MT_lines WHERE LineID = :ident")

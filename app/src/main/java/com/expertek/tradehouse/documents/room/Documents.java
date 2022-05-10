@@ -11,10 +11,10 @@ import com.expertek.tradehouse.documents.entity.Document;
 
 @Dao
 public interface Documents {
-    @Query("SELECT * FROM MT_documents")
+    @Query("SELECT * FROM MT_documents ORDER BY DocName")
     DataSource.Factory<Integer, Document> load();
 
-    @Query("SELECT * FROM MT_documents WHERE DocType IN (:docType) OR :docType = '*'")
+    @Query("SELECT * FROM MT_documents WHERE DocType IN (:docType) OR :docType = '*' ORDER BY DocName")
     DataSource.Factory<Integer, Document> load(String... docType);
 
     @Query("SELECT * FROM MT_documents WHERE DocName = :ident")

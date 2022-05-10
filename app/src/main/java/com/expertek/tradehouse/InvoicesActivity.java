@@ -374,7 +374,7 @@ public class InvoicesActivity extends Activity {
 
             textDocName.setText(document.DocName);
             textDocType.setText(shortype.get(document.DocType).toString());
-            textStatus.setText(document.Status);
+            textStatus.setText(document.Status != null ? document.Status.substring(0, 1) : null);
             textFactSum.setText(Formatter.Currency.format(document.FactSum));
             textStartDate.setText(Formatter.Date.format(document.StartDate));
         }

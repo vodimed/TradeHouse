@@ -19,11 +19,12 @@ public class Lines {
     }
 
     public DataSource.Factory<Integer, Line> load() {
-        return new SQLitePager.Factory<>(db, Line.class, "SELECT * FROM MT_lines");
+        return new SQLitePager.Factory<>(db, Line.class, "SELECT * FROM MT_lines ORDER BY LineID");
     }
 
     public DataSource.Factory<Integer, Line> load(String docName) {
-        return new SQLitePager.Factory<>(db, Line.class, "SELECT * FROM MT_lines WHERE DocName = :docName", docName);
+        return new SQLitePager.Factory<>(db, Line.class, "SELECT * FROM MT_lines " +
+                "WHERE DocName = :docName ORDER BY LineID", docName);
     }
 
     public Line get(int ident) {
