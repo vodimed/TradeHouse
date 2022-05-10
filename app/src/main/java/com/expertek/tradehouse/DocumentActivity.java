@@ -157,6 +157,7 @@ public class DocumentActivity extends Activity {
             listLine.requestFocusFromTouch();
             listLine.clearFocus();
             listLine.setSelection(position);
+            onLineSelection.onItemSelected(null, null, position, AdapterInterface.INVALID_ROW_ID);
         }
     }
 

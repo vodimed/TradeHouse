@@ -32,7 +32,6 @@ import java.util.List;
 public class PositionActivity extends Activity {
     public static final int REQUEST_ADD_POSITION = 1;
     public static final int REQUEST_EDIT_POSITION = 2;
-    private final DbDictionaries dbc = Application.dictionaries.db();
     private BarcodeProcessor processor = null;
     private AutoCompleteTextView editName = null;
     protected EditText editPrice = null;
