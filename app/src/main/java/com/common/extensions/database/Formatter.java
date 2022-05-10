@@ -37,6 +37,7 @@ public class Formatter {
 
     public static class Currency {
         private static final NumberFormat template = DecimalFormat.getCurrencyInstance();
+        private static final char separ = DecimalFormatSymbols.getInstance().getDecimalSeparator();
 
         public static String format(double value) {
             template.setMinimumFractionDigits(0);
@@ -45,7 +46,7 @@ public class Formatter {
 
         public static double parse(String value) throws ParseException {
             try {
-                return template.parse(value).doubleValue();
+                return template.parse(value.replace('.', separ)).doubleValue();
             } catch (ParseException e) {
                 return Number.parse(value);
             }
