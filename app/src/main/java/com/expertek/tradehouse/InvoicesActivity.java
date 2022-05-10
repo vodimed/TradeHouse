@@ -55,7 +55,7 @@ public class InvoicesActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.selection_activity);
+        setContentView(R.layout.invoices_activity);
 
         // Retrieve Activity parameters
         final int filter = getIntent().getIntExtra("document_filters", 0);
@@ -73,7 +73,7 @@ public class InvoicesActivity extends Activity {
         final Spinner spinSelector = findViewById(R.id.spinSelector);
         spinSelector.setAdapter(adapterType);
 
-        adapterDocument = new DocumentAdapter(this, R.layout.invoice_document);
+        adapterDocument = new DocumentAdapter(this, R.layout.document);
         ///*TODO*/adapterDocument = new DocumentAdapter1(this, R.layout.invoice_document);
         adapterDocument.setOnItemSelectionListener(onDocumentSelection);
 
@@ -337,6 +337,7 @@ public class InvoicesActivity extends Activity {
      */
     protected static class DocumentAdapter extends AdapterTemplate<Document> {
         private static final HashMap<String, Character> shortype = fillDocTypes();
+        private static final char[] buffer = new char[2];
 
         public DocumentAdapter(Context context, @NonNull int... layout) {
             super(context, layout);
@@ -361,6 +362,13 @@ public class InvoicesActivity extends Activity {
             return result;
         }
 
+        private String shortstatus(String status) {
+            if ((status == null) || status.length() <= 2) return status;
+            buffer[0] = status.charAt(0);
+            buffer[1] = status.charAt(status.length() - 1);
+            return new String(buffer);
+        }
+
         @Override
         public void onBindViewHolder(@NonNull Holder holder, int position) {
             final View owner = holder.getView();
@@ -374,7 +382,7 @@ public class InvoicesActivity extends Activity {
 
             textDocName.setText(document.DocName);
             textDocType.setText(shortype.get(document.DocType).toString());
-            textStatus.setText(document.Status != null ? document.Status.substring(0, 1) : null);
+            textStatus.setText(shortstatus(document.Status));
             textFactSum.setText(Formatter.Currency.format(document.FactSum));
             textStartDate.setText(Formatter.Date.format(document.StartDate));
         }

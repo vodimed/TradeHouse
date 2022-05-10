@@ -72,7 +72,7 @@ public class DocumentActivity extends Activity {
         editSummary = findViewById(R.id.editSummary);
         editSummary.setText(Formatter.Currency.format(document.FactSum));
 
-        final LineAdapter adapterLine = new LineAdapter(this, R.layout.invoice_position);
+        final LineAdapter adapterLine = new LineAdapter(this, R.layout.position);
         adapterLine.setDataSet(lines);
         adapterLine.setOnItemSelectionListener(onLineSelection);
 

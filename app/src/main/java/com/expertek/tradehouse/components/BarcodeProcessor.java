@@ -214,8 +214,8 @@ public class BarcodeProcessor implements Parcelable {
         return (document.DocName + "_" + marker.gtin);
     }
 
-    private void correctDocSumm(Line line, double quantity) {
-        document.FactSum += quantity * line.Price;
+    private void correctDocSumm(double delta) {
+        document.FactSum += delta;
     }
 
     private long getMarkId() {
@@ -297,17 +297,17 @@ public class BarcodeProcessor implements Parcelable {
 
     public int acceptLine() {
         int position = lines.indexOf(line);
-        final double delta;
+        double delta = line.Price * line.FactQnty;
 
         if (position < 0) {
             position = lines.size();
-            delta = line.FactQnty;
             lines.add(line);
         } else {
-            delta = line.FactQnty - lines.get(position).FactQnty;
+            final Line prev = lines.get(position);
+            delta -= prev.Price * prev.FactQnty;
             lines.set(position, line);
         }
-        correctDocSumm(line, delta);
+        correctDocSumm(delta);
         return position;
     }
 
@@ -407,7 +407,7 @@ public class BarcodeProcessor implements Parcelable {
         if (position >= 0) {
             line.DocQnty += marker.weight;
             line.FactQnty += marker.weight;
-            correctDocSumm(line, marker.weight);
+            correctDocSumm(line.Price * marker.weight);
         } else if (!updateLine(context, marker)) {
             return ERROR_VALUE;
         }

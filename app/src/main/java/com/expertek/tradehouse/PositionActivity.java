@@ -55,7 +55,7 @@ public class PositionActivity extends Activity {
 
         editName = findViewById(R.id.editName);
         editName.setText(processor.line.GoodsName);
-        editName.setAdapter(new BarcodeAdapter(this, R.layout.barcode_lookup));
+        editName.setAdapter(new BarcodeAdapter(this, R.layout.barcode));
         editName.setOnFocusChangeListener(autoCompleteHandler);
         editName.setOnItemClickListener(autoCompleteHandler);
         editName.setOnClickListener(autoCompleteHandler);

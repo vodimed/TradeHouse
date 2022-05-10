@@ -46,7 +46,7 @@ public class BarcodeActivity extends Activity {
         buttonPrice = findViewById(R.id.buttonPrice);
         buttonPrice.setOnTouchListener(onPriceTouch);
 
-        editBarcode.setAdapter(new BarcodeAdapter(this, R.layout.barcode_lookup));
+        editBarcode.setAdapter(new BarcodeAdapter(this, R.layout.barcode));
         editBarcode.setOnEditorActionListener(autoCompleteHandler);
         editBarcode.setOnItemClickListener(autoCompleteHandler);
     }
