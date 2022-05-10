@@ -790,7 +790,7 @@ public class DocEditor {
     }
 
     private void GoLine(DocumentsDataSet.MT_linesRow editLineRow, DBHelper.BCInfo bcInfo) {
-        double newFactQnty = bcInfo.weight == -1 ?
+        double newFactQnty = bcInfo.ht == -1 ?
                 editLineRow.FactQnty + 1 : // not weighted
                 editLineRow.FactQnty + bcInfo.weight / 1000.0; // weighted
 

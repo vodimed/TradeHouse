@@ -25,8 +25,6 @@ import com.expertek.tradehouse.components.BarcodeScanner;
 import com.expertek.tradehouse.components.Dialogue;
 import com.expertek.tradehouse.dictionaries.DbDictionaries;
 import com.expertek.tradehouse.dictionaries.entity.Barcode;
-import com.expertek.tradehouse.dictionaries.entity.Good;
-import com.expertek.tradehouse.documents.entity.Line;
 
 import java.text.ParseException;
 import java.util.List;
@@ -50,15 +48,14 @@ public class PositionActivity extends Activity {
 
         // Retrieve Activity parameters
         processor = getIntent().getParcelableExtra(BarcodeProcessor.class.getName());
-        final Line line = processor.getLine();
+
+        //setTitle(R.string._msg_scan_item);
 
         // Initialize Barcode Reader
         scanner.Initialize(this);
 
-        //setTitle(R.string._msg_scan_item);
-
         editName = findViewById(R.id.editName);
-        editName.setText(line.GoodsName);
+        editName.setText(processor.line.GoodsName);
         editName.setAdapter(new BarcodeAdapter(this, R.layout.barcode_lookup));
         editName.setOnFocusChangeListener(autoCompleteHandler);
         editName.setOnItemClickListener(autoCompleteHandler);
@@ -67,14 +64,14 @@ public class PositionActivity extends Activity {
 
         findViewById(R.id.layoutPrice).setVisibility(!processor.document.isInventory() ? View.VISIBLE : View.GONE);
         editPrice = findViewById(R.id.buttonPrice);
-        editPrice.setText(line.Price != 0 ? Formatter.Currency.format(line.Price) : null);
+        editPrice.setText(processor.line.Price != 0 ? Formatter.Currency.format(processor.line.Price) : null);
 
         editAmountDoc = findViewById(R.id.editAmountDoc);
-        editAmountDoc.setText(line.DocQnty != 0 ? Formatter.Number.format(line.DocQnty) : null);
+        editAmountDoc.setText(processor.line.DocQnty != 0 ? Formatter.Number.format(processor.line.DocQnty) : null);
         editAmountDoc.setEnabled(!processor.document.isInventory());
 
         editAmountFact = findViewById(R.id.editAmountFact);
-        editAmountFact.setText(line.FactQnty != 0 ? Formatter.Number.format(line.FactQnty) : null);
+        editAmountFact.setText(processor.line.FactQnty != 0 ? Formatter.Number.format(processor.line.FactQnty) : null);
 
         buttonOk = findViewById(R.id.buttonOk);
         buttonCancel = findViewById(R.id.buttonCancel);
@@ -102,11 +99,10 @@ public class PositionActivity extends Activity {
     }
 
     private void updateLine() {
-        final Line line = processor.getLine();
-        editName.setText(line.GoodsName);
-        editPrice.setText(Formatter.Currency.format(line.Price));
-        editAmountDoc.setText(line.DocQnty != 0 ? Formatter.Number.format(line.DocQnty) : null);
-        editAmountFact.setText(line.FactQnty != 0 ? Formatter.Number.format(line.FactQnty) : null);
+        editName.setText(processor.line.GoodsName);
+        editPrice.setText(Formatter.Currency.format(processor.line.Price));
+        editAmountDoc.setText(processor.line.DocQnty != 0 ? Formatter.Number.format(processor.line.DocQnty) : null);
+        editAmountFact.setText(processor.line.FactQnty != 0 ? Formatter.Number.format(processor.line.FactQnty) : null);
     }
 
     private final BarcodeScanner scanner = new BarcodeScanner() {
@@ -114,7 +110,7 @@ public class PositionActivity extends Activity {
         protected void onBarcodeDetect(String scanned) {
             final BarcodeMarker marker = new BarcodeMarker(scanned);
             if (processor.add(PositionActivity.this, marker) != BarcodeProcessor.ERROR_VALUE) {
-                editName.setEnabled(!processor.isMarked());
+                editName.setEnabled(!processor.isLineMarked());
                 updateLine();
             }
         }
@@ -132,21 +128,23 @@ public class PositionActivity extends Activity {
     };
 
     protected void actionOk() {
-        final Line line = processor.getLine();
-        if ((editName.getText().length() <= 0) || (line.GoodsID <= 0)) {
-            Dialogue.Error(this, R.string.barcode_prompt);
-            return;
-        } else if (line.FactQnty > line.DocQnty) {
-            Dialogue.Error(this, R.string.msg_quantity_mismatch);
+        try {
+            processor.line.Price = Formatter.Currency.parse(editPrice.getText().toString());
+            processor.line.DocQnty = Formatter.Number.parse(editAmountDoc.getText().toString());
+            processor.line.FactQnty = Formatter.Number.parse(editAmountFact.getText().toString());
+        } catch (ParseException e) {
+            Dialogue.Error(this, R.string.msg_data_incorrect);
             return;
         }
 
-        try {
-            line.Price = Formatter.Currency.parse(editPrice.getText().toString());
-            line.DocQnty = Formatter.Number.parse(editAmountDoc.getText().toString());
-            line.FactQnty = Formatter.Number.parse(editAmountFact.getText().toString());
-        } catch (ParseException e) {
-            Dialogue.Error(this, R.string.msg_data_incorrect);
+        if ((editName.getText().length() <= 0) || (processor.line.GoodsID <= 0)) {
+            Dialogue.Error(this, R.string.barcode_prompt);
+            return;
+        } else if (processor.line.FactQnty > processor.line.DocQnty) {
+            Dialogue.Error(this, R.string.msg_quantity_mismatch);
+            return;
+        } else if ((processor.line.FactQnty < processor.line.DocQnty) && (processor.parentmark != null)) {
+            Dialogue.Error(this, R.string.msg_pack_only);
             return;
         }
 
@@ -189,8 +187,7 @@ public class PositionActivity extends Activity {
             final TextView textName = owner.findViewById(R.id.textName);
 
             textBC.setText(barcode.BC);
-            final Good good = dbc.goods().get(barcode.GoodsID);
-            textName.setText(good != null ? good.Name : null);
+            textName.setText(dbc.goods().getName(barcode.GoodsID));
         }
 
         @Override
@@ -234,26 +231,22 @@ public class PositionActivity extends Activity {
 
     private static class AutoCompleteHandler implements View.OnClickListener, View.OnFocusChangeListener, AdapterView.OnItemClickListener {
         private final PositionActivity context;
-        private final DbDictionaries dbc;
         private BarcodeProcessor processor = null;
-        private Line line = null;
         private View v = null;
 
-        public AutoCompleteHandler(PositionActivity context, DbDictionaries dbc) {
+        public AutoCompleteHandler(PositionActivity context) {
             this.context = context;
-            this.dbc = dbc;
         }
 
         public void initialize(BarcodeProcessor processor, View v) {
             this.processor = processor;
-            this.line = processor.getLine();
             this.v = v;
             raise();
         }
 
         private void raise() {
-            v.setFocusable(line.GoodsID <= 0);
-            v.setEnabled(!processor.isMarked());
+            v.setFocusable(processor.line.GoodsID <= 0);
+            v.setEnabled(!processor.isLineMarked());
         }
 
         @Override
@@ -270,12 +263,12 @@ public class PositionActivity extends Activity {
         @Override
         public void onFocusChange(View v, boolean hasFocus) {
             if (hasFocus) {
-                ((TextView) v).setText(line.BC);
+                ((TextView) v).setText(processor.line.BC);
             } else {
                 final BarcodeMarker marker = new BarcodeMarker(((TextView) v).getText().toString());
 
-                if (marker.gtin.equals(line.BC)) {
-                    ((TextView) v).setText(line.GoodsName);
+                if (marker.bc.equals(processor.line.BC)) {
+                    ((TextView) v).setText(processor.line.GoodsName);
                     raise();
                 } else if (processor.updateLine(context, marker)) {
                     context.updateLine();
@@ -284,5 +277,5 @@ public class PositionActivity extends Activity {
             }
         }
     }
-    private final AutoCompleteHandler autoCompleteHandler = new AutoCompleteHandler(this, dbc);
+    private final AutoCompleteHandler autoCompleteHandler = new AutoCompleteHandler(this);
 }

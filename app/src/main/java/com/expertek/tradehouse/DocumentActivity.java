@@ -130,18 +130,18 @@ public class DocumentActivity extends Activity {
         @Override
         public void onClick(View v) {
             if (buttonAdd.equals(v)) {
-                processor.createLine();
+                processor.selectLine(AdapterInterface.INVALID_POSITION, null);
                 actionAdd();
+            } else if (buttonEdit.equals(v)) {
+                final int position = listLine.getCheckedItemPosition();
+                if (position != AdapterInterface.INVALID_POSITION) {
+                    processor.selectLine(position, null);
+                    actionEdit();
+                }
             } else if (buttonSave.equals(v)) {
                 actionSave();
             } else if (buttonSend.equals(v)) {
                 actionSend();
-            } else if (buttonEdit.equals(v)) {
-                final int position = listLine.getCheckedItemPosition();
-                if (position != AdapterInterface.INVALID_POSITION) {
-                    processor.setLine((Line) listLine.getAdapter().getItem(position));
-                    actionEdit();
-                }
             }
         }
     };
@@ -150,7 +150,7 @@ public class DocumentActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != RESULT_OK) return;
         processor.apply(data.getParcelableExtra(BarcodeProcessor.class.getName()));
-        final int position = processor.setLine(processor.getLine());
+        final int position = processor.acceptLine();
         editSummary.setText(Formatter.Currency.format(document.FactSum));
 
         if (position != listLine.getCheckedItemPosition()) {

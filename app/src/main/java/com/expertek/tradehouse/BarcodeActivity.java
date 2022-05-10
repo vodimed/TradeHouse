@@ -24,7 +24,6 @@ import com.expertek.tradehouse.components.BarcodeMarker;
 import com.expertek.tradehouse.components.BarcodeScanner;
 import com.expertek.tradehouse.dictionaries.DbDictionaries;
 import com.expertek.tradehouse.dictionaries.entity.Barcode;
-import com.expertek.tradehouse.dictionaries.entity.Good;
 
 import java.util.List;
 
@@ -93,8 +92,7 @@ public class BarcodeActivity extends Activity {
 
     private void displayBarcode(Barcode barcode) {
         if (barcode != null) {
-            final Good good = dbc.goods().get(barcode.GoodsID);
-            editName.setText(good != null ? good.Name : null);
+            editName.setText(dbc.goods().getName(barcode.GoodsID));
             buttonPrice.setText(Formatter.Currency.format(barcode.PriceBC));
         } else {
             editName.setText("");
@@ -106,8 +104,8 @@ public class BarcodeActivity extends Activity {
         @Override
         public void onBarcodeDetect(String scanned) {
             final BarcodeMarker marker = new BarcodeMarker(scanned);
-            editBarcode.setText(marker.gtin);
-            displayBarcode(dbc.barcodes().get(marker.gtin));
+            editBarcode.setText(marker.bc);
+            displayBarcode(dbc.barcodes().get(marker.bc));
          }
     };
 
@@ -138,8 +136,7 @@ public class BarcodeActivity extends Activity {
             final TextView textName = owner.findViewById(R.id.textName);
 
             textBC.setText(barcode.BC);
-            final Good good = dbc.goods().get(barcode.GoodsID);
-            textName.setText(good != null ? good.Name : null);
+            textName.setText(dbc.goods().getName(barcode.GoodsID));
         }
 
         @Override

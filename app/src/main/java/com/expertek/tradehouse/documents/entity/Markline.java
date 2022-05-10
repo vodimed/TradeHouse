@@ -8,6 +8,8 @@ import com.common.extensions.database.Index;
 import com.common.extensions.database.PrimaryKey;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 
 @Entity(tableName = "MT_MarkLines", indices = {
         @Index(name = "DocName", value = "DocName"), // redundant
@@ -28,9 +30,27 @@ public class Markline implements Serializable {
     public String MarkParent; // Родительская марка
     public int BoxQnty; // Кол-во дочерних марок (кол-во в бл., упаков.)
 
+    public static final String UNGROUPED = "Ungrouped";
+    public static final String NOT_CORRECT = "NotCorrect";
+    public static final String GRAY_ZONE = "GrayZone";
+    public static final String UTD = "UTD";
+    public static final String TSD = "TSD";
+    public static final String CR_TSD = "CrTSD";
+    public static final String CHECK = "Check";
+    public static final String CHECK_SCAN = "CheckScan";
+    private static final List<String> scannedstat = Arrays.asList(TSD, CR_TSD, CHECK, CHECK_SCAN);
+
     @Override
     public boolean equals(@Nullable Object obj) {
         assert (obj instanceof Markline);
         return (LineID == ((Markline) obj).LineID);
+    }
+
+    public boolean isScanned() {
+        return scannedstat.contains(Sts);
+    }
+
+    public boolean isParent() {
+        return (BoxQnty > 1);
     }
 }

@@ -7,6 +7,7 @@ import java.util.List;
 public class BarcodeMarker implements Serializable {
     private static final List<String> pref = Arrays.asList("01", "02");
     public final String scanned;
+    public final String bc;
     public final String gtin;
     public final String serial;
     public final double weight;
@@ -108,6 +109,7 @@ public class BarcodeMarker implements Serializable {
                     weight = 1;
                 }
         }
+        this.bc = gtin;
     }
 
     public boolean isWellformed() {

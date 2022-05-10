@@ -8,6 +8,7 @@ import com.common.extensions.database.Index;
 import com.common.extensions.database.PrimaryKey;
 import com.expertek.tradehouse.Application;
 import com.expertek.tradehouse.R;
+import com.expertek.tradehouse.components.MainSettings;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -73,19 +74,23 @@ public class Document implements Serializable {
         return Complete;
     }
 
-    public boolean isMarkline() {
-        return ((Flags & 0x1) == 0x1);
+    public boolean isMarked() {
+        return MainSettings.CheckMarks && ((Flags & 0x1) == 0x1);
     }
 
     public boolean isInventory() {
-        return DocType.startsWith(INV);
+        return DocType.startsWith("Inv");
+    }
+
+    public boolean isInvoice() {
+        return DocType.endsWith("WB");
     }
 
     public boolean isReadonly() {
-        return (readonlytype.contains(DocType) || readonlystat.contains(Status));
+        return readonlytype.contains(DocType) || readonlystat.contains(Status);
     }
 
     public boolean isTreadHouse() {
-        return (DocType.equals(INV) || thousestat.contains(Status));
+        return DocType.equals(INV) || thousestat.contains(Status);
     }
 }

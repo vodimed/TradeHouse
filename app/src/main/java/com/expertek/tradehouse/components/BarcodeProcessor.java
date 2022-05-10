@@ -13,7 +13,6 @@ import com.expertek.tradehouse.Application;
 import com.expertek.tradehouse.R;
 import com.expertek.tradehouse.dictionaries.DbDictionaries;
 import com.expertek.tradehouse.dictionaries.entity.Barcode;
-import com.expertek.tradehouse.dictionaries.entity.Good;
 import com.expertek.tradehouse.documents.DBDocuments;
 import com.expertek.tradehouse.documents.entity.Document;
 import com.expertek.tradehouse.documents.entity.Line;
@@ -24,11 +23,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class BarcodeProcessor implements Parcelable {
     public static final int ERROR_VALUE = -2;
     public static final int SINGLETON_LIST = -1;
-    private static final List<String> scannedstat = Arrays.asList("TSD", "CrTSD", "Check", "CheckScan");
     private final DbDictionaries dbc = Application.dictionaries.db();
     private final DBDocuments dbd = Application.documents.db();
     private long markCounter;
@@ -36,7 +35,8 @@ public class BarcodeProcessor implements Parcelable {
     public final MarkList marklines;
     public final List<Line> lines;
     public final Document document;
-    private Line line = null;
+    public Markline parentmark = null;
+    public Line line = null;
 
     /**
      * PagingList with capability of delta updates
@@ -71,7 +71,9 @@ public class BarcodeProcessor implements Parcelable {
         protected Markline[] getModified() {
             final Markline[] updates = (Markline[]) Array.newInstance(Markline.class, setter.size());
             for (int i = 0, idx = 0; i < update.size(); i++) {
-                if (setter.get(update.keyAt(i))) updates[idx++] = update.valueAt(i);
+                if (setter.get(update.keyAt(i))) {
+                    updates[idx++] = update.valueAt(i);
+                }
             }
             return updates;
         }
@@ -83,7 +85,7 @@ public class BarcodeProcessor implements Parcelable {
         this.document = document;
         this.lines = lines;
 
-        if (MainSettings.CheckMarks && document.isMarkline()) {
+        if (document.isMarked()) {
             this.marklines = new MarkList(dbd, document, line);
         } else {
             this.marklines = new MarkList();
@@ -101,6 +103,7 @@ public class BarcodeProcessor implements Parcelable {
         this.markCounter = in.readLong();
         this.lineCounter = SINGLETON_LIST;
         this.document = (Document) in.readSerializable();
+        this.parentmark = (Markline) in.readSerializable();
         this.line = (Line) in.readSerializable();
         this.lines = Collections.singletonList(this.line);
         this.marklines = new MarkList(dbd, document, line);
@@ -110,10 +113,12 @@ public class BarcodeProcessor implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        if (line == null) createLine();
         dest.writeLong(markCounter);
         dest.writeSerializable(document);
+        dest.writeSerializable(parentmark);
         dest.writeSerializable(line);
-        dest.writeList(filterSelection(lineCounter != SINGLETON_LIST));
+        dest.writeList(filterModified(!isModeSingle()));
     }
 
     @Override
@@ -137,21 +142,48 @@ public class BarcodeProcessor implements Parcelable {
     private final Predicate<Markline> linePredicate = new Predicate<Markline>() {
         @Override
         public boolean test(Markline markline) {
-            return !markline.PartIDTH.equals(line.PartIDTH);
+            return markline.PartIDTH.equals(line.PartIDTH);
         }
     };
 
-    public boolean isMarked() {
-        assert (line != null);
-        if (line.PartIDTH == null) return false;
+    private static final Predicate<Markline> markParent = new Predicate<Markline>() {
+        @Override
+        public boolean test(Markline markline) {
+            return markline.isParent();
+        }
+    };
+
+    private List<Markline> filterModified(boolean filtered) {
+        final Markline[] modified = marklines.getModified();
+
+        if (!filtered || (line.PartIDTH == null)) {
+            return Arrays.asList(modified);
+        } else {
+            return Arrays.stream(modified).filter(linePredicate).collect(Collectors.toList());
+        }
+    }
+
+    private boolean isModeSingle() {
+        return (lineCounter == SINGLETON_LIST);
+    }
+
+    public boolean isLineMarked() {
+        if ((line == null) || (line.PartIDTH == null)) return false;
         return marklines.stream().anyMatch(linePredicate);
     }
 
-    private List<Markline> filterSelection(boolean filtered) {
-        assert (line != null);
-        final List<Markline> result = Arrays.asList(marklines.getModified());
-        if (filtered && (line.PartIDTH != null)) result.removeIf(linePredicate);
-        return result;
+    private Markline getLineMarker(@Nullable Markline parentmark, @Nullable Markline markline) {
+        if ((line == null) || (line.PartIDTH == null)) {
+            return null;
+        } else if ((markline != null) && linePredicate.test(markline) && markline.isParent()) {
+            return markline;
+        } else if ((parentmark != null) && linePredicate.test(parentmark) && parentmark.isParent()) {
+            return parentmark;
+        } else try {
+            return marklines.stream().filter(linePredicate).filter(markParent).limit(1).iterator().next();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private int findLine(BarcodeMarker marker) {
@@ -162,16 +194,28 @@ public class BarcodeProcessor implements Parcelable {
         return SINGLETON_LIST;
     }
 
-    private Markline findMark(BarcodeMarker marker) {
-        for (int i = 0; i < marklines.size(); i++) {
-            if (marklines.get(i).MarkCode.equals(marker.scanned))
-                return marklines.get(i);
+    private int findMark(BarcodeMarker marker) {
+        return findMark(marker.scanned);
+    }
+
+    private int findMark(String scanned) {
+        if (scanned != null) {
+            if ((parentmark != null) && scanned.equals(parentmark.MarkCode)) {
+                return marklines.indexOf(parentmark);
+            } else for (int i = 0; i < marklines.size(); i++) {
+                if (marklines.get(i).MarkCode.equals(scanned))
+                    return i;
+            }
         }
-        return null;
+        return SINGLETON_LIST;
     }
 
     private String getPartIDTH(BarcodeMarker marker) {
         return (document.DocName + "_" + marker.gtin);
+    }
+
+    private void correctDocSumm(Line line, double quantity) {
+        document.FactSum += quantity * line.Price;
     }
 
     private long getMarkId() {
@@ -189,61 +233,57 @@ public class BarcodeProcessor implements Parcelable {
         return lines.get(lines.size() - 1).Pos + 1;
     }
 
-    public Line getLine() {
-        return line;
-    }
-
-    public int setLine(Line line) {
-        this.line = line;
-        final int position = lines.indexOf(line);
-        final double delta;
-
-        if (position < 0) {
-            delta = line.FactQnty;
-            lines.add(line);
-        } else {
-            delta = line.FactQnty - lines.get(position).FactQnty;
-            lines.set(position, line);
-        }
-        correctDocSumm(line, delta);
-        return position;
-    }
-
-    private void correctDocSumm(Line line, double quantity) {
-        document.FactSum += quantity * line.Price;
-    }
-
-    public Line createLine() {
+    private void createLine() {
         line = new Line();
         line.DocName = document.DocName;
         line.LineID = (int) getLineId();
         line.Pos = getLinePos();
         line.PartIDTH = null;
         line.Flags = 0;
-        return line;
     }
 
-    public boolean updateLine(@NonNull Context context, @NonNull BarcodeMarker marker) {
-        assert (line != null);
+    public void selectLine(int position, @Nullable Markline markline) {
+        if ((position >= 0) && (position < lines.size())) {
+            line = lines.get(position);
+            parentmark = getLineMarker(parentmark, markline);
+        } else if (!isModeSingle()) {
+            line = null;
+            parentmark = null;
+        }
+    }
 
+    private boolean checkLine(@NonNull Context context, @NonNull BarcodeMarker marker, boolean match) {
         if (!marker.isWellformed()) {
             Dialogue.Error(context, R.string.msg_bar_incorrect);
             return false;
+        } else if (match && (parentmark != null) && (line.FactQnty + marker.weight > parentmark.BoxQnty)) {
+            Dialogue.Error(context, R.string.msg_pack_unable);
+            return false;
+        } else if (!match && isLineMarked()) {
+            Dialogue.Error(context, R.string.msg_mark_line_wrong);
+            return false;
+        } else if (!match && (document.isReadonly() || document.isTreadHouse())) {
+            Dialogue.Error(context, R.string.msg_good_absent);
+            return false;
         }
+        return true;
+    }
 
-        final Barcode barcode = dbc.barcodes().get(marker.gtin);
+    public boolean updateLine(@NonNull Context context, @NonNull BarcodeMarker marker) {
+        final Barcode barcode = dbc.barcodes().get(marker.bc);
         if (barcode == null) {
             Dialogue.Error(context, R.string.msg_bar_not_found);
             return false;
         }
 
-        final Good good = dbc.goods().get(barcode.GoodsID);
-        if (good == null) {
+        final String goodName = dbc.goods().getName(barcode.GoodsID);
+        if (goodName == null) {
             Dialogue.Error(context, R.string.msg_bar_not_found);
             return false;
         }
 
-        line.GoodsName = good.Name;
+        if (line == null) createLine();
+        line.GoodsName = goodName;
         line.GoodsID = barcode.GoodsID;
         line.BC = barcode.BC;
         line.UnitBC = barcode.UnitBC;
@@ -255,54 +295,122 @@ public class BarcodeProcessor implements Parcelable {
         return true;
     }
 
-    public int add(@NonNull Context context, @NonNull BarcodeMarker marker) {
-        final Markline markline = findMark(marker);
-        if (!checkMarkline(context, markline, false)) return ERROR_VALUE;
+    public int acceptLine() {
+        int position = lines.indexOf(line);
+        final double delta;
 
-        if ((lineCounter == SINGLETON_LIST) && (line.GoodsID <= 0)) {
-            if (!updateLine(context, marker)) return ERROR_VALUE;
-        }
-
-        final int position = findLine(marker);
         if (position < 0) {
-            if (lineCounter == SINGLETON_LIST) {
-                Dialogue.Error(context, R.string.msg_bar_line_wrong);
-                return ERROR_VALUE;
-            } else if (document.isReadonly() || document.isTreadHouse()) {
-                Dialogue.Error(context, R.string.msg_good_absent);
-                return ERROR_VALUE;
-            }
-
-            line = createLine();
-            if (!updateLine(context, marker)) return ERROR_VALUE;
+            position = lines.size();
+            delta = line.FactQnty;
+            lines.add(line);
         } else {
-            line = lines.get(position);
-            line.DocQnty += marker.weight;
-            line.FactQnty += marker.weight;
-            correctDocSumm(line, marker.weight);
+            delta = line.FactQnty - lines.get(position).FactQnty;
+            lines.set(position, line);
         }
-
+        correctDocSumm(line, delta);
         return position;
     }
 
-    private boolean checkMarkline(Context context, Markline markline, boolean required) {
+    private boolean checkMarkline(@NonNull Context context, @Nullable Markline markline, boolean required) {
         if (required && (markline == null)) {
-            Dialogue.Error(context, R.string.msg_mark_absent);
+            Dialogue.Error(context, isModeSingle() ?
+                    R.string.msg_mark_line_absent :
+                    R.string.msg_mark_absent);
+            return false;
         } else if (markline == null) {
             return true;
-        } else if (document.DocType.equals(Document.UTD) && (markline.BoxQnty == 1)) {
+        } else if (!required) {
+            Dialogue.Error(context, R.string.msg_already_accepted);
+            return false;
+        } else if (Document.UTD.equals(document.DocType) && (markline.BoxQnty <= 1)) {
             Dialogue.Error(context, R.string.msg_scan_pack);
-        } else if (scannedstat.contains(markline.Sts)) {
+            return false;
+        } else if (markline.isScanned()) {
             Dialogue.Error(context, R.string.msg_already_scanned);
-        } else if ("Ungrouped".equals(markline.Sts)) {
+            return false;
+        } else if (Markline.UNGROUPED.equals(markline.Sts)) {
             Dialogue.Error(context, R.string.msg_ungroupped);
-        } else if ("NotCorrect".equals(markline.Sts)) {
+            return false;
+        } else if (Markline.NOT_CORRECT.equals(markline.Sts)) {
             Dialogue.Error(context, R.string.msg_not_allowed);
-        } else if ("GrayZone".equals(markline.Sts)) {
-        } else if ("UTD".equals(markline.Sts)) {
-        } else {
-            return true;
+            return false;
+        } else if (Markline.GRAY_ZONE.equals(markline.Sts) && isModeSingle()) {
+            Dialogue.Error(context, R.string.msg_grayzone);
+            return false;
+        } else if ((parentmark != null) && !parentmark.MarkCode.equals(markline.MarkParent)) {
+            Dialogue.Error(context, R.string.msg_pack_wrong);
+            return false;
+        } else if ((parentmark != null) && (markline.BoxQnty > 1)) {
+            Dialogue.Error(context, R.string.msg_scan_item);
+            return false;
         }
-        return false;
+        return true;
+    }
+
+    private boolean updateMarkline(@NonNull Context context, @NonNull Markline markline) {
+        if (Markline.UTD.equals(markline.Sts)) {
+            markline.Sts = Markline.CHECK_SCAN;
+
+            for (int i = 0; i < marklines.size(); i++) {
+                final Markline markchild = marklines.get(i);
+                if (markchild.MarkParent.equals(markline.MarkCode)) {
+                    markchild.Sts = Markline.CHECK;
+                    marklines.set(i, markchild);
+                }
+            }
+
+            if (markline.MarkParent != null) {
+                final int parentpos = findMark(markline.MarkParent);
+                final Markline markparent = marklines.get(parentpos);
+                markparent.Sts = Markline.UNGROUPED;
+                marklines.set(parentpos, markparent);
+            }
+        } else if (parentmark != null) {
+            markline.Sts = Markline.CHECK_SCAN;
+            markline.MarkParent = parentmark.MarkCode;
+        } else {
+            markline.Sts = Markline.TSD;
+        }
+        return true;
+    }
+
+    public int add(@NonNull Context context, @NonNull BarcodeMarker marker) {
+        final int markpos = findMark(marker);
+        Markline markline = (markpos >= 0 ? marklines.get(markpos) : null);
+        if (!checkMarkline(context, markline, document.isReadonly())) {
+            return ERROR_VALUE;
+        }
+
+        final int position = findLine(marker);
+        selectLine(position, markline);
+        if (!checkLine(context, marker, (position >= 0))) {
+            return ERROR_VALUE;
+        }
+
+        if (markpos >= 0) {
+            if (!updateMarkline(context, markline)) return ERROR_VALUE;
+            marklines.set(markpos, markline);
+        } else if (document.isMarked()) {
+            markline = new Markline();
+            markline.DocName = document.DocName;
+            markline.LineID = (int) getMarkId();
+            markline.MarkCode = marker.scanned;
+            markline.PartIDTH = getPartIDTH(marker);
+            markline.Sts = Markline.CR_TSD;
+            markline.MarkParent = (parentmark != null ? parentmark.MarkCode : null);
+            markline.BoxQnty = (int) dbc.barcodes().getRate(marker.bc);
+
+            if (!checkMarkline(context, markline, true)) return ERROR_VALUE;
+            marklines.add(markline);
+        }
+
+        if (position >= 0) {
+            line.DocQnty += marker.weight;
+            line.FactQnty += marker.weight;
+            correctDocSumm(line, marker.weight);
+        } else if (!updateLine(context, marker)) {
+            return ERROR_VALUE;
+        }
+        return position;
     }
 }
