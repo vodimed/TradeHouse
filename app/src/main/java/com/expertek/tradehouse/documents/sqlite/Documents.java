@@ -33,7 +33,7 @@ public class Documents {
         System.arraycopy(docType, 0, docParams, 0, docType.length);
 
         return new SQLitePager.Factory<>(db, Document.class, "SELECT * FROM MT_documents " +
-                "WHERE DocType IN (:t0,:t1,:t2,:t3,:t4,:t5,:t6,:t7,:t8,:t9) ORDER BY DocName", (Object[]) docParams);
+                "WHERE DocType IN (:t0,:t1,:t2,:t3,:t4,:t5,:t6,:t7,:t8,:t9) ORDER BY StartDate DESC, DocName DESC", (Object[]) docParams);
     }
 
     public Document get(String ident) {

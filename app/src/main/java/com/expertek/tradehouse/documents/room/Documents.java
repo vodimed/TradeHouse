@@ -11,7 +11,7 @@ import com.expertek.tradehouse.documents.entity.Document;
 
 @Dao
 public interface Documents {
-    @Query("SELECT * FROM MT_documents ORDER BY DocName")
+    @Query("SELECT * FROM MT_documents ORDER BY StartDate DESC, DocName DESC")
     DataSource.Factory<Integer, Document> load();
 
     @Query("SELECT * FROM MT_documents WHERE DocType IN (:docType) OR :docType = '*' ORDER BY StartDate DESC, DocName DESC")
