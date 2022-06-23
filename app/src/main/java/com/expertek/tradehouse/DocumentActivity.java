@@ -29,7 +29,6 @@ import com.expertek.tradehouse.documents.entity.Document;
 import com.expertek.tradehouse.documents.entity.Line;
 import com.expertek.tradehouse.documents.entity.Markline;
 import com.expertek.tradehouse.tradehouse.TradeHouseService;
-import com.expertek.tradehouse.tradehouse.Проводка;
 
 import java.util.List;
 
@@ -62,6 +61,9 @@ public class DocumentActivity extends Activity {
 
         // Initialize Barcode Reader
         scanner.Initialize(this);
+
+        final TextView labelNumber = findViewById(R.id.labelNumber);
+        labelNumber.setText(document.Status);
 
         final EditText editNumber = findViewById(R.id.editNumber);
         editNumber.setText(document.DocName);
@@ -213,11 +215,14 @@ public class DocumentActivity extends Activity {
     }
 
     protected void actionSend() {
-        final Document export = document;
-        if (!export.isComplete()) return;
-        final Bundle params = new Bundle();
-        params.putSerializable(Document.class.getName(), export);
-        tradehouse.enqueue(new ServiceInterface.JobInfo(1, Проводка.class, tradehouse.receiver()), params);
+        //TODO:Complete
+//        final Document export = document;
+//        if (!export.isComplete()) return;
+//        final Bundle params = new Bundle();
+//        params.putSerializable(Document.class.getName(), export);
+//        tradehouse.enqueue(new ServiceInterface.JobInfo(1, Проводка.class, tradehouse.receiver()), params);
+        document.Complete = true;
+        actionSave();
     }
 
     private final AdapterInterface.OnItemSelectionListener onLineSelection =

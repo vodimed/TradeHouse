@@ -22,10 +22,10 @@ public class MainSettings {
     public static String TradeHouseAddress = mSettings.getString("TradeHouseAddress", "Rubanda.expertek.local"); // "Rubanda.expertek.local" // "localhost"
     public static int TradeHousePort = mSettings.getInt("TradeHousePort", 8080);
 
-    public static String TradeHouseUserId = mSettings.getString("TradeHouseUserId", "1");
     public static String TradeHouseUserName = mSettings.getString("TradeHouseUserName", "адм");
+    public static String TradeHouseUserId = mSettings.getString("TradeHouseUserId", "");
     public static String TradeHouseObjType = mSettings.getString("TradeHouseObjType", "маг");
-    public static int TradeHouseObjCode = mSettings.getInt("TradeHouseObjCode", 1);
+    public static int TradeHouseObjCode = mSettings.getInt("TradeHouseObjCode", 0);
     public static Set<String> BarcodePrefixes = mSettings.getStringSet("BarcodePrefixes", mStringSet);
     public static boolean Tethering = mSettings.getBoolean("Tethering", true);
     public static final String SerialNumber = getSerialNumber();

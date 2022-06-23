@@ -10,6 +10,11 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 
 public class Словари extends TradeHouseTask {
+    public Словари() {
+        super();
+        this.readTimeout = MainSettings.LoadTimeout;
+    }
+
     @Override
     public Bundle call() throws Exception {
         final Bundle result = new Bundle();

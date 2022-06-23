@@ -13,4 +13,7 @@ public interface Users {
 
     @Query("SELECT * FROM TH_users WHERE userID = :ident")
     User get(String ident);
+
+    @Query("SELECT UserId FROM TH_users WHERE userName = :userName")
+    String getId(String userName);
 }

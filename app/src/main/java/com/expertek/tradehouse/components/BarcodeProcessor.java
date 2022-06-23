@@ -288,7 +288,7 @@ public class BarcodeProcessor implements Parcelable {
         line.BC = barcode.BC;
         line.UnitBC = barcode.UnitBC;
         line.Price = barcode.PriceBC;
-        line.DocQnty = marker.weight;
+        line.DocQnty = (parentmark != null ? parentmark.BoxQnty : marker.weight);
         line.FactQnty = marker.weight;
         line.AlcCode = marker.gtin;
         line.PartIDTH = getPartIDTH(marker);
@@ -405,7 +405,6 @@ public class BarcodeProcessor implements Parcelable {
         }
 
         if (position >= 0) {
-            line.DocQnty += marker.weight;
             line.FactQnty += marker.weight;
             correctDocSumm(line.Price * marker.weight);
         } else if (!updateLine(context, marker)) {

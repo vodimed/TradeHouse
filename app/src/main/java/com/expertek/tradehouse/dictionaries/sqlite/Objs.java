@@ -1,6 +1,8 @@
 package com.expertek.tradehouse.dictionaries.sqlite;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDoneException;
+import android.database.sqlite.SQLiteStatement;
 
 import androidx.paging.DataSource;
 
@@ -26,5 +28,16 @@ public class Objs {
         final List<Obj> result = ((SQLitePager<Obj>) source).loadRange(0, 1);
         if (result.isEmpty()) return null;
         return result.get(0);
+    }
+
+    public int getId(String objType) {
+        final SQLiteStatement stmt = db.compileStatement(
+                "SELECT MIN(obj_code) FROM TH_objects WHERE obj_type = :objType");
+        stmt.bindString(1, objType);
+        try {
+            return (int) stmt.simpleQueryForLong();
+        } catch (SQLiteDoneException e) {
+            return 0;
+        }
     }
 }

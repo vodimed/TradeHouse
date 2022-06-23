@@ -5,6 +5,7 @@ import android.os.Bundle;
 import com.common.extensions.database.Formatter;
 import com.common.extensions.database.PagingList;
 import com.expertek.tradehouse.Application;
+import com.expertek.tradehouse.components.MainSettings;
 import com.expertek.tradehouse.documents.DBDocuments;
 import com.expertek.tradehouse.documents.entity.Document;
 import com.expertek.tradehouse.documents.entity.Line;
@@ -21,6 +22,11 @@ import java.net.HttpURLConnection;
 public class Проводка extends TradeHouseTask {
     private final DBDocuments dbd = Application.documents.db();
     private Document export = null;
+
+    public Проводка() {
+        super();
+        this.readTimeout = MainSettings.ConnectionTimeout;
+    }
 
     @Override
     public Bundle call() throws Exception {

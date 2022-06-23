@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -30,8 +31,10 @@ import com.expertek.tradehouse.documents.DBDocuments;
 import com.expertek.tradehouse.documents.entity.Document;
 import com.expertek.tradehouse.documents.entity.Line;
 import com.expertek.tradehouse.tradehouse.TradeHouseService;
-import com.expertek.tradehouse.tradehouse.Проводка;
+import com.expertek.tradehouse.tradehouse.TradeHouseTask;
+import com.expertek.tradehouse.tradehouse.Документы;
 
+import java.io.File;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -184,7 +187,9 @@ public class InvoicesActivity extends Activity {
         document.UserID = MainSettings.TradeHouseUserId;
         document.UserName = MainSettings.TradeHouseUserName;
         document.Status = "НОВ";
-        document.Complete = true;
+        //TODO:Complete
+        // document.Complete = true;
+        document.Complete = false;
 
         final Intent intent = new Intent(InvoicesActivity.this, CreationActivity.class);
         intent.putExtra(Document.class.getName(), document);
@@ -202,11 +207,14 @@ public class InvoicesActivity extends Activity {
     }
 
     protected void actionSend(int position) {
-        final Document export = documents.get(position);
-        if (!export.isComplete()) return;
-        final Bundle params = new Bundle();
-        params.putSerializable(Document.class.getName(), export);
-        tradehouse.enqueue(new ServiceInterface.JobInfo(1, Проводка.class, tradehouse.receiver()), params);
+        //TODO:Complete
+//        final Document export = documents.get(position);
+//        if (!export.isComplete()) return;
+//        final Bundle params = new Bundle();
+//        params.putSerializable(Document.class.getName(), export);
+//        tradehouse.enqueue(new ServiceInterface.JobInfo(1, Проводка.class, tradehouse.receiver()), params);
+        buttonSend.setEnabled(false);
+        tradehouse.enqueue(new ServiceInterface.JobInfo(3, Документы.class, tradehouse.receiver()), null);
     }
 
     private final DialogInterface.OnClickListener onDeleteClick = new DialogInterface.OnClickListener() {
@@ -270,14 +278,16 @@ public class InvoicesActivity extends Activity {
         public void onItemSelected(ViewGroup parent, View view, int position, long id) {
             buttonEdit.setEnabled(true);
             buttonDelete.setEnabled(true);
-            buttonSend.setEnabled(documents.get(position).isComplete());
+            //TODO:Complete
+            // buttonSend.setEnabled(documents.get(position).isComplete());
         }
 
         @Override
         public void onNothingSelected(ViewGroup parent) {
             buttonEdit.setEnabled(false);
             buttonDelete.setEnabled(false);
-            buttonSend.setEnabled(false);
+            //TODO:Complete
+            // buttonSend.setEnabled(false);
         }
     }
     private final ItemSelectionListener onDocumentSelection = new ItemSelectionListener();
@@ -382,6 +392,7 @@ public class InvoicesActivity extends Activity {
 
             textDocName.setText(document.DocName);
             textDocType.setText(shortype.get(document.DocType).toString());
+            textDocType.setTypeface(null, (document.Complete ? Typeface.BOLD : Typeface.NORMAL));
             textStatus.setText(shortstatus(document.Status));
             textFactSum.setText(Formatter.Currency.format(document.FactSum));
             textStartDate.setText(Formatter.Date.format(document.StartDate));
@@ -422,7 +433,7 @@ public class InvoicesActivity extends Activity {
                 array[i].DocType = "IntPurchWB";
                 array[i].FactSum = 0.0;
                 array[i].StartDate = Calendar.getInstance().getTime();
-                array[i].Complete = true;
+                array[i].Complete = false;
             }
         }
 
@@ -482,15 +493,22 @@ public class InvoicesActivity extends Activity {
     private final ServiceConnector tradehouse = new ServiceConnector(this, TradeHouseService.class) {
         @Override
         public void onJobResult(@NonNull ServiceInterface.JobInfo work, Bundle result) {
-            final Intent intent = new Intent();
-            intent.putExtras(result);
-            final Document export = (Document) result.getSerializable(Document.class.getName());
-            onDocumentSelection.setPosition(documents.indexOf(export));
-            onActivityResult(DocumentActivity.REQUEST_EDIT_DOCUMENT, RESULT_OK, intent);
+            buttonSend.setEnabled(true);
+            // TODO:Complete
+//            final Intent intent = new Intent();
+//            intent.putExtras(result);
+//            final Document export = (Document) result.getSerializable(Document.class.getName());
+//            onDocumentSelection.setPosition(documents.indexOf(export));
+//            onActivityResult(DocumentActivity.REQUEST_EDIT_DOCUMENT, RESULT_OK, intent);
+            final File documents = Application.app().getDatabasePath(MainSettings.Documents_db);
+            Application.replace_documents_db_file(TradeHouseTask.temporary(documents).getName(),
+                    (Class<? extends DBDocuments>) result.getSerializable(documents.getName()));
+            InvoicesActivity.this.recreate();
         }
 
         @Override
         public void onJobException(@NonNull ServiceInterface.JobInfo work, @NonNull Throwable e) {
+            buttonSend.setEnabled(true);
             Logger.w(e);
         }
     };

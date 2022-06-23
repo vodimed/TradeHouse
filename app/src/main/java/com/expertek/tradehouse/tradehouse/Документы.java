@@ -8,14 +8,22 @@ import com.expertek.tradehouse.components.MainSettings;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
 public class Документы extends TradeHouseTask {
+    public Документы() {
+        super();
+        this.readTimeout = MainSettings.SendTimeout;
+    }
+
     @Override
     protected void setRequestHeaders() {
         connection.setRequestProperty("Content-Type", "raw");
         final String TradeHouseObjType = MainSettings.TradeHouseObjType.replace("маг", "shop"); // encoding "windows-1251"
-        connection.setRequestProperty("user-Agent", String.format(Locale.getDefault(), "%s?%d?True?.", TradeHouseObjType, MainSettings.TradeHouseObjCode));
+        connection.setRequestProperty("user-Agent", String.format(Locale.getDefault(), "%s?%d?%b?%c?%b",
+                TradeHouseObjType, MainSettings.TradeHouseObjCode, MainSettings.CheckMarks,
+                DecimalFormatSymbols.getInstance().getDecimalSeparator(), MainSettings.CheckMarks));
         connection.setDoOutput(true);
     }
 
@@ -25,7 +33,7 @@ public class Документы extends TradeHouseTask {
         final File documents = Application.app().getDatabasePath(MainSettings.Documents_db);
 
         connection.connect();
-        cancelled = !binary_request(connection.getOutputStream(), documents);
+        binary_request(connection.getOutputStream(), documents);
 
         if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
             throw new IOException(connection.getResponseMessage());

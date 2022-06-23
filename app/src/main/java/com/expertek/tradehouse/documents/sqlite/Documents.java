@@ -22,7 +22,7 @@ public class Documents {
     }
 
     public DataSource.Factory<Integer, Document> load() {
-        return new SQLitePager.Factory<>(db, Document.class, "SELECT * FROM MT_documents ORDER BY DocName");
+        return new SQLitePager.Factory<>(db, Document.class, "SELECT * FROM MT_documents ORDER BY StartDate DESC, DocName DESC");
     }
 
     public DataSource.Factory<Integer, Document> load(String... docType) {

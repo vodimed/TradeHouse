@@ -4,9 +4,9 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
+import com.common.extensions.exchange.ServiceInterface;
 import com.expertek.tradehouse.Application;
 import com.expertek.tradehouse.components.Logger;
-import com.common.extensions.exchange.ServiceInterface;
 import com.expertek.tradehouse.components.MainSettings;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -25,6 +25,8 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.text.DecimalFormatSymbols;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -38,10 +40,15 @@ public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
     protected static final Charset charset = Charset.forName("windows-1251"); // cp1251
     protected static final XmlPullParserFactory xmlfactory = createXmlFactory();
     protected HttpURLConnection connection;
+    protected int readTimeout = 0;
     protected String getquery = null;
     protected Bundle params = null;
     protected volatile boolean cancelled = false;
     private final List<String> log = new ArrayList<String>(10);
+
+    public TradeHouseTask() {
+        MainSettings.reloadPreferences();
+    }
 
     // Override to change
     protected void setRequestHeaders() {
@@ -52,7 +59,6 @@ public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
     @Override
     public void onCreate(@Nullable Bundle params) throws Exception {
         this.params = params;
-        MainSettings.reloadPreferences();
 
         final String address = (MainSettings.Tethering ?
                 ConnectionReceiver.getConnectedIp() :
@@ -62,6 +68,7 @@ public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
                 "http", address, MainSettings.TradeHousePort,
                 (getquery != null ? "?" + getquery : "")).openConnection();
         connection.setConnectTimeout(MainSettings.ConnectionTimeout);
+        connection.setReadTimeout(readTimeout);
         setRequestHeaders();
     }
 
@@ -72,7 +79,7 @@ public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
 
     @Override
     public void onDestroy() throws Exception {
-        connection.disconnect();
+        if (connection != null) connection.disconnect();
     }
 
     @Override
@@ -103,72 +110,62 @@ public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
         final XmlSerializer serializer = xmlfactory.newSerializer();
         serializer.setOutput(writer);
 
-        // Start document
-        serializer.startDocument(Charset.defaultCharset().name(), true);
-        serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
+        try {
+            // Start document
+            serializer.startDocument(Charset.defaultCharset().name(), true);
+            serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
 
-        // Open Tag <TSD>
-        serializer.startTag("", "TSD");
-        serializer.attribute("", "item", qualifier);
-        serializer.attribute("", "from", MainSettings.SerialNumber);
-        serializer.attribute("", "to", MainSettings.TradeHouseObjType + MainSettings.TradeHouseObjCode);
-        serializer.attribute("", "user", "1-1");
-        serializer.attribute("", "tstamp", String.valueOf(System.currentTimeMillis()));
-        serializer.attribute("", "version", Application.getVersion());
-        serializer.attribute("", "currDecSeparator", ".");
-        serializer.attribute("", "shortDatePattern", "M/d/yy");
-        serializer.attribute("", "longTimePattern", "h:mm:ss tt");
-        serializer.attribute("", "MarksReg", "True");
-        serializer.attribute("", "user-agent", String.format(Locale.getDefault(), "%s?%d?True?,?True", MainSettings.TradeHouseObjType, MainSettings.TradeHouseObjCode));
+            // Open Tag <TSD>
+            serializer.startTag("", "TSD");
+            serializer.attribute("", "item", qualifier);
+            serializer.attribute("", "from", MainSettings.SerialNumber);
+            serializer.attribute("", "to", MainSettings.TradeHouseObjType + Math.max(MainSettings.TradeHouseObjCode, 1));
+            serializer.attribute("", "user", MainSettings.TradeHouseUserId);
+            serializer.attribute("", "tstamp", String.valueOf(System.currentTimeMillis()));
+            serializer.attribute("", "version", Application.getVersion());
+            serializer.attribute("", "currDecSeparator", String.valueOf(DecimalFormatSymbols.getInstance().getDecimalSeparator()));
+            serializer.attribute("", "shortDatePattern", ((SimpleDateFormat) SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT)).toPattern());
+            serializer.attribute("", "longTimePattern", ((SimpleDateFormat) SimpleDateFormat.getTimeInstance(SimpleDateFormat.LONG)).toPattern());
+            serializer.attribute("", "MarksReg", String.valueOf(MainSettings.CheckMarks));
 
-        if (REQ_SETTINGS.equals(qualifier)) {
-            serializer.startTag("", "SN");
-            serializer.attribute("", "type", "HARDWARE");
-            serializer.attribute("", "value", MainSettings.SerialNumber);
-            serializer.endTag("", "SN");
+            request(serializer);
 
-            serializer.startTag("", "OBJ");
-            serializer.attribute("", "obj_type", MainSettings.TradeHouseObjType);
-            serializer.attribute("", "obj_code", String.valueOf(MainSettings.TradeHouseObjCode));
-            serializer.endTag("", "OBJ");
+            // End tag <TSD>
+            serializer.endTag("", "TSD");
+
+            // End document
+            serializer.endDocument();
+        } finally {
+            serializer.flush();
+            writer.flush();
+            writer.close();
+            outputStream.flush();
+            outputStream.close();
         }
-
-        request(serializer);
-
-        // End tag <TSD>
-        serializer.endTag("", "TSD");
-
-        // End document
-        serializer.endDocument();
-
-        serializer.flush();
-        writer.flush();
-        writer.close();
-        outputStream.flush();
-        outputStream.close();
     }
 
     protected boolean binary_request(OutputStream outputStream, File resource) throws IOException {
         FileInputStream inputStream;
+        int totalWrite = 0;
         try {
             inputStream = new FileInputStream(resource);
         } catch (FileNotFoundException e) {
             inputStream = null;
         }
 
-        if (inputStream != null) {
-            final byte[] buffer = new byte[1024];
-            int totalWrite = 0;
-            for (int bytesRead; !cancelled && ((bytesRead = inputStream.read(buffer)) != -1);) {
+        final byte[] buffer = new byte[1024];
+        try {
+            for (int bytesRead; !cancelled && (inputStream != null) && ((bytesRead = inputStream.read(buffer)) != -1);) {
                 outputStream.write(buffer, 0, bytesRead);
+                outputStream.flush();
                 totalWrite += bytesRead;
                 setProgress(String.format(Locale.getDefault(), "%dKb written", totalWrite / 1024));
             }
+        } finally {
+            outputStream.close();
             inputStream.close();
         }
 
-        outputStream.flush();
-        outputStream.close();
         return (!cancelled);
     }
 
@@ -177,41 +174,46 @@ public abstract class TradeHouseTask implements ServiceInterface.ServiceTask {
         parser.setInput(inputStream, charset.name());
         String thistag = null;
 
-        for (int eventType = parser.getEventType(); !cancelled &&
-                (eventType != XmlPullParser.END_DOCUMENT); eventType = parser.next())
-        {
-            switch (eventType) {
-                case XmlPullParser.START_DOCUMENT:
-                    break;
-                case XmlPullParser.START_TAG:
-                    thistag = parser.getName();
-                    for (int i = 0, size = parser.getAttributeCount(); i < size; i++) {
-                        content.putString(parser.getAttributeName(i), parser.getAttributeValue(i));
-                    }
-                    break;
-                case XmlPullParser.TEXT:
-                    content.putString(thistag, parser.getText());
-                    break;
+        try {
+            for (int eventType = parser.getEventType(); !cancelled &&
+                    (eventType != XmlPullParser.END_DOCUMENT); eventType = parser.next())
+            {
+                switch (eventType) {
+                    case XmlPullParser.START_DOCUMENT:
+                        break;
+                    case XmlPullParser.START_TAG:
+                        thistag = parser.getName();
+                        for (int i = 0, size = parser.getAttributeCount(); i < size; i++) {
+                            content.putString(parser.getAttributeName(i), parser.getAttributeValue(i));
+                        }
+                        break;
+                    case XmlPullParser.TEXT:
+                        content.putString(thistag, parser.getText());
+                        break;
+                }
             }
+        } finally {
+            inputStream.close();
         }
-        inputStream.close();
     }
 
     protected boolean binary_response(InputStream inputStream, File resource) throws IOException {
         final File temporaryFile = temporary(resource);
         final FileOutputStream outputStream = new FileOutputStream(temporaryFile, false);
+        int totalRead = 0;
 
         final byte[] buffer = new byte[1024];
-        int totalRead = 0;
-        for (int bytesRead; !cancelled && ((bytesRead = inputStream.read(buffer)) != -1);) {
-            outputStream.write(buffer, 0, bytesRead);
-            totalRead += bytesRead;
-            setProgress(String.format(Locale.getDefault(), "%dKb read", totalRead / 1024));
+        try {
+            for (int bytesRead; !cancelled && (inputStream != null) && ((bytesRead = inputStream.read(buffer)) != -1);) {
+                outputStream.write(buffer, 0, bytesRead);
+                outputStream.flush();
+                totalRead += bytesRead;
+                setProgress(String.format(Locale.getDefault(), "%dKb read", totalRead / 1024));
+            }
+        } finally {
+            outputStream.close();
+            inputStream.close();
         }
-
-        inputStream.close();
-        outputStream.flush();
-        outputStream.close();
 
         return (!cancelled);
     }

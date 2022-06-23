@@ -13,4 +13,7 @@ public interface Objs {
 
     @Query("SELECT * FROM TH_objects WHERE obj_code = :ident")
     Obj get(int ident);
+
+    @Query("SELECT MIN(obj_code) FROM TH_objects WHERE obj_type = :objType")
+    int getId(String objType);
 }

@@ -20,7 +20,8 @@
         android:id="@+id/textStatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="4" />
+        android:layout_weight="4"
+        android:enabled="false" />
 
     <TextView
         android:id="@+id/textFactSum"

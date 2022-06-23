@@ -110,6 +110,21 @@ public class DictionariesActivity extends Activity {
                 final File dictionaries = Application.app().getDatabasePath(MainSettings.Dictionaries_db);
                 Application.replace_dictionaries_db_file(TradeHouseTask.temporary(dictionaries).getName(),
                         (Class<? extends DbDictionaries>) result.getSerializable(dictionaries.getName()));
+                boolean settings_changed = false;
+
+                if ((MainSettings.TradeHouseUserId == null) || MainSettings.TradeHouseUserId.isEmpty()) {
+                    final String userId = Application.dictionaries.db().users().getId(MainSettings.TradeHouseUserName);
+                    if (userId != null) MainSettings.TradeHouseUserId = userId;
+                    settings_changed = true;
+                }
+
+                if (MainSettings.TradeHouseObjCode == 0) {
+                    final int objId = Application.dictionaries.db().objects().getId(MainSettings.TradeHouseObjType);
+                    if (objId != 0) MainSettings.TradeHouseObjCode = objId;
+                    settings_changed = true;
+                }
+
+                if (settings_changed) MainSettings.savePreferences();
                 break;
             case 3:
                 final File documents = Application.app().getDatabasePath(MainSettings.Documents_db);

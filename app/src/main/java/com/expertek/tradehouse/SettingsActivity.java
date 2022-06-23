@@ -60,8 +60,8 @@ public class SettingsActivity extends Activity {
         seekcontrol.register(this, R.id.seekLoadDelay, R.id.textLoadDelay, MainSettings.LoadTimeout / 1000);
         seekcontrol.register(this, R.id.seekSendDelay, R.id.textSendDelay, MainSettings.SendTimeout / 1000);
 
-        final TextView label = findViewById(R.id.labelSerial);
-        label.setText(String.format("%s v%s", label.getText(), Application.getVersion()));
+        final TextView version = findViewById(R.id.labelVersion);
+        version.setText(String.format("v%s", Application.getVersion()));
 
         final TextView serial = findViewById(R.id.editSerial);
         serial.setText(MainSettings.SerialNumber);
@@ -129,13 +129,17 @@ public class SettingsActivity extends Activity {
 
         final Spinner spinObject = findViewById(R.id.spinObject);
         final Obj object = (Obj) spinObject.getSelectedItem();
-        MainSettings.TradeHouseObjType = object.obj_type;
-        MainSettings.TradeHouseObjCode = object.obj_code;
+        if (object != null) {
+            MainSettings.TradeHouseObjType = object.obj_type;
+            MainSettings.TradeHouseObjCode = object.obj_code;
+        }
 
         final Spinner spinUser = findViewById(R.id.spinUser);
         final User user = (User) spinUser.getSelectedItem();
-        MainSettings.TradeHouseUserId = user.userID;
-        MainSettings.TradeHouseUserName = user.userName;
+        if (user != null) {
+            MainSettings.TradeHouseUserId = user.userID;
+            MainSettings.TradeHouseUserName = user.userName;
+        }
 
         MainSettings.Tethering = conhandler.checkTethering.isChecked();
 
