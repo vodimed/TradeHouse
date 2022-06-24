@@ -7,6 +7,7 @@ import com.expertek.tradehouse.components.MainSettings;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
@@ -37,6 +38,22 @@ public class Документы extends TradeHouseTask {
 
         if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
             throw new IOException(connection.getResponseMessage());
+        }
+
+        // Skip Bad-Formed Header messages
+        if (connection.getHeaderField("ETag") != null) {
+            final InputStream skip = connection.getInputStream();
+            int counter = 0;
+
+            for (int code = 0, prev = 0; (counter < 2) && (code >= 0); prev = code) {
+                code = skip.read();
+
+                if ((prev == 0xD) && (code == 0xA)) {
+                    counter++;
+                } else if ((prev != 0xA) || (code != 0xD)) {
+                    counter = 0;
+                }
+            }
         }
 
         // By 12.10.2021 Server sends incorrect ContentType="text/csv" for "raw" data
