@@ -65,6 +65,10 @@ public abstract class BarcodeScanner implements BarcodeReader.BarcodeListener {
         }
     }
 
+    public void mockBarcodeDetect(String scanned) {
+        onBarcodeDetect(scanned);
+    }
+
     protected abstract void onBarcodeDetect(String scanned);
 
     protected void onBarcodeFailure() {
