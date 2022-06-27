@@ -28,7 +28,7 @@ public class Markline implements Serializable {
     public @NonNull String PartIDTH = ""; // ИД партии
     public String Sts; // Статус марки
     public String MarkParent; // Родительская марка
-    public int BoxQnty; // Кол-во дочерних марок (кол-во в бл., упаков.)
+    public double BoxQnty; // Кол-во дочерних марок (кол-во в бл., упаков.)
 
     public static final String UNGROUPED = "Ungrouped";
     public static final String NOT_CORRECT = "NotCorrect";

@@ -24,7 +24,7 @@ public class Marklines {
 
     public DataSource.Factory<Integer, Markline> load(String docName, String partIDTH) {
         return new SQLitePager.Factory<>(db, Markline.class, "SELECT * FROM MT_MarkLines WHERE " +
-                "DocName = :docName AND (PartIDTH = :partIDTH OR :partIDTH IS NULL)", docName, partIDTH);
+                "DocName = :docName AND (PartIDTH = :partIDTH OR :partIDTH = '')", docName, partIDTH);
     }
 
     public Markline get(int ident) {

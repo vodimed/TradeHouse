@@ -20,7 +20,7 @@ public class Barcodes {
 
     public DataSource.Factory<Integer, Barcode> load(String ident) {
         return new SQLitePager.Factory<>(db, Barcode.class, "SELECT * FROM TH_barcodes " +
-                "WHERE BC LIKE :ident || '%' OR :ident IS NULL", ident);
+                "WHERE BC LIKE :ident || '%'", ident);
     }
 
     public Barcode get(String ident) {

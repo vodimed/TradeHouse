@@ -11,7 +11,7 @@ import com.expertek.tradehouse.dictionaries.entity.Barcode;
 
 @Dao
 public interface Barcodes {
-    @Query("SELECT * FROM TH_barcodes WHERE BC LIKE :ident || '%' OR :ident IS NULL")
+    @Query("SELECT * FROM TH_barcodes WHERE BC LIKE :ident || '%'")
     DataSource.Factory<Integer, Barcode> load(String ident);
 
     @Query("SELECT * FROM TH_barcodes WHERE BC = :ident")

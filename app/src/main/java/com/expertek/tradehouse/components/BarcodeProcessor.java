@@ -138,6 +138,10 @@ public class BarcodeProcessor implements Parcelable {
         }
     };
 
+    private static boolean isNull(String value) {
+        return (value == null) || (value.length() == 0);
+    }
+
     // Line <-> Markline correspondence
     private final Predicate<Markline> linePredicate = new Predicate<Markline>() {
         @Override
@@ -156,7 +160,7 @@ public class BarcodeProcessor implements Parcelable {
     private List<Markline> filterModified(boolean filtered) {
         final Markline[] modified = marklines.getModified();
 
-        if (!filtered || (line.PartIDTH == null)) {
+        if (!filtered || isNull(line.PartIDTH)) {
             return Arrays.asList(modified);
         } else {
             return Arrays.stream(modified).filter(linePredicate).collect(Collectors.toList());
@@ -168,12 +172,12 @@ public class BarcodeProcessor implements Parcelable {
     }
 
     public boolean isLineMarked() {
-        if ((line == null) || (line.PartIDTH == null)) return false;
+        if ((line == null) || isNull(line.PartIDTH)) return false;
         return marklines.stream().anyMatch(linePredicate);
     }
 
     private Markline getLineMarker(@Nullable Markline parentmark, @Nullable Markline markline) {
-        if ((line == null) || (line.PartIDTH == null)) {
+        if ((line == null) || isNull(line.PartIDTH)) {
             return null;
         } else if ((markline != null) && linePredicate.test(markline) && markline.isParent()) {
             return markline;
@@ -322,9 +326,6 @@ public class BarcodeProcessor implements Parcelable {
         } else if (!required) {
             Dialogue.Error(context, R.string.msg_already_accepted);
             return false;
-        } else if (Document.UTD.equals(document.DocType) && (markline.BoxQnty <= 1)) {
-            Dialogue.Error(context, R.string.msg_scan_pack);
-            return false;
         } else if (markline.isScanned()) {
             Dialogue.Error(context, R.string.msg_already_scanned);
             return false;
@@ -334,8 +335,11 @@ public class BarcodeProcessor implements Parcelable {
         } else if (Markline.NOT_CORRECT.equals(markline.Sts)) {
             Dialogue.Error(context, R.string.msg_not_allowed);
             return false;
-        } else if (Markline.GRAY_ZONE.equals(markline.Sts) && isModeSingle()) {
+        } else if (Markline.GRAY_ZONE.equals(markline.Sts) && !isModeSingle()) {
             Dialogue.Error(context, R.string.msg_grayzone);
+            return false;
+        } else if ((parentmark == null) && !isNull(markline.MarkParent)) {
+            Dialogue.Error(context, R.string.msg_scan_pack);
             return false;
         } else if ((parentmark != null) && !parentmark.MarkCode.equals(markline.MarkParent)) {
             Dialogue.Error(context, R.string.msg_pack_wrong);
@@ -359,7 +363,7 @@ public class BarcodeProcessor implements Parcelable {
                 }
             }
 
-            if (markline.MarkParent != null) {
+            if (!isNull(markline.MarkParent)) {
                 final int parentpos = findMark(markline.MarkParent);
                 final Markline markparent = marklines.get(parentpos);
                 markparent.Sts = Markline.UNGROUPED;

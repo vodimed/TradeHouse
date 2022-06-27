@@ -13,7 +13,7 @@ public interface Marklines {
     @Query("SELECT * FROM MT_MarkLines")
     DataSource.Factory<Integer, Markline> load();
 
-    @Query("SELECT * FROM MT_MarkLines WHERE DocName = :docName AND (PartIDTH = :partIDTH OR :partIDTH IS NULL)")
+    @Query("SELECT * FROM MT_MarkLines WHERE DocName = :docName AND (PartIDTH = :partIDTH OR :partIDTH = '')")
     DataSource.Factory<Integer, Markline> load(String docName, String partIDTH);
 
     @Query("SELECT * FROM MT_MarkLines WHERE LineID = :ident")

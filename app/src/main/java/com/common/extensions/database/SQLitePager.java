@@ -46,7 +46,11 @@ public abstract class SQLitePager<Value extends Serializable> extends Positional
         } else {
             final String[] strargs = new String[args.length];
             for (int i = 0; i < args.length; i++) {
-                strargs[i] = String.valueOf(args[i]);
+                if (args[i] != null) {
+                    strargs[i] = String.valueOf(args[i]);
+                } else {
+                    strargs[i] = "";
+                }
             }
             return strargs;
         }
