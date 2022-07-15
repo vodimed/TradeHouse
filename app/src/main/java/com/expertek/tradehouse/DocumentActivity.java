@@ -119,7 +119,7 @@ public class DocumentActivity extends Activity {
         @Override
         protected void onBarcodeDetect(String scanned) {
             final int position = processor.add(DocumentActivity.this, new BarcodeMarker(scanned));
-            if (position == BarcodeProcessor.SINGLETON_LIST) {
+            if (position == BarcodeProcessor.LINE_EDITOR) {
                 actionAdd();
             } else if (position != BarcodeProcessor.ERROR_VALUE) {
                 listLine.setItemChecked(position, true);

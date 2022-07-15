@@ -266,7 +266,7 @@ public class PositionActivity extends Activity {
             } else {
                 final BarcodeMarker marker = new BarcodeMarker(((TextView) v).getText().toString());
 
-                if (marker.bc.equals(processor.line.BC)) {
+                if (marker.gtin.equals(processor.line.BC)) {
                     ((TextView) v).setText(processor.line.GoodsName);
                     raise();
                 } else if (processor.updateLine(context, marker)) {

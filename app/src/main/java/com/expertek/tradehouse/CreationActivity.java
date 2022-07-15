@@ -113,12 +113,14 @@ public class CreationActivity extends Activity {
         }
 
         public static String[] createDataSet(Context context, String filter) {
-            final String[] dataset = context.getResources().getStringArray(R.array.document_types);
+            final String creation = context.getResources().getString(R.string.creation_types);
+            final String[] dataset = context.getResources().getStringArray(R.array.invoice_types);
             if (filter == null) filter = "";
+
             int count = 0;
             for (int i = 0; i < dataset.length; i++) {
                 final String code = dataset[i].split("\\|")[0];
-                if (code.endsWith("WB") && (filter.equals("*") || filter.contains(code))) {
+                if (creation.contains(code) && (filter.equals("*") || filter.contains(code))) {
                     dataset[count++] = dataset[i];
                 }
             }

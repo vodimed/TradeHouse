@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 public class BarcodeProcessor implements Parcelable {
     public static final int ERROR_VALUE = -2;
-    public static final int SINGLETON_LIST = -1;
+    public static final int LINE_EDITOR = -1;
     private final DbDictionaries dbc = Application.dictionaries.db();
     private final DBDocuments dbd = Application.documents.db();
     private long markCounter;
@@ -70,10 +70,8 @@ public class BarcodeProcessor implements Parcelable {
 
         protected Markline[] getModified() {
             final Markline[] updates = (Markline[]) Array.newInstance(Markline.class, setter.size());
-            for (int i = 0, idx = 0; i < update.size(); i++) {
-                if (setter.get(update.keyAt(i))) {
-                    updates[idx++] = update.valueAt(i);
-                }
+            for (int i = 0; i < updates.length; i++) {
+                updates[i] = get(setter.keyAt(i));
             }
             return updates;
         }
@@ -92,16 +90,9 @@ public class BarcodeProcessor implements Parcelable {
         }
     }
 
-    public void apply(BarcodeProcessor processor) {
-        assert (this.document.DocName.equals(processor.document.DocName));
-        this.markCounter = processor.markCounter;
-        this.line = processor.line;
-        this.marklines.addAll(processor.marklines);
-    }
-
     protected BarcodeProcessor(Parcel in) {
         this.markCounter = in.readLong();
-        this.lineCounter = SINGLETON_LIST;
+        this.lineCounter = LINE_EDITOR;
         this.document = (Document) in.readSerializable();
         this.parentmark = (Markline) in.readSerializable();
         this.line = (Line) in.readSerializable();
@@ -118,7 +109,14 @@ public class BarcodeProcessor implements Parcelable {
         dest.writeSerializable(document);
         dest.writeSerializable(parentmark);
         dest.writeSerializable(line);
-        dest.writeList(filterModified(!isModeSingle()));
+        dest.writeList(filterModified(!isLineEditor()));
+    }
+
+    public void apply(BarcodeProcessor processor) {
+        assert (this.document.DocName.equals(processor.document.DocName));
+        this.markCounter = processor.markCounter;
+        this.line = processor.line;
+        this.marklines.addAll(processor.marklines);
     }
 
     @Override
@@ -167,8 +165,8 @@ public class BarcodeProcessor implements Parcelable {
         }
     }
 
-    private boolean isModeSingle() {
-        return (lineCounter == SINGLETON_LIST);
+    private boolean isLineEditor() {
+        return (lineCounter == LINE_EDITOR);
     }
 
     public boolean isLineMarked() {
@@ -195,11 +193,11 @@ public class BarcodeProcessor implements Parcelable {
         for (int i = 0; i < lines.size(); i++) {
             if (lines.get(i).PartIDTH.equals(partIDTH)) return i;
         }
-        return SINGLETON_LIST;
+        return LINE_EDITOR;
     }
 
     private int findMark(BarcodeMarker marker) {
-        return findMark(marker.scanned);
+        return findMark(marker.ident);
     }
 
     private int findMark(String scanned) {
@@ -211,7 +209,7 @@ public class BarcodeProcessor implements Parcelable {
                     return i;
             }
         }
-        return SINGLETON_LIST;
+        return LINE_EDITOR;
     }
 
     private String getPartIDTH(BarcodeMarker marker) {
@@ -250,7 +248,7 @@ public class BarcodeProcessor implements Parcelable {
         if ((position >= 0) && (position < lines.size())) {
             line = lines.get(position);
             parentmark = getLineMarker(parentmark, markline);
-        } else if (!isModeSingle()) {
+        } else if (!isLineEditor()) {
             line = null;
             parentmark = null;
         }
@@ -274,7 +272,7 @@ public class BarcodeProcessor implements Parcelable {
     }
 
     public boolean updateLine(@NonNull Context context, @NonNull BarcodeMarker marker) {
-        final Barcode barcode = dbc.barcodes().get(marker.bc);
+        final Barcode barcode = dbc.barcodes().get(marker.gtin);
         if (barcode == null) {
             Dialogue.Error(context, R.string.msg_bar_not_found);
             return false;
@@ -317,7 +315,7 @@ public class BarcodeProcessor implements Parcelable {
 
     private boolean checkMarkline(@NonNull Context context, @Nullable Markline markline, boolean required) {
         if (required && (markline == null)) {
-            Dialogue.Error(context, isModeSingle() ?
+            Dialogue.Error(context, isLineEditor() ?
                     R.string.msg_mark_line_absent :
                     R.string.msg_mark_absent);
             return false;
@@ -335,7 +333,7 @@ public class BarcodeProcessor implements Parcelable {
         } else if (Markline.NOT_CORRECT.equals(markline.Sts)) {
             Dialogue.Error(context, R.string.msg_not_allowed);
             return false;
-        } else if (Markline.GRAY_ZONE.equals(markline.Sts) && !isModeSingle()) {
+        } else if (Markline.GRAY_ZONE.equals(markline.Sts) && !isLineEditor()) {
             Dialogue.Error(context, R.string.msg_grayzone);
             return false;
         } else if ((parentmark == null) && !isNull(markline.MarkParent)) {
@@ -402,7 +400,7 @@ public class BarcodeProcessor implements Parcelable {
             markline.PartIDTH = getPartIDTH(marker);
             markline.Sts = Markline.CR_TSD;
             markline.MarkParent = (parentmark != null ? parentmark.MarkCode : null);
-            markline.BoxQnty = (int) dbc.barcodes().getRate(marker.bc);
+            markline.BoxQnty = marker.weight;
 
             if (!checkMarkline(context, markline, true)) return ERROR_VALUE;
             marklines.add(markline);

@@ -9,11 +9,12 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/textSelector"
+        <EditText
+            android:id="@+id/editSelector"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
+            android:enabled="false"
             android:text="@string/invoice_selector" />
 
         <Spinner

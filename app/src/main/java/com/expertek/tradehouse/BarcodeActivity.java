@@ -104,8 +104,8 @@ public class BarcodeActivity extends Activity {
         @Override
         public void onBarcodeDetect(String scanned) {
             final BarcodeMarker marker = new BarcodeMarker(scanned);
-            editBarcode.setText(marker.bc);
-            displayBarcode(dbc.barcodes().get(marker.bc));
+            editBarcode.setText(marker.gtin);
+            displayBarcode(dbc.barcodes().get(marker.gtin));
          }
     };
 

@@ -28,8 +28,8 @@ public class PagingList<Value> extends AbstractList<Value> implements AdapterInt
     private int size;
     @SuppressWarnings("unchecked") // Java generic restrictions
     private final PagingCache<Value>[] cache = new PagingCache[PagingCache.base];
-    protected final SparseArray<Value> update = new SparseArray<Value>(pagesize);
-    protected final SparseBooleanArray delete = new SparseBooleanArray(pagesize);
+    private final SparseArray<Value> update = new SparseArray<Value>(pagesize);
+    private final SparseBooleanArray delete = new SparseBooleanArray(pagesize);
 
     /**
      * Commit Listener Interface

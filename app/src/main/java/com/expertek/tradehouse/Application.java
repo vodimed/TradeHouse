@@ -35,6 +35,7 @@ public class Application extends android.app.Application {
         return app;
     }
 
+    private static final StringBuilder normal = new StringBuilder(160);
     public Application() {
         super();
         app = this;

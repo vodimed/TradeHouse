@@ -47,7 +47,7 @@ public class Document implements Serializable {
     @NonNull
     public String toString() {
         String documentType = DocType;
-        for (String doctype : Application.app().getResources().getStringArray(R.array.document_types)) {
+        for (String doctype : Application.app().getResources().getStringArray(R.array.invoice_types)) {
             if (doctype.startsWith(documentType)) documentType = doctype.split("\\|")[1];
         }
         return "Документ: " + DocName + ", " + documentType;

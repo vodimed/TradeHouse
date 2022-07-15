@@ -362,7 +362,7 @@ public class InvoicesActivity extends Activity {
 
         private static HashMap<String, Character> fillDocTypes() {
             final String[] document_types = Application.app().
-                    getResources().getStringArray(R.array.document_types);
+                    getResources().getStringArray(R.array.invoice_types);
             final HashMap<String, Character> result =
                     new HashMap<String, Character>(document_types.length);
             for (String doctype : document_types) {
